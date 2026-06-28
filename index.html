@@ -3721,10 +3721,16 @@ function submitInlineFeedback(btn) {
   });
   saveFeedbacks(fb);
   ta.value = '';
-  btn.textContent = '등록 완료!';
-  btn.style.background = 'var(--success)';
-  setTimeout(function() { btn.textContent = '등록'; btn.style.background = ''; }, 2000);
+  go('feedback-board');
 }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey && e.target.classList.contains('fb-inline-ta')) {
+    e.preventDefault();
+    var btn = e.target.closest('.fb-inline').querySelector('button');
+    if (btn) submitInlineFeedback(btn);
+  }
+});
 
 // Page open hooks — wrap go() to trigger data renders
 (function() {
