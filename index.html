@@ -1,3 +1,16 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1b2a36">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="연대지능 아카데미">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a6b5a' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>학</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a6b5a' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>학</text></svg>">
+<meta property="og:title" content="사교원 연대지능활동가 아카데미">
+<meta property="og:description" content="사회혁신교육원 연대지능 활동가 교육 플랫폼 — 교육과정, 위키 기여, 지식 검증 챌린지">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://deka2026.github.io/academy-site/">
 <title>사교원 연대지능활동가 아카데미</title>
 <style>
 :root {
@@ -185,6 +198,22 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
 .fb-inline-label{font-size:12px;color:var(--sub);margin-bottom:4px}
 .fb-inline-link{font-size:12px;color:var(--accent);text-decoration:none;cursor:pointer;margin-left:auto}
 .fb-inline-link:hover{text-decoration:underline}
+
+/* PWA INSTALL MODAL */
+.pwa-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;align-items:center;justify-content:center}
+.pwa-overlay.show{display:flex}
+.pwa-modal{background:#fff;border-radius:14px;padding:28px 24px;max-width:360px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.pwa-modal h3{font-size:17px;font-weight:800;margin-bottom:6px}
+.pwa-modal p{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:14px}
+.pwa-steps{text-align:left;font-size:13px;line-height:1.8;margin:12px 0 16px;padding-left:4px}
+.pwa-steps li{margin:4px 0}
+.pwa-modal .pwa-close{background:var(--accent);color:#fff;border:none;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.pwa-modal .pwa-close:hover{background:var(--accent-hover)}
+.pwa-tab{display:flex;gap:0;margin-bottom:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.pwa-tab button{flex:1;padding:8px;font-size:12px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:#f5f7f8;color:var(--sub)}
+.pwa-tab button.active{background:var(--accent);color:#fff}
+.pwa-guide{display:none;text-align:left}
+.pwa-guide.active{display:block}
 </style>
 
 <!-- INVITE PAGE (shown via 신청 button or invite link) -->
@@ -238,7 +267,45 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
     <button onclick="showInvite()" id="btnApply" style="background:#1a6b5a">교육 신청</button>
     <button onclick="openLoginModal()" id="btnLogin">로그인</button>
     <button onclick="openShareModal()" id="btnShare">링크 공유</button>
+    <button onclick="openPwaModal()" id="btnPwa" style="display:none">설치</button>
     <button onclick="go('access-admin')" id="btnAdmin" style="font-size:11px;opacity:0.7;display:none">관리</button>
+  </div>
+</div>
+
+<!-- PWA INSTALL MODAL -->
+<div class="pwa-overlay" id="pwaOverlay" onclick="if(event.target===this)closePwaModal()">
+  <div class="pwa-modal">
+    <h3>홈 화면에 추가하기</h3>
+    <p>아래 안내를 따라 앱처럼 바로 접속할 수 있어요</p>
+    <div class="pwa-tab">
+      <button class="active" onclick="switchPwaTab('android',this)">안드로이드</button>
+      <button onclick="switchPwaTab('ios',this)">아이폰/아이패드</button>
+      <button onclick="switchPwaTab('pc',this)">PC</button>
+    </div>
+    <div class="pwa-guide active" id="pwa-android">
+      <ol class="pwa-steps">
+        <li>Chrome 브라우저에서 이 페이지를 엽니다</li>
+        <li>오른쪽 상단 <strong>⋮</strong> (더보기) 메뉴 터치</li>
+        <li><strong>"홈 화면에 추가"</strong> 선택</li>
+        <li>이름 확인 후 <strong>"추가"</strong> 터치</li>
+      </ol>
+    </div>
+    <div class="pwa-guide" id="pwa-ios">
+      <ol class="pwa-steps">
+        <li>Safari 브라우저에서 이 페이지를 엽니다</li>
+        <li>하단 <strong>공유 버튼</strong> (□↑) 터치</li>
+        <li><strong>"홈 화면에 추가"</strong> 선택</li>
+        <li>이름 확인 후 <strong>"추가"</strong> 터치</li>
+      </ol>
+    </div>
+    <div class="pwa-guide" id="pwa-pc">
+      <ol class="pwa-steps">
+        <li>Chrome 브라우저에서 이 페이지를 엽니다</li>
+        <li>주소표시줄 오른쪽 <strong>설치 아이콘</strong>(⊕) 클릭</li>
+        <li><strong>"설치"</strong> 클릭</li>
+      </ol>
+    </div>
+    <button class="pwa-close" onclick="closePwaModal()">확인</button>
   </div>
 </div>
 
@@ -276,6 +343,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
   <a href="javascript:void(0)" onclick="go('learning-portfolio',this)">나의 학습 기록</a>
 
   <div class="sec-title">관리</div>
+  <a href="javascript:void(0)" onclick="go('admin-dashboard',this)">품질 리뷰 대시보드</a>
   <a href="javascript:void(0)" onclick="go('access-admin',this)">교육생 관리</a>
   <a href="javascript:void(0)" onclick="go('schedule-mgmt',this)">교육 일정</a>
   <a href="javascript:void(0)" onclick="go('notice-board',this)">공지사항</a>
@@ -907,6 +975,42 @@ API 키를 환경변수에 설정하고,
   <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
   <button onclick="submitInlineFeedback(this)">등록</button>
 </div>
+<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin-dashboard" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">품질 리뷰 대시보드</h2>
+  <p style="color:var(--sub);margin-bottom:16px">전체 검증 활동과 의견 게시판 현황을 한눈에 확인합니다</p>
+  <div id="adm-gate" class="access-gate" style="display:none">
+    <p style="color:var(--sub)">관리자만 접근할 수 있습니다.</p>
+  </div>
+  <div id="adm-area">
+    <div class="stats-grid" id="adm-summary"></div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>검증 참여 현황</h3>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:12px">교육생별 검증 챌린지 참여 기록</p>
+      <div id="adm-user-table" style="overflow-x:auto"></div>
+    </div>
+
+    <div class="card">
+      <h3>문항별 판정 분포</h3>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:8px">3건 이상 검수된 문항만 표시 · 오류 비율 높은 순 정렬</p>
+      <div style="margin-bottom:10px">
+        <button onclick="filterAdmItems('all')" class="fb-filter active" style="font-size:12px">전체</button>
+        <button onclick="filterAdmItems('warn')" class="fb-filter" style="font-size:12px;color:var(--danger)">경고 문항</button>
+        <button onclick="filterAdmItems('ok')" class="fb-filter" style="font-size:12px;color:var(--success)">양호 문항</button>
+      </div>
+      <div id="adm-item-list"></div>
+    </div>
+
+    <div class="card">
+      <h3>의견 게시판 현황</h3>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:12px">카테고리별 의견 수와 최근 등록 현황</p>
+      <div id="adm-fb-summary"></div>
+    </div>
+  </div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -3732,6 +3836,147 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ===== ADMIN DASHBOARD =====
+var _admItems = [];
+function renderAdminDashboard() {
+  if (!isAdmin()) {
+    document.getElementById('adm-gate').style.display = '';
+    document.getElementById('adm-area').style.display = 'none';
+    return;
+  }
+  document.getElementById('adm-gate').style.display = 'none';
+  document.getElementById('adm-area').style.display = '';
+
+  var records = getGameRecords();
+  var fb = getFeedbacks();
+
+  // --- 요약 통계 ---
+  var totalSessions = records.length;
+  var totalAnswers = 0, totalPts = 0;
+  var userSet = {};
+  records.forEach(function(r) {
+    totalPts += r.pts || 0;
+    userSet[r.email] = (userSet[r.email] || 0) + 1;
+    (r.details || []).forEach(function(d) { if (d.choice !== 'skip') totalAnswers++; });
+  });
+  var userCount = Object.keys(userSet).length;
+
+  document.getElementById('adm-summary').innerHTML =
+    '<div class="stat-card"><div class="stat-num">' + userCount + '</div><div class="stat-label">참여 교육생</div></div>' +
+    '<div class="stat-card"><div class="stat-num">' + totalSessions + '</div><div class="stat-label">검증 세션</div></div>' +
+    '<div class="stat-card"><div class="stat-num">' + totalAnswers + '</div><div class="stat-label">총 검수 건</div></div>' +
+    '<div class="stat-card"><div class="stat-num">' + totalPts + '</div><div class="stat-label">총 점수</div></div>' +
+    '<div class="stat-card"><div class="stat-num">' + fb.length + '</div><div class="stat-label">의견 게시판</div></div>';
+
+  // --- 교육생별 테이블 ---
+  var users = Object.keys(userSet);
+  if (users.length) {
+    var thtml = '<table class="contrib-table"><tr><th>교육생</th><th>세션</th><th>검수 건</th><th>점수</th><th>최근 참여</th></tr>';
+    users.sort(function(a,b) { return userSet[b] - userSet[a]; });
+    users.forEach(function(email) {
+      var uRecords = records.filter(function(r) { return r.email === email; });
+      var uAnswers = 0, uPts = 0, lastDate = '';
+      uRecords.forEach(function(r) {
+        uPts += r.pts || 0;
+        if (r.date > lastDate) lastDate = r.date;
+        (r.details || []).forEach(function(d) { if (d.choice !== 'skip') uAnswers++; });
+      });
+      thtml += '<tr><td>' + escHtml(email) + '</td><td>' + uRecords.length + '</td><td>' + uAnswers + '</td><td style="color:var(--accent);font-weight:700">' + uPts + '</td><td>' + lastDate + '</td></tr>';
+    });
+    thtml += '</table>';
+    document.getElementById('adm-user-table').innerHTML = thtml;
+  } else {
+    document.getElementById('adm-user-table').innerHTML = '<p style="color:var(--sub);font-size:13px">아직 검증 참여 기록이 없습니다.</p>';
+  }
+
+  // --- 문항별 판정 분포 ---
+  var stmtMap = {};
+  records.forEach(function(r) {
+    (r.details || []).forEach(function(d) {
+      if (d.choice === 'skip') return;
+      var key = d.statement;
+      if (!stmtMap[key]) stmtMap[key] = { text: d.statement, cat: d.cat || '', good:0, improve:0, error:0, total:0 };
+      var s = stmtMap[key]; s.total++;
+      if (d.choice === 'good') s.good++;
+      else if (d.choice === 'improve') s.improve++;
+      else if (d.choice === 'error') s.error++;
+    });
+  });
+  _admItems = [];
+  var sKeys = Object.keys(stmtMap);
+  for (var i = 0; i < sKeys.length; i++) {
+    var s = stmtMap[sKeys[i]];
+    if (s.total < 3) continue;
+    s.errPct = Math.round(s.error / s.total * 100);
+    s.improvePct = Math.round(s.improve / s.total * 100);
+    s.goodPct = Math.round(s.good / s.total * 100);
+    s.warn = s.errPct >= 40 || s.improvePct >= 50;
+    _admItems.push(s);
+  }
+  _admItems.sort(function(a,b) { return b.errPct - a.errPct; });
+  filterAdmItems('all');
+
+  // --- 의견 게시판 현황 ---
+  var catMap = { feature:'기능 제안', operation:'운영 개선', bug:'오류 신고', general:'자유 의견' };
+  var catCount = { feature:0, operation:0, bug:0, general:0 };
+  var totalReplies = 0, totalLikes = 0;
+  fb.forEach(function(f) {
+    catCount[f.category] = (catCount[f.category] || 0) + 1;
+    totalReplies += (f.replies || []).length;
+    totalLikes += (f.likes || []).length;
+  });
+  var fbhtml = '<div class="stats-grid" style="margin-bottom:14px">';
+  var cats = Object.keys(catMap);
+  for (var c = 0; c < cats.length; c++) {
+    fbhtml += '<div class="stat-card"><div class="stat-num">' + catCount[cats[c]] + '</div><div class="stat-label">' + catMap[cats[c]] + '</div></div>';
+  }
+  fbhtml += '<div class="stat-card"><div class="stat-num">' + totalLikes + '</div><div class="stat-label">공감</div></div>';
+  fbhtml += '<div class="stat-card"><div class="stat-num">' + totalReplies + '</div><div class="stat-label">댓글</div></div>';
+  fbhtml += '</div>';
+
+  if (fb.length) {
+    fbhtml += '<h4 style="font-size:13px;font-weight:700;margin-bottom:6px">최근 의견 (최대 5건)</h4>';
+    fb.slice(0, 5).forEach(function(f) {
+      fbhtml += '<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px">';
+      fbhtml += '<span style="color:var(--accent);font-weight:600">[' + (catMap[f.category] || f.category) + ']</span> ';
+      fbhtml += escHtml(f.content.length > 60 ? f.content.slice(0,60) + '...' : f.content);
+      fbhtml += ' <span style="color:var(--sub);font-size:11px">— ' + escHtml(f.author) + ', ' + f.date + '</span>';
+      fbhtml += '</div>';
+    });
+  }
+  document.getElementById('adm-fb-summary').innerHTML = fbhtml;
+}
+
+function filterAdmItems(type) {
+  var btns = document.querySelectorAll('#admin-dashboard .fb-filter');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  event && event.target && event.target.classList.add('active');
+
+  var list = _admItems;
+  if (type === 'warn') list = _admItems.filter(function(s) { return s.warn; });
+  else if (type === 'ok') list = _admItems.filter(function(s) { return !s.warn; });
+
+  var el = document.getElementById('adm-item-list');
+  if (!list.length) {
+    el.innerHTML = '<p style="color:var(--sub);font-size:13px">' + (_admItems.length ? '해당 조건의 문항이 없습니다.' : '3건 이상 검수된 문항이 아직 없습니다.') + '</p>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(s) {
+    var border = s.warn ? 'border-left:3px solid var(--danger)' : 'border-left:3px solid var(--success)';
+    html += '<div style="padding:10px 14px;margin-bottom:8px;background:#fafbfc;border-radius:6px;' + border + '">';
+    html += '<div style="font-size:13px;font-weight:600;margin-bottom:4px">' + escHtml(s.text.length > 80 ? s.text.slice(0,80) + '...' : s.text) + '</div>';
+    html += '<div style="font-size:12px;color:var(--sub)">';
+    html += '<span style="margin-right:12px">검수 ' + s.total + '건</span>';
+    html += '<span style="color:#2e7d32;margin-right:8px">좋음 ' + s.goodPct + '%</span>';
+    html += '<span style="color:#f57c00;margin-right:8px">보완 ' + s.improvePct + '%</span>';
+    html += '<span style="color:#c62828">오류 ' + s.errPct + '%</span>';
+    if (s.warn) html += ' <span style="background:var(--danger);color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-left:6px">경고</span>';
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
 // Page open hooks — wrap go() to trigger data renders
 (function() {
   var _origGo = go;
@@ -3744,8 +3989,30 @@ document.addEventListener('keydown', function(e) {
     if (id === 'verify-history') { renderVerifyHistory(); }
     if (id === 'verify-report') { renderVerifyReport(); }
     if (id === 'feedback-board') { renderFeedbackBoard(); }
+    if (id === 'admin-dashboard') { renderAdminDashboard(); }
   };
 })();
 
 renderContribPage();
+
+// ===== PWA INSTALL =====
+function openPwaModal() { document.getElementById('pwaOverlay').classList.add('show'); }
+function closePwaModal() { document.getElementById('pwaOverlay').classList.remove('show'); }
+function switchPwaTab(tab, btn) {
+  var tabs = document.querySelectorAll('.pwa-tab button');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var guides = document.querySelectorAll('.pwa-guide');
+  for (var i = 0; i < guides.length; i++) guides[i].classList.remove('active');
+  document.getElementById('pwa-' + tab).classList.add('active');
+}
+
+// 모바일이거나 standalone이 아닌 경우 설치 버튼 표시
+(function() {
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!isStandalone) {
+    var btn = document.getElementById('btnPwa');
+    if (btn) btn.style.display = '';
+  }
+})();
 </script>

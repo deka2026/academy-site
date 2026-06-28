@@ -1,0 +1,17 @@
+{
+  "name": "사교원 연대지능활동가 아카데미",
+  "short_name": "연대지능 아카데미",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7f8",
+  "theme_color": "#1b2a36",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%231a6b5a' width='512' height='512' rx='80'/%3E%3Ctext x='256' y='350' font-size='260' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%ED%95%99%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
