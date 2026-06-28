@@ -177,6 +177,14 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
 .fb-filter button{padding:5px 14px;border-radius:16px;border:1px solid var(--border);background:#fff;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;color:var(--sub)}
 .fb-filter button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .fb-empty{text-align:center;padding:40px 20px;color:var(--sub);font-size:14px}
+.fb-inline{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:24px 0 12px;display:flex;gap:10px;align-items:flex-start}
+.fb-inline textarea{flex:1;min-height:44px;max-height:120px;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;resize:vertical;outline:none}
+.fb-inline textarea:focus{border-color:var(--accent)}
+.fb-inline button{background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:6px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}
+.fb-inline button:hover{background:var(--accent-hover)}
+.fb-inline-label{font-size:12px;color:var(--sub);margin-bottom:4px}
+.fb-inline-link{font-size:12px;color:var(--accent);text-decoration:none;cursor:pointer;margin-left:auto}
+.fb-inline-link:hover{text-decoration:underline}
 </style>
 
 <!-- INVITE PAGE (shown via 신청 button or invite link) -->
@@ -373,6 +381,11 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
   <h3 style="margin:20px 0 8px;font-size:15px;font-weight:700">이 단계를 따라하기 위한 프롬프트</h3>
   <div class="prompt-box">내 컴퓨터에 바이브 코딩 환경을 구축하려고 해.
 전체 구조를 설명해줘: PC 로컬 도구(Node.js, Git, VSCode, Obsidian), AI 도구(Claude Code, CLAUDE.md, Anthropic API), 클라우드 서비스(GitHub, Cloudflare, Supabase, Quartz)가 어떻게 연결되는지 관계도를 그려줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -395,6 +408,11 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
   <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">4</span><span class="step-title">Obsidian 설치</span><span class="step-toggle">&#9662;</span></div>
     <div class="step-body"><p>노트를 작성하는 앱이에요. 여기서 위키 문서를 쓰고, Quartz를 통해 웹에 공개할 수 있어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Obsidian을 설치하고, 위키 작성을 위한 Vault를 만들어줘.
 Quartz와 연동할 수 있도록 content 폴더 구조도 잡아줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -418,6 +436,11 @@ claude --version으로 설치를 확인해줘.
     <div class="step-body"><p>Claude Code가 AI 답변을 만들기 위해 필요한 접속 열쇠예요. 이 열쇠를 등록해야 AI가 동작합니다.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Anthropic API 키를 환경변수에 설정해줘.
 ANTHROPIC_API_KEY를 시스템 환경변수에 등록하고,
 Claude Code에서 정상적으로 API가 연결되는지 테스트해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -445,6 +468,11 @@ content 폴더에 index.md를 작성해줘.
     <div class="step-body"><p>무료 데이터베이스 서비스예요. 표(테이블)를 만든 뒤 접속 열쇠로 정보를 저장하고 불러올 수 있어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Supabase 프로젝트를 생성하고 기본 테이블을 만들어줘.
 API 키를 환경변수에 설정하고,
 간단한 데이터 읽기/쓰기 테스트를 해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -468,6 +496,11 @@ API 키를 환경변수에 설정하고,
 2. Claude Code로 내용을 보완해줘
 3. Git으로 커밋하고 GitHub에 push해줘
 4. 배포 결과를 확인해줘<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -587,6 +620,11 @@ API 키를 환경변수에 설정하고,
       <div id="vh-records" style="font-size:13px;color:var(--sub)">아직 검증 기록이 없습니다.</div>
     </div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -631,6 +669,11 @@ API 키를 환경변수에 설정하고,
     아직 충분한 검수 데이터가 없습니다. 최소 3건 이상 검수된 항목이 있어야 리포트가 생성됩니다.
   </div>
 
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -695,6 +738,11 @@ API 키를 환경변수에 설정하고,
     </div>
   </div>
 
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -743,6 +791,11 @@ API 키를 환경변수에 설정하고,
       <li>동료 활동가의 기록을 검토하고 의견을 나눠 품질을 높인다</li>
     </ul>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -790,6 +843,11 @@ API 키를 환경변수에 설정하고,
       <li><strong>피드백하기</strong> — AI 응답이 현장과 다르면 교정 데이터를 남겨 AI를 개선합니다</li>
     </ul>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -844,6 +902,11 @@ API 키를 환경변수에 설정하고,
     </table>
     </div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -909,6 +972,11 @@ API 키를 환경변수에 설정하고,
     </div>
     <div id="syncResult" style="font-size:12px;margin-top:8px;color:var(--success)"></div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1004,6 +1072,11 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 3. 온톨로지 5가지 질문(클래스 명확성, 속성 충분성, 관계 링크, 사실/의견 구분, 출처 명시)으로 리뷰 코멘트를 작성해줘
 4. gh pr review로 코멘트를 제출해줘<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1167,6 +1240,11 @@ gh pr create --repo deka2026/solidarity-intelligence-wiki 으로 제출해줘.<b
 출처가 되는 위키 문서도 함께 알려줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
       </div></div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1218,6 +1296,11 @@ gh pr create --repo deka2026/solidarity-intelligence-wiki 으로 제출해줘.<b
       <div class="step-body"><p>새로운 활동가를 교육하고, 프로젝트를 주도합니다.</p>
       <ul><li>신규 활동가 멘토링 1인 이상</li><li>성과 발표 1회 이상</li><li>우리 분야 전문 AI 개선 데이터 제공 경험</li></ul></div></div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1331,6 +1414,11 @@ gh pr create --repo deka2026/solidarity-intelligence-wiki 으로 제출해줘.<b
 오늘 [마을/지역]에서 [활동 내용]을 했어.
 [주요 내용과 느낀 점을 자유롭게 작성]<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1381,6 +1469,11 @@ gh pr create --repo deka2026/solidarity-intelligence-wiki 으로 제출해줘.<b
   <div class="prompt-box">내 위키 기여 이력을 바탕으로 성과 발표 자료를 만들어줘.
 gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all 결과를 분석해서
 활동 요약, 주요 성과, 배운 점을 정리해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1431,6 +1524,11 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
       <li>성과 발표 1회 참여</li>
     </ul>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1475,6 +1573,11 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
       <div class="vision-card"><h4>과제 기반 평가</h4><p>시험 대신 실제 위키 활동과 반영 요청 이력으로 학습 성과를 평가해요.</p></div>
     </div>
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1510,6 +1613,11 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
   <div class="highlight-box">
     공지사항은 관리자가 수시로 업데이트합니다.
   </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -3588,6 +3696,34 @@ function renderFeedbackBoard() {
     html += '</div>';
   }
   container.innerHTML = html;
+}
+
+function submitInlineFeedback(btn) {
+  var session = getSession();
+  if (!session || session.role === 'guest') { alert('로그인 후 의견을 등록할 수 있습니다.'); openLoginModal(); return; }
+  var container = btn.closest('.fb-inline');
+  var ta = container.querySelector('textarea');
+  var content = ta.value.trim();
+  if (!content) { alert('내용을 입력해주세요.'); return; }
+  if (content.length < 5) { alert('5자 이상 입력해주세요.'); return; }
+  var activePage = document.querySelector('.page.active');
+  var pageTitle = activePage ? (activePage.querySelector('h2') || {}).textContent || '' : '';
+  var fb = getFeedbacks();
+  fb.unshift({
+    id: Date.now(),
+    author: session.name || session.email,
+    email: session.email,
+    category: 'general',
+    content: '[' + pageTitle + '] ' + content,
+    date: new Date().toISOString().slice(0,10),
+    likes: [],
+    replies: []
+  });
+  saveFeedbacks(fb);
+  ta.value = '';
+  btn.textContent = '등록 완료!';
+  btn.style.background = 'var(--success)';
+  setTimeout(function() { btn.textContent = '등록'; btn.style.background = ''; }, 2000);
 }
 
 // Page open hooks — wrap go() to trigger data renders
