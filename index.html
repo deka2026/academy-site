@@ -245,6 +245,10 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
       <input type="email" id="accessEmail" placeholder="example@email.com">
     </div>
     <div style="text-align:left;margin-bottom:4px">
+      <label style="font-size:13px;font-weight:700;display:block;margin-bottom:3px">비밀번호 <span style="color:var(--danger)">*</span></label>
+      <input type="password" id="accessPw" placeholder="6자 이상">
+    </div>
+    <div style="text-align:left;margin-bottom:4px">
       <label style="font-size:13px;font-weight:700;display:block;margin-bottom:3px">운영 사이트 <span style="color:var(--sub);font-weight:400">(선택)</span></label>
       <input type="url" id="accessSite" placeholder="https://my-wiki.pages.dev">
     </div>
@@ -1009,6 +1013,24 @@ API 키를 환경변수에 설정하고,
       <h3>의견 게시판 현황</h3>
       <p style="font-size:12px;color:var(--sub);margin-bottom:12px">카테고리별 의견 수와 최근 등록 현황</p>
       <div id="adm-fb-summary"></div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <h3>주간 의견 리포트 내보내기</h3>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:12px">선택한 주간의 의견을 Word 문서로 내보냅니다. 각 의견에 Claude 수정 지시용 프롬프트가 포함됩니다.</p>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px">
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:3px">기간 선택</label>
+          <select id="adm-week-select" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit">
+            <option value="this">이번 주</option>
+            <option value="last">지난 주</option>
+            <option value="2w">2주 전</option>
+            <option value="all">전체</option>
+          </select>
+        </div>
+        <button onclick="exportWeeklyReport()" style="background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">Word 내보내기</button>
+      </div>
+      <div id="adm-report-preview" style="font-size:12px;color:var(--sub)"></div>
     </div>
   </div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
@@ -1837,7 +1859,122 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+// ===== SUPABASE INIT =====
+var SB_URL = 'https://gklecgujcoznxyvywnyu.supabase.co';
+var SB_KEY = 'sb_publishable_gedQpfHqmnd1hlGNnrglLw_n5b3f3YN';
+var sb = window.supabase.createClient(SB_URL, SB_KEY);
+var sbReady = false;
+
+// Supabase → localStorage 동기화 (페이지 로드 시)
+async function sbSync() {
+  try {
+    var fbRes = await sb.from('feedback').select('*').order('created_at', { ascending: false });
+    if (fbRes.data && fbRes.data.length) {
+      var fbData = fbRes.data.map(function(r) {
+        return { id: r.id, author: r.author, email: r.email, category: r.category,
+          content: r.content, date: r.date, likes: r.likes || [], replies: r.replies || [] };
+      });
+      localStorage.setItem('academy_feedback', JSON.stringify(fbData));
+    }
+    var vrRes = await sb.from('verify_records').select('*').order('created_at', { ascending: false });
+    if (vrRes.data && vrRes.data.length) {
+      var vrData = vrRes.data.map(function(r) {
+        return { id: r.id, email: r.email, date: r.date, answered: r.answered, pts: r.pts, details: r.details || [] };
+      });
+      localStorage.setItem('academy_verify_game', JSON.stringify(vrData));
+    }
+    var ghRes = await sb.from('github_map').select('*');
+    if (ghRes.data && ghRes.data.length) {
+      var ghMap = {};
+      ghRes.data.forEach(function(r) { ghMap[r.email] = r.github_user; });
+      localStorage.setItem('academy_github_map', JSON.stringify(ghMap));
+    }
+    var wcRes = await sb.from('wiki_contrib').select('*');
+    if (wcRes.data && wcRes.data.length) {
+      var wcData = {};
+      wcRes.data.forEach(function(r) {
+        wcData[r.github_user] = { docs: r.docs, merged: r.merged, reviews: r.reviews,
+          improvements: r.improvements, links: r.links, verifyPts: r.verify_pts, prs: r.prs || [] };
+      });
+      localStorage.setItem('academy_wiki_contrib', JSON.stringify(wcData));
+    }
+    sbReady = true;
+    console.log('[Supabase] 데이터 동기화 완료');
+  } catch (e) {
+    console.warn('[Supabase] 동기화 실패, localStorage 사용:', e.message);
+  }
+}
+
+// Supabase에 피드백 저장 (로컬 저장 후 호출)
+async function sbSaveFeedback(fb) {
+  if (!sbReady) return;
+  try {
+    await sb.from('feedback').delete().neq('id', 0);
+    if (fb.length) {
+      var rows = fb.map(function(f) {
+        return { id: f.id, author: f.author, email: f.email, category: f.category,
+          content: f.content, date: f.date, likes: f.likes || [], replies: f.replies || [] };
+      });
+      await sb.from('feedback').upsert(rows, { onConflict: 'id' });
+    }
+  } catch (e) { console.warn('[Supabase] feedback 저장 실패:', e.message); }
+}
+
+// Supabase에 검증 기록 추가
+async function sbAddVerifyRecord(record) {
+  if (!sbReady) return;
+  try {
+    await sb.from('verify_records').insert({
+      email: record.email, date: record.date, answered: record.answered,
+      pts: record.pts, details: record.details
+    });
+  } catch (e) { console.warn('[Supabase] verify_record 저장 실패:', e.message); }
+}
+
+// Supabase에 GitHub 매핑 저장
+async function sbSaveGithubMap(email, ghUser) {
+  if (!sbReady) return;
+  try {
+    await sb.from('github_map').upsert({ email: email, github_user: ghUser }, { onConflict: 'email' });
+  } catch (e) { console.warn('[Supabase] github_map 저장 실패:', e.message); }
+}
+
+// Supabase에 위키 기여 저장
+async function sbSaveWikiContrib(contrib) {
+  if (!sbReady) return;
+  try {
+    var rows = [];
+    var keys = Object.keys(contrib);
+    for (var i = 0; i < keys.length; i++) {
+      var c = contrib[keys[i]];
+      rows.push({ github_user: keys[i], docs: c.docs||0, merged: c.merged||0, reviews: c.reviews||0,
+        improvements: c.improvements||0, links: c.links||0, verify_pts: c.verifyPts||0, prs: c.prs||[] });
+    }
+    if (rows.length) await sb.from('wiki_contrib').upsert(rows, { onConflict: 'github_user' });
+  } catch (e) { console.warn('[Supabase] wiki_contrib 저장 실패:', e.message); }
+}
+
+// 페이지 로드 시 동기화 시작
+sbSync();
+
+// Supabase 세션 복원
+async function sbCheckAuth() {
+  try {
+    var res = await sb.auth.getSession();
+    if (!res.data.session) return;
+    var email = res.data.session.user.email;
+    var profile = await sb.from('profiles').select('role,name').eq('email', email).single();
+    if (profile.data && profile.data.role && profile.data.role !== 'pending') {
+      setSession({ email: email, name: profile.data.name || email, role: profile.data.role });
+    }
+  } catch (e) { console.warn('[Supabase] 세션 복원 실패:', e.message); }
+}
+sbCheckAuth().then(function() {
+  routePage();
+});
+
 // ROUTING: #invite shows invite page, everything else shows main app
 var PENDING_KEY = 'academy_pending';
 var USERS_KEY = 'academy_users';
@@ -1939,7 +2076,6 @@ function routePage() {
     go(pageId);
   }
 }
-routePage();
 
 // LOGIN
 function openLoginModal() {
@@ -1950,21 +2086,32 @@ function openLoginModal() {
 }
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('show'); }
 
-function doLogin() {
+async function doLogin() {
   var email = document.getElementById('loginEmail').value.trim().toLowerCase();
   var pw = document.getElementById('loginPw').value;
   var err = document.getElementById('loginError');
   if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력하세요.'; return; }
-  var users = getUsers();
-  var user = users[email];
-  if (!user) { err.textContent = '등록되지 않은 이메일입니다.'; return; }
-  if (!user.password) {
-    closeLoginModal();
-    openPwdModal(email);
+
+  err.textContent = '로그인 중...';
+  var res = await sb.auth.signInWithPassword({ email: email, password: pw });
+
+  if (res.error) {
+    err.textContent = res.error.message === 'Invalid login credentials'
+      ? '이메일 또는 비밀번호가 올바르지 않습니다.' : res.error.message;
     return;
   }
-  if (user.password !== pw) { err.textContent = '비밀번호가 일치하지 않습니다.'; return; }
-  setSession({ email: email, name: user.name, role: 'user' });
+
+  var profile = await sb.from('profiles').select('role,name').eq('email', email).single();
+  var role = (profile.data && profile.data.role) || 'pending';
+  var name = (profile.data && profile.data.name) || email;
+
+  if (role === 'pending') {
+    err.textContent = '관리자 승인 대기 중입니다. 승인 후 로그인할 수 있습니다.';
+    await sb.auth.signOut();
+    return;
+  }
+
+  setSession({ email: email, name: name, role: role });
   closeLoginModal();
   showApp();
 }
@@ -1981,18 +2128,22 @@ function toggleAdminLogin() {
     btn.style.display = '';
   }
 }
-function doAdminLogin() {
+async function doAdminLogin() {
   var pw = document.getElementById('adminPwInput').value;
+  var err = document.getElementById('loginError');
+
   if (pw === ADMIN_PW) {
     setSession({ email: 'admin', name: '관리자', role: 'admin' });
     closeLoginModal();
     showApp();
-  } else {
-    document.getElementById('loginError').textContent = '관리자 비밀번호가 올바르지 않습니다.';
+    return;
   }
+
+  err.textContent = '관리자 비밀번호가 올바르지 않습니다.';
 }
 
-function logout() {
+async function logout() {
+  await sb.auth.signOut();
   localStorage.removeItem(SESSION_KEY);
   showApp();
   go('home');
@@ -2025,103 +2176,162 @@ function savePwd() {
   }
 }
 
-function requestAccess() {
+async function requestAccess() {
   var name = document.getElementById('accessName').value.trim();
   var region = document.getElementById('accessRegion').value.trim();
   var phone = document.getElementById('accessPhone').value.trim();
   var email = document.getElementById('accessEmail').value.trim().toLowerCase();
+  var pw = document.getElementById('accessPw').value;
   var site = document.getElementById('accessSite').value.trim();
 
-  if (!name || !region || !phone || !email) {
-    alert('이름, 활동지역, 전화번호, 이메일은 필수 입력 항목입니다.');
+  if (!name || !region || !phone || !email || !pw) {
+    alert('이름, 활동지역, 전화번호, 이메일, 비밀번호는 필수 입력 항목입니다.');
+    return;
+  }
+  if (pw.length < 6) { alert('비밀번호는 6자 이상이어야 합니다.'); return; }
+
+  var s = document.getElementById('accessStatus');
+  s.className = ''; s.innerHTML = '<p style="color:var(--sub)">신청 처리 중...</p>';
+
+  var res = await sb.auth.signUp({
+    email: email, password: pw,
+    options: { data: { name: name, region: region, phone: phone, site: site } }
+  });
+
+  if (res.error) {
+    if (res.error.message.includes('already registered')) {
+      s.className = 'access-status'; s.innerHTML = '<span style="color:var(--danger)">이미 등록된 이메일입니다. 로그인해주세요.</span>';
+    } else {
+      s.className = 'access-status'; s.innerHTML = '<span style="color:var(--danger)">오류: ' + escHtml(res.error.message) + '</span>';
+    }
     return;
   }
 
-  var pending = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
-  var dup = pending.some(function(p) { return p.email.toLowerCase() === email; });
-  if (dup) { alert('이미 신청된 이메일입니다.'); return; }
-  var users = getUsers();
-  if (users[email]) { alert('이미 등록된 이메일입니다. 로그인해주세요.'); return; }
+  await sb.auth.signOut();
 
-  pending.push({name: name, region: region, phone: phone, email: email, site: site, date: new Date().toISOString()});
-  localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
-
-  var s = document.getElementById('accessStatus');
   s.className = 'access-status pending';
-  s.innerHTML = '<strong>신청 완료!</strong> 관리자 승인을 기다리고 있습니다. 승인되면 이메일로 안내를 받습니다.';
+  s.innerHTML = '<strong>신청 완료!</strong> 관리자 승인을 기다리고 있습니다. 승인 후 로그인할 수 있습니다.';
 }
 
-function renderPending() {
-  var pending = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+var _sbPending = [];
+async function renderPending() {
   var el = document.getElementById('pendingList');
-  if (!pending.length) { el.textContent = '현재 대기 중인 신청이 없습니다.'; return; }
-  el.innerHTML = pending.map(function(p, i) {
+  el.textContent = '불러오는 중...';
+  var res = await sb.from('profiles').select('*').eq('role', 'pending');
+  _sbPending = res.data || [];
+
+  // localStorage 대기자도 합침 (기존 데이터 호환)
+  var localPending = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+  var allPending = _sbPending.map(function(p) {
+    var meta = {};
+    // auth.users의 raw_user_meta_data에서 추가 정보 가져옴
+    return { email: p.email, name: p.name || p.email, region: meta.region || '', phone: meta.phone || '', site: meta.site || '', sbId: p.id, source: 'supabase' };
+  });
+  localPending.forEach(function(p) {
+    if (!allPending.some(function(a) { return a.email === p.email; })) {
+      p.source = 'local';
+      allPending.push(p);
+    }
+  });
+
+  if (!allPending.length) { el.textContent = '현재 대기 중인 신청이 없습니다.'; return; }
+  el.innerHTML = allPending.map(function(p, i) {
     var siteHtml = p.site ? '<br><span style="color:var(--sub);font-size:12px">사이트: ' + escHtml(p.site) + '</span>' : '';
+    var srcBadge = p.source === 'supabase' ? '<span style="font-size:10px;color:var(--accent);margin-left:4px">[인증됨]</span>' : '';
     return '<div style="padding:12px 0;border-bottom:1px solid var(--border)">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
       + '<div>'
-      + '<strong>' + escHtml(p.name) + '</strong>'
+      + '<strong>' + escHtml(p.name) + '</strong>' + srcBadge
       + '<br><span style="font-size:12px;color:var(--sub)">' + escHtml(p.region || '지역 미기재') + ' | ' + escHtml(p.phone || '번호 미기재') + '</span>'
       + '<br><span style="font-size:12px">' + escHtml(p.email) + '</span>'
       + siteHtml
       + '</div>'
       + '<div style="display:flex;gap:4px;flex-shrink:0;margin-left:12px;margin-top:2px">'
       + '<button onclick="approveUser('+i+')" style="background:var(--accent);color:#fff;border:none;padding:5px 12px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:700">승인</button>'
-      + '<button onclick="openMsgModal('+i+')" style="background:var(--warn);color:#fff;border:none;padding:5px 12px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:700">수정요청</button>'
       + '<button onclick="rejectUser('+i+')" style="background:var(--danger);color:#fff;border:none;padding:5px 12px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:700">거절</button>'
       + '</div></div></div>';
   }).join('');
 }
 
-function approveUser(i) {
-  var pending = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
-  var user = pending.splice(i, 1)[0];
-  localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+async function approveUser(i) {
+  var el = document.getElementById('pendingList');
+  var allPending = [];
+  // 현재 표시된 목록 재구성
+  var sbP = _sbPending.map(function(p) { return { email: p.email, name: p.name || p.email, sbId: p.id, source: 'supabase' }; });
+  var localP = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]').filter(function(p) {
+    return !sbP.some(function(s) { return s.email === p.email; });
+  }).map(function(p) { p.source = 'local'; return p; });
+  allPending = sbP.concat(localP);
+  var user = allPending[i];
+  if (!user) return;
 
-  var users = getUsers();
-  users[user.email.toLowerCase()] = {
-    name: user.name, region: user.region, phone: user.phone,
-    email: user.email, site: user.site || '', password: null,
-    approved: true, date: user.date
-  };
-  saveUsers(users);
+  if (user.source === 'supabase') {
+    await sb.from('profiles').update({ role: 'user' }).eq('id', user.sbId);
+  } else {
+    var lp = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+    lp = lp.filter(function(p) { return p.email !== user.email; });
+    localStorage.setItem(PENDING_KEY, JSON.stringify(lp));
+    var users = getUsers();
+    users[user.email.toLowerCase()] = { name: user.name, email: user.email, approved: true };
+    saveUsers(users);
+  }
 
+  alert((user.name || user.email) + '님이 승인되었습니다.');
+  renderPending();
   renderApproved();
-  renderPending();
-  alert(user.name + '님이 승인되었습니다. 해당 사용자가 사이트에 접속하면 비밀번호를 설정할 수 있습니다.');
 }
 
-function rejectUser(i) {
+async function rejectUser(i) {
   if (!confirm('이 신청을 거절하시겠습니까?')) return;
-  var pending = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
-  var user = pending.splice(i, 1)[0];
-  localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
-  renderPending();
+  var sbP = _sbPending.map(function(p) { return { email: p.email, name: p.name, sbId: p.id, source: 'supabase' }; });
+  var localP = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]').filter(function(p) {
+    return !sbP.some(function(s) { return s.email === p.email; });
+  }).map(function(p) { p.source = 'local'; return p; });
+  var allPending = sbP.concat(localP);
+  var user = allPending[i];
+  if (!user) return;
 
-  var subject = encodeURIComponent('[사교원 아카데미] 교육 신청이 반려되었습니다');
-  var body = encodeURIComponent(user.name + '님, 안녕하세요.\n\n교육 신청이 반려되었습니다.\n문의사항은 sakyowon@sakyowon.co.kr로 연락해주세요.\n\n사회혁신교육원');
-  window.open('mailto:' + user.email + '?subject=' + subject + '&body=' + body);
+  if (user.source === 'supabase') {
+    await sb.from('profiles').delete().eq('id', user.sbId);
+  } else {
+    var lp = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+    lp = lp.filter(function(p) { return p.email !== user.email; });
+    localStorage.setItem(PENDING_KEY, JSON.stringify(lp));
+  }
+  renderPending();
 }
 
-function renderApproved() {
+async function renderApproved() {
   var el = document.getElementById('approvedList');
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
-    + '<span>데카 (김일영) — 전국 — sakyowon@sakyowon.co.kr</span>'
-    + '<span style="color:var(--success);font-weight:700;font-size:12px">관리자</span></div>';
+  var res = await sb.from('profiles').select('*').in('role', ['user', 'admin']).order('created_at');
+  var profiles = res.data || [];
+  var ghMap = getGhMap();
+
+  var html = '';
+  if (!profiles.some(function(p) { return p.role === 'admin'; })) {
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
+      + '<span>데카 (김일영) — 전국 — sakyowon@sakyowon.co.kr</span>'
+      + '<span style="color:var(--success);font-weight:700;font-size:12px">관리자</span></div>';
+  }
+  profiles.forEach(function(p) {
+    var roleBadge = p.role === 'admin' ? '<span style="color:var(--success);font-weight:700;font-size:12px">관리자</span>' : '<span style="color:var(--accent);font-weight:700;font-size:12px">활성</span>';
+    var ghTag = ghMap[p.email] ? ' | <span style="font-size:12px;color:var(--accent)">@' + escHtml(ghMap[p.email]) + '</span>' : '';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
+      + '<span>' + escHtml(p.name || p.email) + ' — ' + escHtml(p.email) + ghTag + '</span>'
+      + roleBadge + '</div>';
+  });
+
+  // localStorage 기존 사용자도 표시
   var users = getUsers();
   Object.keys(users).forEach(function(email) {
+    if (profiles.some(function(p) { return p.email === email; })) return;
     var u = users[email];
     if (!u.approved) return;
-    var siteTag = u.site ? ' | <a href="' + escHtml(u.site) + '" target="_blank" style="color:var(--accent);font-size:12px">사이트</a>' : '';
-    var pwStatus = u.password ? '활성' : '비밀번호 미설정';
-    var pwColor = u.password ? 'var(--success)' : 'var(--warn)';
-    var ghMap = getGhMap();
-    var ghTag = ghMap[email] ? ' | <span style="font-size:12px;color:var(--accent)">@' + escHtml(ghMap[email]) + '</span>' : '';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">'
-      + '<span>' + escHtml(u.name) + ' — ' + escHtml(u.region || '') + ' — ' + escHtml(u.email) + ghTag + siteTag + '</span>'
-      + '<span style="color:' + pwColor + ';font-weight:700;font-size:12px">' + pwStatus + '</span></div>';
+      + '<span>' + escHtml(u.name) + ' — ' + escHtml(u.email) + ' <span style="font-size:10px;color:var(--sub)">[로컬]</span></span>'
+      + '<span style="color:var(--warn);font-weight:700;font-size:12px">로컬전용</span></div>';
   });
-  el.innerHTML = html;
+  el.innerHTML = html || '<p style="color:var(--sub)">승인된 교육생이 없습니다.</p>';
 }
 
 // MESSAGE MODAL
@@ -2651,6 +2861,7 @@ function linkGitHub() {
   var map = getGhMap();
   map[email.toLowerCase()] = ghUser;
   saveGhMap(map);
+  sbSaveGithubMap(email.toLowerCase(), ghUser);
   document.getElementById('ghLinkUser').value = '';
   renderGhLinks();
   renderApproved();
@@ -2730,6 +2941,7 @@ function syncWikiData() {
 
   contrib._syncTime = new Date().toLocaleString('ko-KR');
   saveContrib(contrib);
+  sbSaveWikiContrib(contrib);
 
   resultEl.style.color = 'var(--success)';
   resultEl.textContent = '데이터 맞추기 완료! 반영 요청 ' + prs.length + '건, 검토 ' + reviews.length + '건 반영됨. (' + contrib._syncTime + ')';
@@ -3416,14 +3628,16 @@ function finishGame() {
     var records = getGameRecords();
     var now = new Date();
     var dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-    records.push({
+    var newRecord = {
       email: session.email,
       date: dateStr,
       answered: answered,
       pts: gameState.pts,
       details: gameState.answers
-    });
+    };
+    records.push(newRecord);
     saveGameRecords(records);
+    sbAddVerifyRecord(newRecord);
 
     var ghUser = emailToGh(session.email);
     if (ghUser) {
@@ -3431,6 +3645,7 @@ function finishGame() {
       if (!contrib[ghUser]) contrib[ghUser] = {docs:0, merged:0, reviews:0, improvements:0, links:0, verifyPts:0, prs:[]};
       contrib[ghUser].verifyPts = (contrib[ghUser].verifyPts || 0) + gameState.pts;
       localStorage.setItem(CONTRIB_KEY, JSON.stringify(contrib));
+      sbSaveWikiContrib(contrib);
     }
   }
 }
@@ -3653,7 +3868,7 @@ var FB_KEY = 'academy_feedback';
 var fbFilter = 'all';
 
 function getFeedbacks() { return JSON.parse(localStorage.getItem(FB_KEY) || '[]'); }
-function saveFeedbacks(arr) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); }
+function saveFeedbacks(arr) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); sbSaveFeedback(arr); }
 
 function submitFeedback() {
   var session = getSession();
@@ -3975,6 +4190,145 @@ function filterAdmItems(type) {
     html += '</div></div>';
   });
   el.innerHTML = html;
+}
+
+// ===== WEEKLY REPORT EXPORT =====
+function getWeekRange(offset) {
+  var now = new Date();
+  var day = now.getDay() || 7;
+  var mon = new Date(now); mon.setDate(now.getDate() - day + 1 + (offset * 7));
+  var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  return { start: fmtDate(mon), end: fmtDate(sun) };
+}
+function fmtDate(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+function exportWeeklyReport() {
+  if (!isAdmin()) { alert('관리자만 사용할 수 있습니다.'); return; }
+  var sel = document.getElementById('adm-week-select').value;
+  var range, label;
+  if (sel === 'this') { range = getWeekRange(0); label = '이번 주'; }
+  else if (sel === 'last') { range = getWeekRange(-1); label = '지난 주'; }
+  else if (sel === '2w') { range = getWeekRange(-2); label = '2주 전'; }
+  else { range = null; label = '전체'; }
+
+  var fb = getFeedbacks();
+  var filtered;
+  if (range) {
+    filtered = fb.filter(function(f) { return f.date >= range.start && f.date <= range.end; });
+  } else {
+    filtered = fb.slice();
+  }
+
+  if (!filtered.length) {
+    document.getElementById('adm-report-preview').innerHTML = '<span style="color:var(--danger)">해당 기간에 등록된 의견이 없습니다.</span>';
+    return;
+  }
+
+  var catMap = { feature:'기능 제안', operation:'운영 개선', bug:'오류 신고', general:'자유 의견' };
+  var dateRange = range ? range.start + ' ~ ' + range.end : '전체 기간';
+
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
+  html += '<head><meta charset="utf-8"><title>주간 의견 리포트</title>';
+  html += '<style>';
+  html += 'body{font-family:"맑은 고딕",sans-serif;font-size:11pt;color:#1b2a36;line-height:1.7;margin:40px}';
+  html += 'h1{font-size:18pt;color:#1a6b5a;border-bottom:2px solid #1a6b5a;padding-bottom:6px;margin-bottom:12px}';
+  html += 'h2{font-size:14pt;color:#1b2a36;margin-top:24px;margin-bottom:8px}';
+  html += 'h3{font-size:12pt;color:#1a6b5a;margin-top:16px;margin-bottom:4px}';
+  html += '.meta{font-size:9pt;color:#5a7282;margin-bottom:4px}';
+  html += '.item{border:1px solid #d4dce2;border-radius:6px;padding:14px;margin-bottom:14px;page-break-inside:avoid}';
+  html += '.item-header{display:flex;justify-content:space-between;margin-bottom:6px}';
+  html += '.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:9pt;font-weight:bold;color:#fff}';
+  html += '.badge-feature{background:#1a6b5a}';
+  html += '.badge-operation{background:#1565c0}';
+  html += '.badge-bug{background:#c62828}';
+  html += '.badge-general{background:#5a7282}';
+  html += '.content{font-size:11pt;margin:8px 0}';
+  html += '.prompt-box{background:#f5f7f8;border:1px solid #d4dce2;border-left:3px solid #1a6b5a;padding:12px;margin-top:10px;font-family:"D2Coding",Consolas,monospace;font-size:9.5pt;line-height:1.6;white-space:pre-wrap;word-break:break-word}';
+  html += '.prompt-label{font-size:9pt;font-weight:bold;color:#1a6b5a;margin-bottom:4px}';
+  html += '.replies{margin-top:8px;padding-left:16px;border-left:2px solid #e0e0e0}';
+  html += '.reply{font-size:10pt;color:#5a7282;margin-bottom:4px}';
+  html += '.summary-table{border-collapse:collapse;width:100%;margin:12px 0}';
+  html += '.summary-table th{background:#1b2a36;color:#fff;padding:8px 12px;text-align:left;font-size:10pt}';
+  html += '.summary-table td{padding:7px 12px;border-bottom:1px solid #d4dce2;font-size:10pt}';
+  html += '.footer{margin-top:30px;padding-top:12px;border-top:1px solid #d4dce2;font-size:9pt;color:#5a7282}';
+  html += '</style></head><body>';
+
+  html += '<h1>아카데미 사이트 주간 의견 리포트</h1>';
+  html += '<p class="meta">기간: ' + dateRange + ' | 생성일: ' + fmtDate(new Date()) + ' | 총 ' + filtered.length + '건</p>';
+
+  // 요약 테이블
+  var catCounts = { feature:0, operation:0, bug:0, general:0 };
+  filtered.forEach(function(f) { catCounts[f.category] = (catCounts[f.category]||0) + 1; });
+  html += '<h2>요약</h2>';
+  html += '<table class="summary-table">';
+  html += '<tr><th>카테고리</th><th>건수</th><th>비율</th></tr>';
+  var cats = ['feature','operation','bug','general'];
+  cats.forEach(function(c) {
+    var pct = filtered.length ? Math.round(catCounts[c] / filtered.length * 100) : 0;
+    html += '<tr><td>' + catMap[c] + '</td><td>' + catCounts[c] + '건</td><td>' + pct + '%</td></tr>';
+  });
+  html += '</table>';
+
+  // 카테고리별 의견 목록
+  cats.forEach(function(cat) {
+    var items = filtered.filter(function(f) { return f.category === cat; });
+    if (!items.length) return;
+    html += '<h2>' + catMap[cat] + ' (' + items.length + '건)</h2>';
+    items.forEach(function(f, idx) {
+      var badgeClass = 'badge-' + cat;
+      var pageMatch = f.content.match(/^\[(.+?)\]\s*/);
+      var pageName = pageMatch ? pageMatch[1] : '(직접 게시판 작성)';
+      var contentClean = pageMatch ? f.content.replace(/^\[.+?\]\s*/, '') : f.content;
+
+      html += '<div class="item">';
+      html += '<div class="item-header"><span class="badge ' + badgeClass + '">' + catMap[cat] + '</span><span class="meta">#' + (idx+1) + '</span></div>';
+      html += '<p class="meta">작성자: ' + escHtml(f.author) + ' | 날짜: ' + f.date + ' | 페이지: ' + escHtml(pageName) + '</p>';
+      html += '<div class="content">' + escHtml(contentClean) + '</div>';
+
+      // 댓글
+      if (f.replies && f.replies.length) {
+        html += '<div class="replies">';
+        f.replies.forEach(function(r) {
+          html += '<div class="reply"><strong>' + escHtml(r.author) + '</strong> (' + r.date + '): ' + escHtml(r.content) + '</div>';
+        });
+        html += '</div>';
+      }
+
+      // 프롬프트
+      var prompt = '아카데미 사이트를 수정해줘.\n\n';
+      prompt += '■ 의견 유형: ' + catMap[cat] + '\n';
+      prompt += '■ 관련 페이지: ' + pageName + '\n';
+      prompt += '■ 의견 내용:\n' + contentClean + '\n\n';
+      if (cat === 'bug') {
+        prompt += '■ 요청 사항:\n위 오류를 확인하고 수정해줘. 수정 전후를 비교해서 알려줘.\n';
+      } else if (cat === 'feature') {
+        prompt += '■ 요청 사항:\n위 기능 제안을 검토하고 구현해줘. 구현 범위가 크면 단계별로 나눠서 진행해줘.\n';
+      } else if (cat === 'operation') {
+        prompt += '■ 요청 사항:\n위 운영 개선 의견을 반영해줘. UI/UX 변경이 필요하면 함께 수정해줘.\n';
+      } else {
+        prompt += '■ 요청 사항:\n위 의견을 검토하고, 반영할 수 있는 부분을 수정해줘.\n';
+      }
+      prompt += '\n※ 수정 후 GitHub Pages에 배포하고 변경 내역을 알려줘.';
+
+      html += '<div class="prompt-label">Claude 수정 지시 프롬프트 (복사하여 사용)</div>';
+      html += '<div class="prompt-box">' + escHtml(prompt) + '</div>';
+      html += '</div>';
+    });
+  });
+
+  html += '<div class="footer">이 리포트는 아카데미 사이트 품질 리뷰 대시보드에서 자동 생성되었습니다.<br>';
+  html += '프롬프트를 복사하여 Claude에게 붙여넣으면 해당 의견에 대한 수정 작업을 지시할 수 있습니다.</div>';
+  html += '</body></html>';
+
+  var blob = new Blob(['﻿' + html], { type: 'application/msword' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var fileName = '아카데미_주간의견_' + (range ? range.start + '_' + range.end : '전체') + '.doc';
+  a.href = url; a.download = fileName; a.click();
+  URL.revokeObjectURL(url);
+
+  document.getElementById('adm-report-preview').innerHTML =
+    '<span style="color:var(--success)">' + filtered.length + '건의 의견을 <strong>' + escHtml(fileName) + '</strong>으로 내보냈습니다.</span>';
 }
 
 // Page open hooks — wrap go() to trigger data renders
