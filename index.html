@@ -42,7 +42,11 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
 
 /* LAYOUT */
 .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 42px)}
-@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;top:42px;left:0;width:260px;height:calc(100vh - 42px);z-index:150;box-shadow:4px 0 20px rgba(0,0,0,0.15)}.sidebar.open{display:block}}
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
+@media(max-width:768px){.hamburger{display:block}}
+.sidebar-overlay{display:none;position:fixed;inset:0;top:42px;background:rgba(0,0,0,0.3);z-index:140}
+.sidebar-overlay.show{display:block}
 
 /* SIDEBAR */
 .sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;max-height:calc(100vh - 42px);position:sticky;top:42px}
@@ -261,6 +265,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
 <div id="app">
 
 <div class="topbar">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="메뉴">&#9776;</button>
   <h1>사교원 연대지능활동가 아카데미</h1>
   <div class="topbar-actions">
     <div id="loginBar" class="login-bar" style="display:none">
@@ -351,6 +356,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
   <a href="javascript:void(0)" onclick="go('schedule-mgmt',this)">교육 일정</a>
   <a href="javascript:void(0)" onclick="go('notice-board',this)">공지사항</a>
 </nav>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <!-- MAIN CONTENT -->
 <div class="main">
@@ -1978,7 +1984,8 @@ sbCheckAuth().then(function() {
 var PENDING_KEY = 'academy_pending';
 var USERS_KEY = 'academy_users';
 var SESSION_KEY = 'academy_session';
-var ADMIN_PW = '2026';
+var ADMIN_HASH = '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab';
+async function hashPw(pw){var enc=new TextEncoder().encode(pw);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
 
 function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); }
 function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
@@ -2131,7 +2138,8 @@ async function doAdminLogin() {
   var pw = document.getElementById('adminPwInput').value;
   var err = document.getElementById('loginError');
 
-  if (pw === ADMIN_PW) {
+  var h = await hashPw(pw);
+  if (h === ADMIN_HASH) {
     setSession({ email: 'admin', name: '관리자', role: 'admin' });
     closeLoginModal();
     showApp();
@@ -2358,6 +2366,20 @@ function sendMsgEmail() {
   document.getElementById('msgResult').textContent = '메일 앱이 열렸습니다.';
 }
 
+// MOBILE SIDEBAR TOGGLE
+function toggleSidebar(){
+  var sb=document.querySelector('.sidebar');
+  var ov=document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeSidebar(){
+  var sb=document.querySelector('.sidebar');
+  var ov=document.getElementById('sidebarOverlay');
+  sb.classList.remove('open');
+  ov.classList.remove('show');
+}
+
 // NAVIGATION
 var navHistory = ['home'];
 
@@ -2387,6 +2409,7 @@ function goNoHistory(id) {
 }
 
 function go(id, link) {
+  closeSidebar();
   var adminPages = ['access-admin','schedule-mgmt','notice-board'];
   var userPages = ['contributions','performance-share','learning-portfolio','verify-game','verify-history'];
   var role = currentRole();
