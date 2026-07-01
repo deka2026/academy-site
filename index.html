@@ -29,34 +29,44 @@
   --chat-user: #e6f3ef;
   --chat-ai: #f0f2f4;
   --radius: 8px;
+  --topbar-h: 42px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;font-size:14px}
+/* ACCESSIBILITY: visible keyboard focus ring (keyboard users only, no change for mouse/touch clicks) */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var(--accent)}
 
 /* NAV */
-.topbar{background:var(--ink);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.topbar{background:var(--ink);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 0;position:sticky;top:0;z-index:200}
 .topbar h1{font-size:15px;font-weight:700;letter-spacing:-0.01em}
-.topbar-actions{display:flex;gap:8px}
+.topbar-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .topbar-actions button{background:rgba(255,255,255,0.12);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:background .15s}
 .topbar-actions button:hover{background:rgba(255,255,255,0.22)}
+@media(max-width:768px){.topbar-actions button{padding:8px 12px;min-height:36px}}
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 42px)}
-@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;top:42px;left:0;width:260px;height:calc(100vh - 42px);z-index:150;box-shadow:4px 0 20px rgba(0,0,0,0.15)}.sidebar.open{display:block}}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - var(--topbar-h))}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;top:var(--topbar-h);left:0;width:260px;height:calc(100vh - var(--topbar-h));z-index:150;box-shadow:4px 0 20px rgba(0,0,0,0.15)}.sidebar.open{display:block}}
 .hamburger{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
 @media(max-width:768px){.hamburger{display:block}}
-.sidebar-overlay{display:none;position:fixed;inset:0;top:42px;background:rgba(0,0,0,0.3);z-index:140}
+.sidebar-overlay{display:none;position:fixed;inset:0;top:var(--topbar-h);background:rgba(0,0,0,0.3);z-index:140}
 .sidebar-overlay.show{display:block}
 
 /* SIDEBAR */
-.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;max-height:calc(100vh - 42px);position:sticky;top:42px}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;max-height:calc(100vh - var(--topbar-h));position:sticky;top:var(--topbar-h)}
+/* NOTE: on mobile the .sidebar rule above (position:sticky) would otherwise win the
+   cascade over the earlier @media block (same specificity, declared later wins),
+   silently breaking the fixed slide-out menu. This re-applies position:fixed for
+   mobile so the hamburger menu overlays content correctly instead of sitting inline. */
+@media(max-width:768px){.sidebar{position:fixed;max-height:none;height:calc(100vh - var(--topbar-h))}}
 .sidebar .sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--sub);padding:12px 16px 4px}
 .sidebar a{display:block;padding:7px 16px 7px 24px;font-size:13px;color:var(--ink);text-decoration:none;border-left:3px solid transparent;transition:all .12s}
 .sidebar a:hover{background:var(--accent-light);color:var(--accent)}
 .sidebar a.active{border-left-color:var(--accent);color:var(--accent);font-weight:700;background:var(--accent-light)}
 
 /* MAIN */
-.main{padding:24px 32px 60px;max-width:820px;overflow-y:auto;max-height:calc(100vh - 42px)}
+.main{padding:24px 32px 60px;max-width:820px;overflow-y:auto;max-height:calc(100vh - var(--topbar-h))}
 @media(max-width:768px){.main{padding:16px}}
 
 /* PAGES */
@@ -222,7 +232,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
 
 <!-- INVITE PAGE (shown via 신청 button or invite link) -->
 <div id="accessGate" class="access-gate" style="display:none">
-  <div style="background:linear-gradient(135deg,#1a6b5a 0%,#1b2a36 100%);color:#fff;padding:36px 28px;border-radius:14px;max-width:440px;margin:0 auto 28px;text-align:left">
+  <div style="background:linear-gradient(135deg,var(--accent) 0%,var(--ink) 100%);color:#fff;padding:36px 28px;border-radius:14px;max-width:440px;margin:0 auto 28px;text-align:left">
     <p style="font-size:13px;letter-spacing:0.08em;opacity:0.75;margin:0 0 12px">사회혁신교육원 · 연대지능활동가 아카데미</p>
     <h2 style="font-size:24px;font-weight:800;margin:0 0 16px;line-height:1.35">현장의 지혜를 기록하고,<br>연결하는 사람이 되어주세요.</h2>
     <p style="font-size:15px;line-height:1.75;margin:0;color:#d4f0e8">AI와 함께 지역의 이야기를 위키에 남기고, 동료 활동가와 지식을 나누는 여정에 초대합니다.</p>
@@ -272,7 +282,7 @@ body{font-family:'Malgun Gothic','맑은 고딕',-apple-system,sans-serif;color:
       <strong id="loginName"></strong>
       <button onclick="logout()">로그아웃</button>
     </div>
-    <button onclick="showInvite()" id="btnApply" style="background:#1a6b5a">교육 신청</button>
+    <button onclick="showInvite()" id="btnApply" style="background:var(--accent)">교육 신청</button>
     <button onclick="openLoginModal()" id="btnLogin">로그인</button>
     <button onclick="openShareModal()" id="btnShare">링크 공유</button>
     <button onclick="openPwaModal()" id="btnPwa" style="display:none">설치</button>
@@ -654,7 +664,7 @@ API 키를 환경변수에 설정하고,
         <h3 style="margin-bottom:8px">검수 완료!</h3>
         <p id="game-final-score" style="font-size:16px;margin-bottom:12px"></p>
         <div id="game-final-stats" style="margin-bottom:16px"></div>
-        <button onclick="startNewGame()" style="padding:10px 28px;background:var(--main);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">새 챌린지 시작</button>
+        <button onclick="startNewGame()" style="padding:10px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">새 챌린지 시작</button>
       </div>
     </div>
   </div>
@@ -799,7 +809,7 @@ API 키를 환경변수에 설정하고,
     <h3>2단계: AI의 답변을 여기에 붙여넣으세요</h3>
     <p style="margin-bottom:10px">AI가 점검한 결과를 그대로 복사해서 아래에 붙여넣고 <strong>진단하기</strong> 버튼을 누르세요.</p>
     <textarea id="diag-input" style="width:100%;min-height:180px;padding:12px;border:1.5px solid #d0d0d0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="AI의 답변을 여기에 붙여넣으세요...&#10;&#10;예시:&#10;---진단결과---&#10;1. Node.js: ✅ v24.16.0&#10;2. Git: ✅ v2.54.0&#10;..."></textarea>
-    <button onclick="runDiagnosis()" style="margin-top:10px;padding:10px 28px;background:var(--main);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">진단하기</button>
+    <button onclick="runDiagnosis()" style="margin-top:10px;padding:10px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">진단하기</button>
   </div>
 
   <div id="diag-result" style="display:none">
@@ -940,7 +950,7 @@ API 키를 환경변수에 설정하고,
     <div class="stat-card"><div class="stat-num" id="csTotalReview">0</div><div class="stat-label">검토 참여</div></div>
   </div>
 
-  <div id="contribMyCard" style="display:none" class="card" style="border-left:3px solid var(--accent)">
+  <div id="contribMyCard" class="card" style="display:none;border-left:3px solid var(--accent)">
     <h3 style="font-size:15px;margin-bottom:10px">내 기여 현황</h3>
     <div id="contribMyData"></div>
   </div>
@@ -974,7 +984,7 @@ API 키를 환경변수에 설정하고,
       <tr><th>등급</th><th>필요 점수</th><th>조건</th></tr>
       <tr><td><strong style="color:var(--sub)">L1 입문</strong></td><td>0점~</td><td>교육 신청 완료</td></tr>
       <tr><td><strong style="color:var(--accent)">L2 기록</strong></td><td>30점~</td><td>문서 3건 + 반영 2건 이상</td></tr>
-      <tr><td><strong style="color:#c0792a">L3 연결</strong></td><td>80점~</td><td>문서 10건 + 검토 5건 이상</td></tr>
+      <tr><td><strong style="color:var(--warn)">L3 연결</strong></td><td>80점~</td><td>문서 10건 + 검토 5건 이상</td></tr>
       <tr><td><strong style="color:var(--danger)">L4 멘토</strong></td><td>150점~</td><td>문서 20건 + 검토 10건 + 성과발표 1회</td></tr>
     </table>
     </div>
@@ -1765,14 +1775,9 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
         <button class="btn-cancel" onclick="closeLoginModal()">취소</button>
         <button class="btn-primary" onclick="doLogin()">로그인</button>
       </div>
-      <div style="text-align:center;margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
-        <p style="font-size:12px;color:var(--sub);margin:0 0 4px">관리자 계정</p>
-        <div id="adminLoginArea" style="display:none;margin-top:8px">
-          <input type="password" id="adminPwInput" placeholder="관리자 비밀번호" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
-          <button onclick="doAdminLogin()" class="btn-primary" style="width:100%">관리자 로그인</button>
-        </div>
-        <button id="adminToggleBtn" onclick="toggleAdminLogin()" style="background:transparent;color:var(--accent);border:1px solid var(--accent);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">관리자 로그인</button>
-      </div>
+      <!-- 관리자 계정도 위와 동일한 이메일/비밀번호 로그인을 사용합니다.
+           (과거 임시 관리자 비밀번호 버튼은 실제 승인/거절 등 쓰기 작업에서
+           더 이상 동작하지 않아 혼선을 줄 수 있어 제거했습니다.) -->
     </div>
   </div>
 </div>
@@ -1984,8 +1989,6 @@ sbCheckAuth().then(function() {
 var PENDING_KEY = 'academy_pending';
 var USERS_KEY = 'academy_users';
 var SESSION_KEY = 'academy_session';
-var ADMIN_HASH = '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab';
-async function hashPw(pw){var enc=new TextEncoder().encode(pw);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
 
 function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); }
 function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
@@ -2068,6 +2071,28 @@ function applyRole() {
       p.classList.remove('locked');
     }
   });
+
+  syncTopbarHeight();
+}
+
+// The topbar can wrap to 2 lines on narrow phones (title + several buttons).
+// The sidebar/main layout uses a --topbar-h CSS var (not a fixed 42px) so the
+// slide-out mobile menu and scroll areas always start right below the real
+// topbar, however tall it ends up being.
+function syncTopbarHeight() {
+  var tb = document.querySelector('.topbar');
+  if (!tb) return;
+  document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
+}
+window.addEventListener('resize', function() {
+  clearTimeout(window._topbarResizeT);
+  window._topbarResizeT = setTimeout(syncTopbarHeight, 120);
+});
+if (window.ResizeObserver) {
+  document.addEventListener('DOMContentLoaded', function() {
+    var tbEl = document.querySelector('.topbar');
+    if (tbEl) new ResizeObserver(syncTopbarHeight).observe(tbEl);
+  });
 }
 
 function routePage() {
@@ -2120,33 +2145,6 @@ async function doLogin() {
   setSession({ email: email, name: name, role: role });
   closeLoginModal();
   showApp();
-}
-
-function toggleAdminLogin() {
-  var area = document.getElementById('adminLoginArea');
-  var btn = document.getElementById('adminToggleBtn');
-  if (area.style.display === 'none') {
-    area.style.display = 'block';
-    btn.style.display = 'none';
-    document.getElementById('adminPwInput').focus();
-  } else {
-    area.style.display = 'none';
-    btn.style.display = '';
-  }
-}
-async function doAdminLogin() {
-  var pw = document.getElementById('adminPwInput').value;
-  var err = document.getElementById('loginError');
-
-  var h = await hashPw(pw);
-  if (h === ADMIN_HASH) {
-    setSession({ email: 'admin', name: '관리자', role: 'admin' });
-    closeLoginModal();
-    showApp();
-    return;
-  }
-
-  err.textContent = '관리자 비밀번호가 올바르지 않습니다.';
 }
 
 async function logout() {
@@ -2563,7 +2561,7 @@ function runDiagnosis() {
     var page = pageMap[r.item.id] || '';
     nextHtml += '<div class="step-card"><div class="step-header" onclick="toggleStep(this)" style="cursor:pointer"><span class="step-num" style="background:#c62828">!</span><span class="step-title">' + r.item.label + '</span><span class="step-toggle">&#9662;</span></div>';
     nextHtml += '<div class="step-body"><p>' + getNextAction(r.item.id) + '</p>';
-    if (page) nextHtml += '<p style="margin-top:8px"><a href="javascript:void(0)" onclick="go(\'' + page + '\')" style="color:var(--main);font-weight:700">▸ 해당 교육 페이지로 이동</a></p>';
+    if (page) nextHtml += '<p style="margin-top:8px"><a href="javascript:void(0)" onclick="go(\'' + page + '\')" style="color:var(--accent);font-weight:700">▸ 해당 교육 페이지로 이동</a></p>';
     nextHtml += '</div></div>';
   });
   if (!todoFound) {
@@ -2880,7 +2878,7 @@ function calcScore(d) {
 
 function calcGrade(score, d) {
   if (score >= 150 && (d.docs || 0) >= 20 && (d.reviews || 0) >= 10) return { level: 'L4', name: '멘토', color: 'var(--danger)' };
-  if (score >= 80 && (d.docs || 0) >= 10 && (d.reviews || 0) >= 5) return { level: 'L3', name: '연결', color: '#c0792a' };
+  if (score >= 80 && (d.docs || 0) >= 10 && (d.reviews || 0) >= 5) return { level: 'L3', name: '연결', color: 'var(--warn)' };
   if (score >= 30 && (d.docs || 0) >= 3 && (d.merged || 0) >= 2) return { level: 'L2', name: '기록', color: 'var(--accent)' };
   return { level: 'L1', name: '입문', color: 'var(--sub)' };
 }
@@ -3517,7 +3515,7 @@ function checkSubmitReady() {
   var btn = document.getElementById('game-submit-btn');
   if (ready) {
     btn.disabled = false;
-    btn.style.background = 'var(--main)';
+    btn.style.background = 'var(--accent)';
     btn.style.cursor = 'pointer';
     btn.textContent = '검수 제출';
   } else {
