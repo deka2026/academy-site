@@ -1828,6 +1828,22 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
   </div>
 </div>
 
+<!-- APPROVAL EMAIL MODAL (admin → 승인된 교육생, 클립보드 복사 방식) -->
+<div class="modal-bg" id="approvalEmailModal">
+  <div class="modal" style="max-width:500px">
+    <h3>승인 완료 — 계정 안내 내용</h3>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:10px">아래 내용을 복사해서 지메일 등 사용하시는 메일로 직접 보내주세요.</p>
+    <p style="font-size:13px;margin-bottom:6px">받는 사람: <strong id="apEmailTo"></strong></p>
+    <input type="text" id="apEmailSubject" readonly style="font-size:13px;margin-bottom:8px">
+    <textarea id="apEmailBody" rows="10" readonly style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;margin-bottom:4px"></textarea>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeApprovalEmailModal()">닫기</button>
+      <button class="btn-primary" onclick="copyApprovalEmail()">전체 복사</button>
+    </div>
+    <div id="apEmailCopyResult" style="font-size:12px;margin-top:6px;color:var(--success)"></div>
+  </div>
+</div>
+
 </div><!-- /main -->
 </div><!-- /layout -->
 </div><!-- /app -->
@@ -2317,7 +2333,6 @@ async function approveUser(i) {
     }
     var tempPw = fnRes.data && fnRes.data.password;
     openApprovalEmail(user.email, user.name, tempPw);
-    alert(user.name + '님 승인 완료!\n\n메일 작성 창이 열렸습니다. 임시 비밀번호(' + tempPw + ')가 포함되어 있으니 확인 후 전송해주세요.');
   } else {
     var lp = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
     lp = lp.filter(function(p) { return p.email !== user.email; });
@@ -2406,20 +2421,37 @@ function sendMsgEmail() {
   document.getElementById('msgResult').textContent = '메일 앱이 열렸습니다.';
 }
 
-// 교육생 승인 완료 안내 메일 (임시 비밀번호 + 비밀번호 변경 페이지 링크)
+// 교육생 승인 완료 안내 (임시 비밀번호 + 비밀번호 변경 페이지 링크) — 클립보드 복사 방식
+var _approvalEmailText = '';
 function openApprovalEmail(email, name, tempPw) {
   var loginUrl = 'https://deka2026.github.io/academy-site/';
-  var subject = encodeURIComponent('[사교원 아카데미] 계정이 생성되었습니다');
-  var body = encodeURIComponent(
+  var subject = '[사교원 아카데미] 계정이 생성되었습니다';
+  var body =
     (name || '') + '님, 안녕하세요.\n\n' +
     '사교원 연대지능활동가 아카데미 교육 신청이 승인되어 계정이 생성되었습니다.\n\n' +
     '- 로그인 이메일: ' + email + '\n' +
     '- 임시 비밀번호: ' + tempPw + '\n\n' +
     '아래 링크로 접속해 위 정보로 로그인하신 뒤, 왼쪽 메뉴의 "비밀번호 변경"에서 새 비밀번호로 바꿔주세요.\n' +
     loginUrl + '\n\n' +
-    '감사합니다.'
-  );
-  window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
+    '감사합니다.';
+
+  document.getElementById('apEmailTo').textContent = email;
+  document.getElementById('apEmailSubject').value = subject;
+  document.getElementById('apEmailBody').value = body;
+  document.getElementById('apEmailCopyResult').textContent = '';
+  _approvalEmailText = '받는 사람: ' + email + '\n제목: ' + subject + '\n\n' + body;
+  document.getElementById('approvalEmailModal').classList.add('show');
+}
+function closeApprovalEmailModal() {
+  document.getElementById('approvalEmailModal').classList.remove('show');
+}
+function copyApprovalEmail() {
+  var resultEl = document.getElementById('apEmailCopyResult');
+  navigator.clipboard.writeText(_approvalEmailText).then(function() {
+    resultEl.textContent = '복사되었습니다! 웹메일(Gmail 등)에 붙여넣어 보내주세요.';
+  }).catch(function() {
+    resultEl.textContent = '복사 실패 — 위 내용을 직접 드래그해서 복사해주세요.';
+  });
 }
 
 // MOBILE SIDEBAR TOGGLE
