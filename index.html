@@ -359,6 +359,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <a href="javascript:void(0)" onclick="go('contributions',this)">위키 활동 평가</a>
   <a href="javascript:void(0)" onclick="go('performance-share',this)">성과 나누기</a>
   <a href="javascript:void(0)" onclick="go('learning-portfolio',this)">나의 학습 기록</a>
+  <a href="javascript:void(0)" onclick="go('change-password',this)">비밀번호 변경</a>
 
   <div class="sec-title">관리</div>
   <a href="javascript:void(0)" onclick="go('admin-dashboard',this)">품질 리뷰 대시보드</a>
@@ -1673,6 +1674,21 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
+<!-- CHANGE PASSWORD -->
+<div id="change-password" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">비밀번호 변경</h2>
+  <p style="color:var(--sub);margin-bottom:16px">임시 비밀번호로 로그인하셨다면, 여기서 원하는 비밀번호로 바꿔주세요.</p>
+
+  <div class="section-block" style="max-width:360px">
+    <input type="password" id="newPwInput" placeholder="새 비밀번호 (6자 이상)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
+    <input type="password" id="newPwConfirm" placeholder="새 비밀번호 확인" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
+    <div id="changePwError" style="font-size:12px;color:var(--danger);margin-bottom:8px"></div>
+    <div id="changePwSuccess" style="font-size:12px;color:var(--success);margin-bottom:8px"></div>
+    <button onclick="submitChangePassword()" style="width:100%;background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">비밀번호 변경</button>
+  </div>
+<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
+</div>
+
 <!-- SCHEDULE MANAGEMENT -->
 <div id="schedule-mgmt" class="page">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">교육 일정</h2>
@@ -2154,6 +2170,24 @@ async function logout() {
   go('home');
 }
 
+async function submitChangePassword() {
+  var pw = document.getElementById('newPwInput').value;
+  var confirmPw = document.getElementById('newPwConfirm').value;
+  var errEl = document.getElementById('changePwError');
+  var okEl = document.getElementById('changePwSuccess');
+  errEl.textContent = ''; okEl.textContent = '';
+
+  if (!pw || pw.length < 6) { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
+  if (pw !== confirmPw) { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
+
+  var res = await sb.auth.updateUser({ password: pw });
+  if (res.error) { errEl.textContent = '변경 실패: ' + res.error.message; return; }
+
+  okEl.textContent = '비밀번호가 변경되었습니다.';
+  document.getElementById('newPwInput').value = '';
+  document.getElementById('newPwConfirm').value = '';
+}
+
 // PASSWORD SETUP
 var pwdSetupEmail = '';
 function openPwdModal(email) {
@@ -2282,7 +2316,8 @@ async function approveUser(i) {
       return;
     }
     var tempPw = fnRes.data && fnRes.data.password;
-    alert(user.name + '님 승인 완료!\n\n임시 비밀번호: ' + tempPw + '\n\n이 비밀번호를 교육생에게 전달해주세요. (첫 로그인 후 변경 권장)');
+    openApprovalEmail(user.email, user.name, tempPw);
+    alert(user.name + '님 승인 완료!\n\n메일 작성 창이 열렸습니다. 임시 비밀번호(' + tempPw + ')가 포함되어 있으니 확인 후 전송해주세요.');
   } else {
     var lp = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
     lp = lp.filter(function(p) { return p.email !== user.email; });
@@ -2371,6 +2406,22 @@ function sendMsgEmail() {
   document.getElementById('msgResult').textContent = '메일 앱이 열렸습니다.';
 }
 
+// 교육생 승인 완료 안내 메일 (임시 비밀번호 + 비밀번호 변경 페이지 링크)
+function openApprovalEmail(email, name, tempPw) {
+  var loginUrl = 'https://deka2026.github.io/academy-site/';
+  var subject = encodeURIComponent('[사교원 아카데미] 계정이 생성되었습니다');
+  var body = encodeURIComponent(
+    (name || '') + '님, 안녕하세요.\n\n' +
+    '사교원 연대지능활동가 아카데미 교육 신청이 승인되어 계정이 생성되었습니다.\n\n' +
+    '- 로그인 이메일: ' + email + '\n' +
+    '- 임시 비밀번호: ' + tempPw + '\n\n' +
+    '아래 링크로 접속해 위 정보로 로그인하신 뒤, 왼쪽 메뉴의 "비밀번호 변경"에서 새 비밀번호로 바꿔주세요.\n' +
+    loginUrl + '\n\n' +
+    '감사합니다.'
+  );
+  window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
+}
+
 // MOBILE SIDEBAR TOGGLE
 function toggleSidebar(){
   var sb=document.querySelector('.sidebar');
@@ -2416,7 +2467,7 @@ function goNoHistory(id) {
 function go(id, link) {
   closeSidebar();
   var adminPages = ['access-admin','schedule-mgmt','notice-board'];
-  var userPages = ['contributions','performance-share','learning-portfolio','verify-game','verify-history'];
+  var userPages = ['contributions','performance-share','learning-portfolio','verify-game','verify-history','change-password'];
   var role = currentRole();
   if (adminPages.indexOf(id) !== -1 && role !== 'admin') {
     alert('관리자만 접근할 수 있는 페이지입니다.');
