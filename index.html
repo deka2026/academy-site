@@ -335,11 +335,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <a href="javascript:void(0)" onclick="go('feedback-board',this)">의견 게시판</a>
 
   <div class="sec-title">교육과정</div>
-  <a href="javascript:void(0)" onclick="go('course-overview',this)">전체 환경 관계도</a>
-  <a href="javascript:void(0)" onclick="go('course-local',this)">내 PC 도구 설치</a>
-  <a href="javascript:void(0)" onclick="go('course-ai',this)">AI 도구 설정</a>
-  <a href="javascript:void(0)" onclick="go('course-cloud',this)">인터넷 서비스 연결</a>
-  <a href="javascript:void(0)" onclick="go('course-workflow',this)">바이브 코딩 작업 순서</a>
+  <a href="javascript:void(0)" onclick="go('course-unified',this)" style="font-weight:800">AI 학습 가이드</a>
   <a href="javascript:void(0)" onclick="go('course-next',this)">현재 상태 & 다음 단계</a>
 
   <div class="sec-title">연대지능</div>
@@ -449,6 +445,55 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
   <div id="fbPosts"></div>
   <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
+</div>
+
+<!-- UNIFIED COURSE -->
+<div id="course-unified" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">AI 학습 가이드</h2>
+  <p style="color:var(--sub);margin-bottom:16px">환경 구축부터 바이브 코딩까지, AI와 대화하며 한 단계씩 진행합니다</p>
+
+  <div class="section-block">
+    <h3>전체 환경 관계도</h3>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:12px">내 PC ↔ 인터넷 서비스 ↔ AI 세 영역이 연결되어 바이브 코딩 환경을 이룹니다</p>
+    <div class="vision-grid">
+      <div class="vision-card"><h4>내 PC</h4><p>Node.js, Git, VSCode, Obsidian</p></div>
+      <div class="vision-card"><h4>AI 엔진</h4><p>Claude Code, CLAUDE.md, Anthropic API</p></div>
+      <div class="vision-card"><h4>인터넷 서비스</h4><p>GitHub, Cloudflare, Supabase, Quartz 위키</p></div>
+    </div>
+    <div class="highlight-box">이 세 영역을 연결하면 "코드를 짜지 않아도 AI와 대화하며 웹사이트를 만들고 인터넷에 공개하는" 바이브 코딩 환경이 완성돼요.</div>
+  </div>
+
+  <div class="section-block">
+    <h3>학습 진행 현황</h3>
+    <div id="learnProgress" style="margin:8px 0 12px"></div>
+  </div>
+
+  <div class="section-block">
+    <h3>AI 학습 대화</h3>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:10px">아래 버튼을 눌러 학습을 시작하세요. 각 단계마다 안내를 따라 진행하고, 진행 화면을 캡처해서 올려주세요.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+      <button onclick="learnCmd('start')" style="background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">지금부터 학습 시작</button>
+      <button onclick="learnCmd('save')" style="background:var(--warn);color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">지금까지 학습 저장해</button>
+      <button onclick="learnCmd('resume')" style="background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">다시 이어서 학습 시작</button>
+    </div>
+    <div id="learnChatArea" class="chat-area" style="height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--bg)">
+      <div class="chat-msg ai"><div class="chat-bubble"><strong>AI 학습 도우미</strong><br>안녕하세요! 바이브 코딩 환경 구축을 도와드릴게요.<br><br>아래 버튼 중 하나를 눌러 시작하세요:<br>- <b>지금부터 학습 시작</b>: 1단계부터 차근차근 시작<br>- <b>다시 이어서 학습 시작</b>: 이전에 저장한 곳부터 이어서 진행</div></div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <input type="text" id="learnChatInput" placeholder="메시지를 입력하세요..." style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit" onkeydown="if(event.key==='Enter')sendLearnChat()">
+      <label style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:4px;white-space:nowrap">
+        <input type="file" id="learnFileInput" accept="image/*" style="display:none" onchange="uploadLearnCapture(this)">&#128247; 캡처
+      </label>
+      <button onclick="sendLearnChat()" style="background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">전송</button>
+    </div>
+  </div>
+
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
+<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
 <!-- COURSE: OVERVIEW -->
@@ -2608,6 +2653,8 @@ function go(id, link) {
 
   var main = document.querySelector('.main');
   if (main) main.scrollTop = 0;
+
+  if (id === 'course-unified') renderLearnProgress();
 }
 
 // STEP TOGGLE
@@ -2873,6 +2920,190 @@ function resetShareModal() {
   document.getElementById('shareStep1').style.display = 'block';
   document.getElementById('shareStep2').style.display = 'none';
   document.getElementById('emailCopyResult').textContent = '';
+}
+
+// LEARNING GUIDE SYSTEM
+var LEARN_KEY = 'academy_learn_progress';
+var LEARN_STEPS = [
+  {id:'node', title:'Node.js 설치', desc:'AI 도구(Claude Code)를 실행하는 데 꼭 필요한 프로그램입니다.', guide:'Node.js를 설치해주세요.\n\n1. https://nodejs.org 에서 LTS 버전을 다운로드\n2. 설치 프로그램을 실행하여 설치\n3. 완료 후 터미널(명령 프롬프트)을 열고 아래 명령어를 입력하세요:\n\n  node --version\n  npm --version\n\n두 명령어 모두 버전 번호가 표시되면 성공입니다!\n결과 화면을 캡처해서 올려주세요.', check:'버전 번호가 보이면 설치 완료입니다!'},
+  {id:'git', title:'Git 설치 및 설정', desc:'파일의 변경 기록을 관리하고 GitHub에 올리는 도구입니다.', guide:'Git을 설치하고 설정해주세요.\n\n1. https://git-scm.com 에서 다운로드 후 설치\n2. 터미널에서 아래 명령어로 설정:\n\n  git config --global user.name "내 이름"\n  git config --global user.email "내 이메일"\n  git --version\n\n버전 번호가 나오면 성공입니다!\n결과 화면을 캡처해서 올려주세요.', check:'Git 버전이 보이면 완료!'},
+  {id:'vscode', title:'VSCode 설치', desc:'파일을 편집하는 프로그램입니다. 터미널도 내장되어 있어요.', guide:'VSCode를 설치해주세요.\n\n1. https://code.visualstudio.com 에서 다운로드 후 설치\n2. 설치 시 "PATH에 추가" 옵션을 체크하세요\n3. 터미널에서 아래 명령어를 입력:\n\n  code --version\n\n버전 번호가 나오면 성공입니다!\nVSCode가 열린 화면을 캡처해서 올려주세요.', check:'VSCode가 정상적으로 열리면 완료!'},
+  {id:'obsidian', title:'Obsidian 설치', desc:'위키 문서를 작성하는 노트 앱입니다.', guide:'Obsidian을 설치해주세요.\n\n1. https://obsidian.md 에서 다운로드 후 설치\n2. 실행 후 "Create new vault" 클릭\n3. Vault 이름을 "solidarity-wiki"로 설정\n\nObsidian이 열린 화면을 캡처해서 올려주세요.', check:'Vault가 만들어진 화면이 보이면 완료!'},
+  {id:'claude-code', title:'Claude Code 설치', desc:'터미널에서 AI와 대화하며 작업하는 도구입니다.', guide:'Claude Code를 설치해주세요.\n\n터미널에서 아래 명령어를 실행하세요:\n\n  npm install -g @anthropic-ai/claude-code\n  claude --version\n\n설치 후 버전이 표시되면 성공입니다!\n결과 화면을 캡처해서 올려주세요.', check:'Claude Code 버전이 보이면 완료!'},
+  {id:'claude-md', title:'CLAUDE.md 작성', desc:'AI에게 프로젝트 배경을 알려주는 파일입니다.', guide:'프로젝트 폴더에 CLAUDE.md를 만들어주세요.\n\nClaude Code를 실행(claude 입력)한 뒤 이렇게 말하세요:\n\n  "내 프로젝트 폴더에 CLAUDE.md를 만들어줘.\n  나는 연대지능활동가이고, 연대지능 위키에 기여하는 프로젝트야.\n  연대위키에 올려줘 라고 하면 자동으로 위키 문서를 작성하고 PR을 제출하도록 규칙을 넣어줘."\n\nCLAUDE.md가 생성된 화면을 캡처해서 올려주세요.', check:'CLAUDE.md 파일이 생성되면 완료!'},
+  {id:'api-key', title:'Anthropic API 키 설정', desc:'Claude Code가 AI 답변을 만들기 위한 접속 열쇠입니다.', guide:'API 키를 설정해주세요.\n\n1. https://console.anthropic.com 에서 API 키를 발급\n2. Claude Code에서 이렇게 말하세요:\n\n  "Anthropic API 키를 환경변수에 설정해줘.\n  ANTHROPIC_API_KEY를 시스템 환경변수에 등록하고 테스트해줘."\n\nAPI 연결이 성공한 화면을 캡처해서 올려주세요.', check:'API 연결 테스트가 통과하면 완료!'},
+  {id:'github-repo', title:'GitHub 저장소 생성', desc:'코드를 인터넷에 보관하는 저장소입니다.', guide:'GitHub 저장소를 만들어주세요.\n\nClaude Code에서 이렇게 말하세요:\n\n  "GitHub에 내 위키 프로젝트용 저장소를 만들어줘.\n  gh repo create 명령어를 사용하고 로컬 Git과 연결해줘."\n\n저장소가 만들어진 화면을 캡처해서 올려주세요.', check:'GitHub 저장소 URL이 보이면 완료!'},
+  {id:'cloudflare', title:'Cloudflare Pages 배포', desc:'GitHub에 올리면 자동으로 웹페이지를 공개해줍니다.', guide:'Cloudflare Pages에 배포해주세요.\n\nClaude Code에서 이렇게 말하세요:\n\n  "Cloudflare Pages에 내 Quartz 위키를 배포해줘.\n  GitHub 저장소와 연동하고 push할 때마다 자동 배포되게 해줘."\n\n배포된 URL(*.pages.dev)이 보이는 화면을 캡처해서 올려주세요.', check:'*.pages.dev URL이 열리면 완료!'},
+  {id:'quartz', title:'Quartz 위키 설정', desc:'Obsidian 노트를 웹사이트로 바꿔주는 도구입니다.', guide:'Quartz를 설정해주세요.\n\nClaude Code에서 이렇게 말하세요:\n\n  "Quartz v4를 설치하고 내 위키를 설정해줘.\n  npx quartz create로 프로젝트를 만들고 content 폴더에 index.md를 작성해줘.\n  로컬에서 npx quartz build --serve로 미리보기도 해줘."\n\n위키 미리보기 화면을 캡처해서 올려주세요.', check:'위키 페이지가 브라우저에 보이면 완료!'},
+  {id:'workflow', title:'전체 작업 흐름 실습', desc:'VSCode에서 작성 → Claude Code로 보완 → Git 커밋 → GitHub push → 배포 확인', guide:'전체 흐름을 한 번 실습해보세요.\n\nClaude Code에서 이렇게 말하세요:\n\n  "바이브 코딩 작업 흐름을 처음부터 끝까지 해볼게.\n  1. VSCode에서 간단한 마크다운 문서를 하나 만들어줘\n  2. Claude Code로 내용을 보완해줘\n  3. Git으로 커밋하고 GitHub에 push해줘\n  4. 배포 결과를 확인해줘"\n\n라이브 URL에서 문서가 보이는 화면을 캡처해서 올려주세요.', check:'라이브 URL에서 내 문서가 보이면 모든 과정 완료!'}
+];
+
+function getLearnProgress() {
+  var s = getSession();
+  if (!s) return {step:0,log:[]};
+  var data = JSON.parse(localStorage.getItem(LEARN_KEY) || '{}');
+  return data[s.email] || {step:0,log:[]};
+}
+function saveLearnProgress(p) {
+  var s = getSession();
+  if (!s) return;
+  var data = JSON.parse(localStorage.getItem(LEARN_KEY) || '{}');
+  data[s.email] = p;
+  localStorage.setItem(LEARN_KEY, JSON.stringify(data));
+}
+
+function renderLearnProgress() {
+  var el = document.getElementById('learnProgress');
+  if (!el) return;
+  var p = getLearnProgress();
+  var total = LEARN_STEPS.length;
+  var pct = Math.round((p.step / total) * 100);
+  var html = '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>진행률: <b>' + p.step + '</b> / ' + total + ' 단계</span><span><b>' + pct + '%</b></span></div>';
+  html += '<div style="background:var(--border);border-radius:8px;height:10px;overflow:hidden"><div style="background:var(--accent);height:100%;width:' + pct + '%;border-radius:8px;transition:width 0.3s"></div></div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">';
+  for (var i = 0; i < total; i++) {
+    var color = i < p.step ? 'var(--accent)' : (i === p.step ? 'var(--warn)' : 'var(--border)');
+    var textColor = i < p.step ? '#fff' : (i === p.step ? '#fff' : 'var(--sub)');
+    html += '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:' + color + ';color:' + textColor + '">' + (i+1) + '. ' + LEARN_STEPS[i].title + '</span>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function addLearnMsg(who, text, isHtml) {
+  var area = document.getElementById('learnChatArea');
+  if (!area) return;
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + who;
+  var bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  if (isHtml) bubble.innerHTML = text;
+  else bubble.textContent = text;
+  if (who === 'ai') {
+    bubble.style.whiteSpace = 'pre-wrap';
+  }
+  div.appendChild(bubble);
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function showLearnStep(stepIdx) {
+  if (stepIdx >= LEARN_STEPS.length) {
+    addLearnMsg('ai', '축하합니다! 모든 학습 단계를 완료했습니다!\n\n이제 연대지능 위키에 문서를 기여할 준비가 되었어요.\n왼쪽 메뉴의 "연대지능 위키"에서 첫 문서를 작성해보세요.');
+    return;
+  }
+  var step = LEARN_STEPS[stepIdx];
+  var msg = '[ ' + (stepIdx+1) + '단계: ' + step.title + ' ]\n\n';
+  msg += step.desc + '\n\n';
+  msg += '--- 안내 ---\n' + step.guide;
+  addLearnMsg('ai', msg);
+  renderLearnProgress();
+}
+
+function learnCmd(cmd) {
+  var input = document.getElementById('learnChatInput');
+  if (cmd === 'start') {
+    input.value = '지금부터 학습 시작';
+  } else if (cmd === 'save') {
+    input.value = '지금까지 학습 저장해';
+  } else if (cmd === 'resume') {
+    input.value = '다시 이어서 학습 시작';
+  }
+  sendLearnChat();
+}
+
+function sendLearnChat() {
+  var input = document.getElementById('learnChatInput');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  var session = getSession();
+  if (!session || session.role === 'guest') {
+    addLearnMsg('user', text);
+    addLearnMsg('ai', '로그인 후 학습을 시작할 수 있습니다. 상단의 로그인 버튼을 눌러주세요.');
+    return;
+  }
+
+  addLearnMsg('user', text);
+  var p = getLearnProgress();
+
+  if (text === '지금부터 학습 시작') {
+    p = {step:0, log:[]};
+    saveLearnProgress(p);
+    addLearnMsg('ai', '학습을 시작합니다! 총 ' + LEARN_STEPS.length + '단계를 차근차근 진행할게요.\n각 단계마다 안내를 따라 진행하고, 완료 화면을 캡처해서 올려주세요.\n\n준비되셨으면 아래 안내를 따라해주세요!');
+    showLearnStep(0);
+    return;
+  }
+
+  if (text === '지금까지 학습 저장해') {
+    p.log.push({action:'save', date:new Date().toISOString().slice(0,16), step:p.step});
+    saveLearnProgress(p);
+    var stepName = p.step < LEARN_STEPS.length ? LEARN_STEPS[p.step].title : '완료';
+    addLearnMsg('ai', '학습 진행 상태를 저장했습니다!\n\n현재 위치: ' + (p.step+1) + '단계 (' + stepName + ')\n저장 시각: ' + new Date().toLocaleString('ko-KR') + '\n\n다음에 "다시 이어서 학습 시작" 버튼을 누르면 이어서 진행할 수 있어요.\n수고하셨습니다!');
+    return;
+  }
+
+  if (text === '다시 이어서 학습 시작') {
+    if (p.step === 0 && p.log.length === 0) {
+      addLearnMsg('ai', '저장된 학습 기록이 없습니다.\n"지금부터 학습 시작" 버튼을 눌러 처음부터 시작해주세요.');
+      return;
+    }
+    var stepName = p.step < LEARN_STEPS.length ? LEARN_STEPS[p.step].title : '완료';
+    addLearnMsg('ai', '이전 학습을 이어서 진행합니다!\n\n현재 위치: ' + (p.step+1) + '단계 (' + stepName + ')\n완료한 단계: ' + p.step + ' / ' + LEARN_STEPS.length + '\n\n이어서 진행할게요!');
+    showLearnStep(p.step);
+    return;
+  }
+
+  if (text.indexOf('완료') !== -1 || text.indexOf('다음') !== -1 || text.indexOf('넘어') !== -1 || text.indexOf('됐어') !== -1 || text.indexOf('했어') !== -1 || text.indexOf('성공') !== -1) {
+    if (p.step < LEARN_STEPS.length) {
+      var doneStep = LEARN_STEPS[p.step];
+      p.step++;
+      p.log.push({action:'complete', step:p.step, title:doneStep.title, date:new Date().toISOString().slice(0,16)});
+      saveLearnProgress(p);
+      addLearnMsg('ai', doneStep.check + '\n\n' + doneStep.title + ' 단계를 완료했습니다! (' + p.step + '/' + LEARN_STEPS.length + ')');
+      showLearnStep(p.step);
+    } else {
+      addLearnMsg('ai', '이미 모든 단계를 완료했습니다! 수고하셨어요.');
+    }
+    return;
+  }
+
+  if (text.indexOf('어려') !== -1 || text.indexOf('모르') !== -1 || text.indexOf('안 돼') !== -1 || text.indexOf('오류') !== -1 || text.indexOf('에러') !== -1 || text.indexOf('실패') !== -1 || text.indexOf('안돼') !== -1 || text.indexOf('도움') !== -1) {
+    if (p.step < LEARN_STEPS.length) {
+      var curStep = LEARN_STEPS[p.step];
+      addLearnMsg('ai', '현재 "' + curStep.title + '" 단계에서 어려움이 있으시군요.\n\n다시 한번 안내를 보여드릴게요:\n\n' + curStep.guide + '\n\n그래도 잘 안 되면 오류 화면을 캡처해서 올려주세요. 도움을 드릴게요!');
+    }
+    return;
+  }
+
+  if (p.step < LEARN_STEPS.length) {
+    addLearnMsg('ai', '현재 ' + (p.step+1) + '단계 "' + LEARN_STEPS[p.step].title + '"을 진행 중입니다.\n\n완료되면 "완료" 또는 "다음"이라고 입력하거나, 결과 화면을 캡처해서 올려주세요.\n어려우면 "도움"이라고 입력해주세요.');
+  } else {
+    addLearnMsg('ai', '모든 학습을 완료한 상태입니다. 수고하셨어요!\n왼쪽 메뉴에서 다른 기능을 살펴보세요.');
+  }
+}
+
+function uploadLearnCapture(fileInput) {
+  if (!fileInput.files || !fileInput.files[0]) return;
+  var session = getSession();
+  if (!session || session.role === 'guest') {
+    addLearnMsg('ai', '로그인 후 캡처를 올릴 수 있습니다.');
+    fileInput.value = '';
+    return;
+  }
+  var file = fileInput.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    addLearnMsg('user', '<img src="' + e.target.result + '" style="max-width:100%;border-radius:8px;border:1px solid var(--border)">', true);
+    var p = getLearnProgress();
+    if (p.step < LEARN_STEPS.length) {
+      var curStep = LEARN_STEPS[p.step];
+      addLearnMsg('ai', '캡처를 확인했습니다!\n\n' + curStep.check + '\n\n이 단계가 정상적으로 완료되었다면 "완료" 또는 "다음"이라고 입력해주세요.\n아직 문제가 있다면 상황을 설명해주세요.');
+    }
+  };
+  reader.readAsDataURL(file);
+  fileInput.value = '';
 }
 
 // CHAT
