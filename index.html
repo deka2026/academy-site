@@ -347,10 +347,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <a href="javascript:void(0)" onclick="go('verify-history',this)">내 검증 기록</a>
 
   <div class="sec-title">성과</div>
-  <a href="javascript:void(0)" onclick="go('contributions',this)">위키 활동 평가</a>
-  <a href="javascript:void(0)" onclick="go('performance-share',this)">성과 나누기</a>
-  <a href="javascript:void(0)" onclick="go('learning-portfolio',this)">나의 학습 기록</a>
-  <a href="javascript:void(0)" onclick="go('change-password',this)">비밀번호 변경</a>
+  <a href="javascript:void(0)" onclick="go('achievements',this)">성과</a>
 
   <div class="sec-title">관리</div>
   <a href="javascript:void(0)" onclick="go('admin-dashboard',this)">품질 리뷰 대시보드</a>
@@ -730,9 +727,37 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 </div>
 
 <!-- CONTRIBUTIONS -->
-<div id="contributions" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">위키 활동 평가</h2>
-  <p style="color:var(--sub);margin-bottom:16px">연대지능 위키(<code>deka2026/solidarity-intelligence-wiki</code>) 기여 현황</p>
+<div id="achievements" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">성과</h2>
+
+  <h3 style="font-size:16px;font-weight:800;margin-bottom:4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">위키 활동 평가</h3>
+  <p style="color:var(--sub);margin:8px 0 16px">연대지능 위키(<code>deka2026/solidarity-intelligence-wiki</code>) 기여 현황</p>
+
+  <div class="card" style="border-left:3px solid var(--accent)">
+    <h3 style="font-size:15px;margin-bottom:6px">위키 데이터 연결</h3>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:10px">아래 명령어를 명령어 입력창에서 실행한 뒤 결과(JSON)를 붙여넣고 <strong>연결</strong>을 누르면 내 위키 활동이 바로 반영돼요.</p>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">1단계: 반영 요청 목록 가져오기</label>
+      <div class="prompt-box" style="font-size:12px">gh pr list --repo deka2026/solidarity-intelligence-wiki --state all --json number,title,author,state,mergedAt,createdAt --limit 100<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">2단계: 검토/의견 가져오기 (선택)</label>
+      <div class="prompt-box" style="font-size:12px">gh api repos/deka2026/solidarity-intelligence-wiki/pulls/comments --paginate --jq '.[] | {user: .user.login, pr: .pull_request_url, created: .created_at}'<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">반영 요청 데이터 붙여넣기 (JSON)</label>
+      <textarea id="syncPrData" rows="4" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;resize:vertical;box-sizing:border-box" placeholder='[{"number":1,"title":"...","author":{"login":"deka2026"},"state":"MERGED",...}]'></textarea>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">검토 데이터 붙여넣기 (JSON, 선택)</label>
+      <textarea id="syncReviewData" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;resize:vertical;box-sizing:border-box" placeholder='[{"user":"활동가1","pr":"...","created":"..."}]'></textarea>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="syncWikiData()" style="background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">연결</button>
+      <button onclick="clearWikiData()" style="background:#eee;color:var(--ink);border:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">초기화</button>
+    </div>
+    <div id="syncResult" style="font-size:12px;margin-top:8px;color:var(--success)"></div>
+  </div>
 
   <div class="stats-grid" id="contribStats">
     <div class="stat-card"><div class="stat-num" id="csTotalDocs">0</div><div class="stat-label">전체 문서</div></div>
@@ -780,6 +805,22 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     </table>
     </div>
   </div>
+
+  <h3 style="font-size:16px;font-weight:800;margin:32px 0 4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">활동보고서 출력</h3>
+  <p style="color:var(--sub);margin:8px 0 12px">내 위키 활동 데이터(작성 문서, 반영 완료, 검토, 점수, 등급, 반영 요청 목록)를 정리한 활동보고서를 Word 문서로 바로 내려받습니다.</p>
+  <button onclick="exportActivityReport()" style="background:var(--accent);color:#fff;border:none;padding:11px 28px;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">활동보고서 출력</button>
+  <div id="activityReportResult" style="font-size:12px;margin-top:8px;color:var(--success)"></div>
+
+  <h3 style="font-size:16px;font-weight:800;margin:32px 0 4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">비밀번호 변경</h3>
+  <p style="color:var(--sub);margin:8px 0 12px">임시 비밀번호로 로그인하셨다면, 여기서 원하는 비밀번호로 바꿔주세요.</p>
+  <div class="section-block" style="max-width:360px">
+    <input type="password" id="newPwInput" placeholder="새 비밀번호 (6자 이상)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
+    <input type="password" id="newPwConfirm" placeholder="새 비밀번호 확인" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
+    <div id="changePwError" style="font-size:12px;color:var(--danger);margin-bottom:8px"></div>
+    <div id="changePwSuccess" style="font-size:12px;color:var(--success);margin-bottom:8px"></div>
+    <button onclick="submitChangePassword()" style="width:100%;background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">비밀번호 변경</button>
+  </div>
+
 <div class="fb-inline">
   <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
   <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
@@ -845,7 +886,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <!-- ACCESS ADMIN -->
 <div id="access-admin" class="page">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">교육생 관리</h2>
-  <p style="color:var(--sub);margin-bottom:16px">교육 신청 현황, 승인/거절, GitHub 연결, 위키 활동 데이터 맞추기</p>
+  <p style="color:var(--sub);margin-bottom:16px">교육 신청 현황, 승인/거절, GitHub 계정 연결</p>
 
   <div class="card">
     <h3>대기 중인 신청</h3>
@@ -872,37 +913,6 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <button onclick="linkGitHub()" style="background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">연결</button>
     </div>
     <div id="ghLinkList" style="margin-top:10px;font-size:13px"></div>
-  </div>
-
-  <div class="card">
-    <h3>위키 활동 데이터 맞추기</h3>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:10px">아래 명령어를 명령어 입력창에서 실행한 뒤 결과를 붙여넣으세요.</p>
-
-    <div style="margin-bottom:14px">
-      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">1단계: 반영 요청 목록 가져오기</label>
-      <div class="prompt-box" style="font-size:12px">gh pr list --repo deka2026/solidarity-intelligence-wiki --state all --json number,title,author,state,mergedAt,createdAt --limit 100<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
-    </div>
-
-    <div style="margin-bottom:14px">
-      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">2단계: 검토/의견 가져오기</label>
-      <div class="prompt-box" style="font-size:12px">gh api repos/deka2026/solidarity-intelligence-wiki/pulls/comments --paginate --jq '.[] | {user: .user.login, pr: .pull_request_url, created: .created_at}'<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
-    </div>
-
-    <div style="margin-bottom:10px">
-      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">반영 요청 데이터 붙여넣기 (JSON)</label>
-      <textarea id="syncPrData" rows="4" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;resize:vertical" placeholder='[{"number":1,"title":"...","author":{"login":"deka2026"},"state":"MERGED",...}]'></textarea>
-    </div>
-
-    <div style="margin-bottom:10px">
-      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">검토 데이터 붙여넣기 (JSON, 선택)</label>
-      <textarea id="syncReviewData" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;resize:vertical" placeholder='[{"user":"활동가1","pr":"...","created":"..."}]'></textarea>
-    </div>
-
-    <div style="display:flex;gap:8px">
-      <button onclick="syncWikiData()" style="background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">데이터 맞추기</button>
-      <button onclick="clearWikiData()" style="background:#eee;color:var(--ink);border:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">초기화</button>
-    </div>
-    <div id="syncResult" style="font-size:12px;margin-top:8px;color:var(--success)"></div>
   </div>
 <div class="fb-inline">
   <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
@@ -1047,131 +1057,6 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
   <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
   <button onclick="submitInlineFeedback(this)">등록</button>
 </div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- PERFORMANCE SHARE -->
-<div id="performance-share" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">성과 나누기</h2>
-  <p style="color:var(--sub);margin-bottom:16px">활동 성과를 정리하고 함께 나누는 방법이에요</p>
-
-  <div class="section-block">
-    <h3>성과 공유의 목적</h3>
-    <ul>
-      <li>활동가 간 학습과 영감 교환</li>
-      <li>외부 이해관계자에게 활동의 가치를 전달</li>
-      <li>다른 지역이 참고할 수 있는 모델 제시</li>
-      <li>활동가 자신의 성장 기록</li>
-    </ul>
-  </div>
-
-  <div class="section-block">
-    <h3>발표 자료 구성</h3>
-    <div class="step-card open"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">1</span><span class="step-title">활동 배경과 문제 인식</span><span class="step-toggle">&#9662;</span></div>
-      <div class="step-body"><p>왜 이 활동을 시작했는지, 어떤 문제를 해결하고자 했는지 설명합니다. 지역의 맥락과 필요를 구체적으로 제시합니다.</p></div></div>
-
-    <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">2</span><span class="step-title">활동 과정과 방법</span><span class="step-toggle">&#9662;</span></div>
-      <div class="step-body"><p>어떤 도구를 쓰고, 어떤 단계를 거쳤는지 과정을 보여줍니다. 위키 활동 이력, GitHub 반영 요청 기록 등 객관적 데이터를 활용합니다.</p></div></div>
-
-    <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">3</span><span class="step-title">성과와 변화</span><span class="step-toggle">&#9662;</span></div>
-      <div class="step-body"><p>정량적 성과(문서 수, 기여도 점수)와 정성적 변화(역량 성장, 공동체 변화)를 함께 보여줍니다.</p></div></div>
-
-    <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">4</span><span class="step-title">교훈과 제안</span><span class="step-toggle">&#9662;</span></div>
-      <div class="step-body"><p>어려웠던 점, 예상과 달랐던 점, 다른 활동가에게 전하고 싶은 조언을 정리합니다.</p></div></div>
-  </div>
-
-  <div class="section-block">
-    <h3>공유 채널</h3>
-    <div style="overflow-x:auto">
-    <table class="contrib-table">
-      <tr><th>채널</th><th>대상</th><th>형태</th></tr>
-      <tr><td>아카데미 내부 발표</td><td>동료 활동가</td><td>15분 발표 + 질의응답</td></tr>
-      <tr><td>연대지능 위키</td><td>모든 활동가</td><td>사례연구 문서</td></tr>
-      <tr><td>사교원 뉴스레터</td><td>외부 이해관계자</td><td>요약 기사</td></tr>
-      <tr><td>GitHub Discussions</td><td>개발자 커뮤니티</td><td>기술 공유</td></tr>
-    </table>
-    </div>
-  </div>
-
-  <h4 style="margin:16px 0 8px;font-size:14px;font-weight:700">발표 자료 만들기 프롬프트</h4>
-  <div class="prompt-box">내 위키 기여 이력을 바탕으로 성과 발표 자료를 만들어줘.
-gh pr list --repo deka2026/solidarity-intelligence-wiki --author @me --state all 결과를 분석해서
-활동 요약, 주요 성과, 배운 점을 정리해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- LEARNING PORTFOLIO -->
-<div id="learning-portfolio" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">나의 학습 기록</h2>
-  <p style="color:var(--sub);margin-bottom:16px">교육 과정에서의 학습 여정을 기록하고 증명해요</p>
-
-  <div class="section-block">
-    <h3>학습 기록이란</h3>
-    <p>아카데미에서 배운 것, 만든 것, 기여한 것을 모아놓은 개인 성장 기록이에요. GitHub 프로필, 위키 활동 이력, 공개한 사이트가 곧 학습 기록이 됩니다.</p>
-  </div>
-
-  <div class="section-block">
-    <h3>학습 기록 구성 요소</h3>
-    <div style="overflow-x:auto">
-    <table class="contrib-table">
-      <tr><th>항목</th><th>내용</th><th>증빙 방법</th></tr>
-      <tr><td><strong>환경 구축</strong></td><td>내 PC 도구 설치, 인터넷 서비스 연결</td><td>스크린샷, 버전 정보</td></tr>
-      <tr><td><strong>위키 활동</strong></td><td>작성한 문서, 받은 검토, 반영 기록</td><td>GitHub 반영 요청 이력</td></tr>
-      <tr><td><strong>사이트 공개</strong></td><td>Quartz 위키, 개인 프로젝트 사이트</td><td>라이브 URL</td></tr>
-      <tr><td><strong>AI 활용</strong></td><td>Claude Code 활용 사례, 자동화 구축</td><td>CLAUDE.md, 작업 기록</td></tr>
-      <tr><td><strong>동료 협업</strong></td><td>검토 참여, 의견 교환</td><td>GitHub 코멘트 이력</td></tr>
-    </table>
-    </div>
-  </div>
-
-  <div class="section-block">
-    <h3>현재 나의 현황</h3>
-    <div class="stats-grid" id="portfolioStats">
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="pfDocs">-</div><div class="stat-label">작성 문서</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="pfMerge">-</div><div class="stat-label">반영 완료</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="pfReview">-</div><div class="stat-label">검토 참여</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="pfScore">-</div><div class="stat-label">총 점수</div></div>
-    </div>
-    <div id="pfGrade" class="highlight-box">
-      로그인 후 위키 활동 데이터가 연동돼요.
-    </div>
-    <div id="pfPrList" style="margin-top:12px"></div>
-  </div>
-
-  <div class="section-block">
-    <h3>수료 기준</h3>
-    <ul>
-      <li>환경 구축 완료 (내 PC + 인터넷 서비스 연결)</li>
-      <li>위키 문서 3건 이상 반영 완료</li>
-      <li>동료 문서 검토 2건 이상</li>
-      <li>성과 발표 1회 참여</li>
-    </ul>
-  </div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- CHANGE PASSWORD -->
-<div id="change-password" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">비밀번호 변경</h2>
-  <p style="color:var(--sub);margin-bottom:16px">임시 비밀번호로 로그인하셨다면, 여기서 원하는 비밀번호로 바꿔주세요.</p>
-
-  <div class="section-block" style="max-width:360px">
-    <input type="password" id="newPwInput" placeholder="새 비밀번호 (6자 이상)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
-    <input type="password" id="newPwConfirm" placeholder="새 비밀번호 확인" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:8px">
-    <div id="changePwError" style="font-size:12px;color:var(--danger);margin-bottom:8px"></div>
-    <div id="changePwSuccess" style="font-size:12px;color:var(--success);margin-bottom:8px"></div>
-    <button onclick="submitChangePassword()" style="width:100%;background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">비밀번호 변경</button>
-  </div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -2059,7 +1944,7 @@ function goNoHistory(id) {
 function go(id, link) {
   closeSidebar();
   var adminPages = ['access-admin','schedule-mgmt','notice-board'];
-  var userPages = ['contributions','performance-share','learning-portfolio','verify-game','verify-history','change-password'];
+  var userPages = ['achievements','verify-game','verify-history'];
   var role = currentRole();
   if (adminPages.indexOf(id) !== -1 && role !== 'admin') {
     alert('관리자만 접근할 수 있는 페이지입니다.');
@@ -2995,7 +2880,6 @@ function syncWikiData() {
   resultEl.textContent = '데이터 맞추기 완료! 반영 요청 ' + prs.length + '건, 검토 ' + reviews.length + '건 반영됨. (' + contrib._syncTime + ')';
 
   renderContribPage();
-  renderPortfolio();
 }
 
 function clearWikiData() {
@@ -3003,7 +2887,6 @@ function clearWikiData() {
   localStorage.removeItem(CONTRIB_KEY);
   document.getElementById('syncResult').textContent = '초기화 완료';
   renderContribPage();
-  renderPortfolio();
 }
 
 // Render contributions page
@@ -3100,47 +2983,73 @@ function renderContribPage() {
 }
 
 // Render portfolio page
-function renderPortfolio() {
+function exportActivityReport() {
+  var resultEl = document.getElementById('activityReportResult');
   var session = getSession();
-  if (!session || session.email === 'admin') return;
+  if (!session || session.role === 'guest') {
+    if (resultEl) { resultEl.style.color = 'var(--danger)'; resultEl.textContent = '로그인 후 활동보고서를 출력할 수 있습니다.'; }
+    return;
+  }
 
   var myGh = emailToGh(session.email);
   var contrib = getContrib();
+  var d = (myGh && contrib[myGh]) ? contrib[myGh] : { docs:0, merged:0, reviews:0, improvements:0, links:0, prs:[] };
+  var score = calcScore(d);
+  var grade = calcGrade(score, d);
+  var name = session.name || session.email;
+  var today = fmtDate(new Date());
 
-  if (myGh && contrib[myGh]) {
-    var d = contrib[myGh];
-    var score = calcScore(d);
-    var grade = calcGrade(score, d);
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
+  html += '<head><meta charset="utf-8"><title>활동보고서</title><style>';
+  html += 'body{font-family:"맑은 고딕",sans-serif;font-size:11pt;color:#1b2a36;line-height:1.7;margin:40px}';
+  html += 'h1{font-size:18pt;color:#1a6b5a;border-bottom:2px solid #1a6b5a;padding-bottom:6px;margin-bottom:12px}';
+  html += 'h2{font-size:13pt;color:#1b2a36;margin-top:22px;margin-bottom:8px}';
+  html += '.meta{font-size:9pt;color:#5a7282;margin-bottom:4px}';
+  html += '.summary-table{border-collapse:collapse;width:100%;margin:12px 0}';
+  html += '.summary-table th{background:#1b2a36;color:#fff;padding:8px 12px;text-align:left;font-size:10pt}';
+  html += '.summary-table td{padding:7px 12px;border-bottom:1px solid #d4dce2;font-size:10pt}';
+  html += '.grade-box{background:#f0f7f5;border-left:4px solid #1a6b5a;padding:12px 16px;margin:12px 0;font-size:12pt;font-weight:bold}';
+  html += '.footer{margin-top:30px;padding-top:12px;border-top:1px solid #d4dce2;font-size:9pt;color:#5a7282}';
+  html += '</style></head><body>';
 
-    var el;
-    el = document.getElementById('pfDocs'); if (el) el.textContent = d.docs || 0;
-    el = document.getElementById('pfMerge'); if (el) el.textContent = d.merged || 0;
-    el = document.getElementById('pfReview'); if (el) el.textContent = d.reviews || 0;
-    el = document.getElementById('pfScore'); if (el) el.textContent = score;
+  html += '<h1>연대지능활동가 활동보고서</h1>';
+  html += '<p class="meta">활동가: ' + escHtml(name) + ' | GitHub: ' + (myGh ? '@' + escHtml(myGh) : '(미연결)') + ' | 생성일: ' + today + '</p>';
 
-    var gradeEl = document.getElementById('pfGrade');
-    if (gradeEl) gradeEl.innerHTML = '현재 등급: <strong style="color:' + grade.color + '">' + grade.level + ' ' + grade.name + '</strong> (' + score + '점)';
+  html += '<div class="grade-box">현재 등급: ' + grade.level + ' ' + grade.name + ' &nbsp;·&nbsp; 총점: ' + score + '점</div>';
 
-    var prList = document.getElementById('pfPrList');
-    if (prList && d.prs && d.prs.length) {
-      prList.innerHTML = '<h4 style="font-size:14px;font-weight:700;margin-bottom:8px">내 반영 요청 이력</h4>'
-        + '<div style="overflow-x:auto"><table class="contrib-table"><thead><tr><th>#</th><th>제목</th><th>상태</th><th>날짜</th></tr></thead><tbody>'
-        + d.prs.map(function(pr) {
-          var state = pr.merged ? '반영완료' : (pr.state === 'OPEN' ? '열림' : pr.state);
-          var stateColor = pr.merged ? 'var(--success)' : (pr.state === 'OPEN' ? 'var(--warn)' : 'var(--sub)');
-          var date = pr.created ? pr.created.substring(0, 10) : '-';
-          return '<tr><td>' + (pr.number||'-') + '</td><td>' + escHtml(pr.title||'') + '</td>'
-            + '<td style="color:' + stateColor + ';font-weight:700;font-size:12px">' + state + '</td>'
-            + '<td style="font-size:12px">' + date + '</td></tr>';
-        }).join('') + '</tbody></table></div>';
-    }
-  } else if (myGh) {
-    var gradeEl = document.getElementById('pfGrade');
-    if (gradeEl) gradeEl.innerHTML = 'GitHub @' + escHtml(myGh) + ' 계정이 연결되어 있지만, 아직 연동된 기여 데이터가 없습니다.';
+  html += '<h2>활동 요약</h2>';
+  html += '<table class="summary-table"><tr><th>항목</th><th>실적</th><th>배점</th><th>점수</th></tr>';
+  html += '<tr><td>문서 작성 (반영 요청)</td><td>' + (d.docs||0) + '건</td><td>10점/건</td><td>' + ((d.docs||0)*10) + '점</td></tr>';
+  html += '<tr><td>검수 통과 (최종 반영)</td><td>' + (d.merged||0) + '건</td><td>5점/건</td><td>' + ((d.merged||0)*5) + '점</td></tr>';
+  html += '<tr><td>검토 참여</td><td>' + (d.reviews||0) + '건</td><td>3점/건</td><td>' + ((d.reviews||0)*3) + '점</td></tr>';
+  html += '<tr><td>문서 개선</td><td>' + (d.improvements||0) + '건</td><td>5점/건</td><td>' + ((d.improvements||0)*5) + '점</td></tr>';
+  html += '<tr><td>연결 기여 (링크)</td><td>' + (d.links||0) + '건</td><td>2점/건</td><td>' + ((d.links||0)*2) + '점</td></tr>';
+  html += '</table>';
+
+  if (d.prs && d.prs.length) {
+    html += '<h2>반영 요청 이력</h2>';
+    html += '<table class="summary-table"><tr><th>#</th><th>제목</th><th>상태</th><th>날짜</th></tr>';
+    d.prs.forEach(function(pr) {
+      var state = pr.merged ? '반영완료' : (pr.state === 'OPEN' ? '열림' : pr.state);
+      var date = pr.created ? pr.created.substring(0, 10) : '-';
+      html += '<tr><td>' + (pr.number||'-') + '</td><td>' + escHtml(pr.title||'') + '</td><td>' + state + '</td><td>' + date + '</td></tr>';
+    });
+    html += '</table>';
   } else {
-    var gradeEl = document.getElementById('pfGrade');
-    if (gradeEl) gradeEl.innerHTML = 'GitHub 계정이 연결되지 않았습니다. 관리자에게 연결을 요청해주세요.';
+    html += '<h2>반영 요청 이력</h2><p style="font-size:10pt;color:#5a7282">아직 연동된 반영 요청 데이터가 없습니다. 위키 데이터 연결 후 다시 출력하세요.</p>';
   }
+
+  html += '<div class="footer">이 보고서는 연대지능네트워크 아카데미 사이트에서 자동 생성되었습니다.</div>';
+  html += '</body></html>';
+
+  var blob = new Blob(['﻿' + html], { type: 'application/msword' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var fileName = '활동보고서_' + name.replace(/[^\w가-힣]/g,'') + '_' + today + '.doc';
+  a.href = url; a.download = fileName; a.click();
+  URL.revokeObjectURL(url);
+
+  if (resultEl) { resultEl.style.color = 'var(--success)'; resultEl.textContent = '활동보고서를 ' + fileName + ' 파일로 내려받았습니다.'; }
 }
 
 // ===== VERIFY GAME =====
@@ -4444,8 +4353,7 @@ function exportWeeklyReport() {
   var _origGo = go;
   go = function(id, link) {
     _origGo(id, link);
-    if (id === 'contributions') { renderContribPage(); }
-    if (id === 'learning-portfolio') { renderPortfolio(); }
+    if (id === 'achievements') { renderContribPage(); }
     if (id === 'access-admin') { populateGhEmailSelect(); renderGhLinks(); }
     if (id === 'verify-game') { initGamePage(); }
     if (id === 'verify-history') { renderVerifyHistory(); }
