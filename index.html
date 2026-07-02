@@ -268,7 +268,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     <button onclick="requestAccess()" style="margin-top:6px">교육 신청</button>
   </div>
   <div id="accessStatus"></div>
-  <div class="back-btn-wrap"><button class="back-btn" onclick="showApp()">&#8592; 아카데미 개요로 돌아가기</button></div>
+  <div class="back-btn-wrap"><button class="back-btn" onclick="showApp()">&#8592; 연대지능네트워크로 돌아가기</button></div>
 </div>
 
 <!-- MAIN APP (shown by default) -->
@@ -331,9 +331,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sec-title">홈</div>
-  <a href="javascript:void(0)" class="active" onclick="go('home',this)">아카데미 개요</a>
-  <a href="javascript:void(0)" onclick="go('feedback-board',this)">의견 게시판</a>
-  <a href="javascript:void(0)" onclick="go('verify-report',this)">검증 종합 리포트</a>
+  <a href="javascript:void(0)" class="active" onclick="go('home',this)">연대지능네트워크</a>
+  <a href="javascript:void(0)" onclick="go('feedback-board',this)">활동가 의견</a>
 
   <div class="sec-title">교육과정</div>
   <a href="javascript:void(0)" onclick="go('course-unified',this)" style="font-weight:800">AI 학습 가이드</a>
@@ -366,7 +365,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
 <!-- HOME -->
 <div id="home" class="page active">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">아카데미 개요</h2>
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">연대지능네트워크</h2>
   <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
     <a href="https://poomasi.org/" target="_blank" rel="noopener" class="stat-card" style="text-decoration:none;cursor:pointer;display:block">
       <div class="stat-num" style="font-size:28px">&#127760;</div>
@@ -412,10 +411,12 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
-<!-- FEEDBACK BOARD -->
+<!-- FEEDBACK BOARD + VERIFY REPORT (통합: 활동가 의견) -->
 <div id="feedback-board" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">의견 게시판</h2>
-  <p style="color:var(--sub);margin-bottom:16px">사이트 운영 방식이나 기능 개선에 대해 자유롭게 의견을 남겨주세요.</p>
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">활동가 의견</h2>
+
+  <h3 style="font-size:16px;font-weight:800;margin-bottom:4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">의견 게시판</h3>
+  <p style="color:var(--sub);margin:8px 0 16px">사이트 운영 방식이나 기능 개선에 대해 자유롭게 의견을 남겨주세요.</p>
 
   <div class="fb-write" id="fbWriteBox">
     <textarea id="fbContent" placeholder="어떤 기능이 필요한가요? 불편한 점이 있나요? 자유롭게 적어주세요."></textarea>
@@ -439,6 +440,46 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   </div>
 
   <div id="fbPosts"></div>
+
+  <h3 style="font-size:16px;font-weight:800;margin:32px 0 4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">검증 종합 리포트</h3>
+  <p style="color:var(--sub);margin:8px 0 16px">모든 활동가의 검수 결과를 종합하여 위키 콘텐츠의 품질 현황을 보여줍니다. 각 내용에 대한 판정과 개선의견이 집계됩니다.</p>
+
+  <div class="stats-grid" style="margin-bottom:16px">
+    <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="vr-total">0</div><div class="stat-label">검수된 항목</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#2e7d32" id="vr-keep">0</div><div class="stat-label">유지</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#f57c00" id="vr-fix">0</div><div class="stat-label">보완 필요</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#c62828" id="vr-err">0</div><div class="stat-label">수정 필요</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3 style="margin-bottom:4px">판정 기준</h3>
+    <p style="font-size:12px;color:var(--sub);line-height:1.7;margin:0">
+      <strong style="color:#2e7d32">유지</strong>: 좋음이 과반수이고 오류가 20% 미만<br>
+      <strong style="color:#c62828">수정 필요</strong>: 오류가 과반수이거나 오류 비율 40% 이상<br>
+      <strong style="color:#f57c00">보완 필요</strong>: 그 외 (보완이 가장 많거나 의견이 혼재)<br>
+      최소 3건 이상 검수된 항목만 리포트에 포함됩니다.
+    </p>
+  </div>
+
+  <div id="vr-section-keep" style="display:none;margin-bottom:20px">
+    <h3 style="color:#2e7d32;font-size:16px;margin-bottom:10px">&#9675; 유지 — 위키에 그대로 저장</h3>
+    <div id="vr-list-keep"></div>
+  </div>
+
+  <div id="vr-section-fix" style="display:none;margin-bottom:20px">
+    <h3 style="color:#f57c00;font-size:16px;margin-bottom:10px">&#9651; 보완 필요 — 개선의견 정리</h3>
+    <div id="vr-list-fix"></div>
+  </div>
+
+  <div id="vr-section-err" style="display:none;margin-bottom:20px">
+    <h3 style="color:#c62828;font-size:16px;margin-bottom:10px">&#10005; 수정 필요 — 수정할 내용</h3>
+    <div id="vr-list-err"></div>
+  </div>
+
+  <div id="vr-empty" class="highlight-box" style="display:none">
+    아직 충분한 검수 데이터가 없습니다. 최소 3건 이상 검수된 항목이 있어야 리포트가 생성됩니다.
+  </div>
+
   <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -611,55 +652,6 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <div id="vh-records" style="font-size:13px;color:var(--sub)">아직 검증 기록이 없습니다.</div>
     </div>
   </div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- VERIFY REPORT -->
-<div id="verify-report" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">검증 종합 리포트</h2>
-  <p style="color:var(--sub);margin-bottom:16px">모든 활동가의 검수 결과를 종합하여 위키 콘텐츠의 품질 현황을 보여줍니다. 각 내용에 대한 판정과 개선의견이 집계됩니다.</p>
-
-  <div class="stats-grid" style="margin-bottom:16px">
-    <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="vr-total">0</div><div class="stat-label">검수된 항목</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#2e7d32" id="vr-keep">0</div><div class="stat-label">유지</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#f57c00" id="vr-fix">0</div><div class="stat-label">보완 필요</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#c62828" id="vr-err">0</div><div class="stat-label">수정 필요</div></div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <h3 style="margin-bottom:4px">판정 기준</h3>
-    <p style="font-size:12px;color:var(--sub);line-height:1.7;margin:0">
-      <strong style="color:#2e7d32">유지</strong>: 좋음이 과반수이고 오류가 20% 미만<br>
-      <strong style="color:#c62828">수정 필요</strong>: 오류가 과반수이거나 오류 비율 40% 이상<br>
-      <strong style="color:#f57c00">보완 필요</strong>: 그 외 (보완이 가장 많거나 의견이 혼재)<br>
-      최소 3건 이상 검수된 항목만 리포트에 포함됩니다.
-    </p>
-  </div>
-
-  <div id="vr-section-keep" style="display:none;margin-bottom:20px">
-    <h3 style="color:#2e7d32;font-size:16px;margin-bottom:10px">&#9675; 유지 — 위키에 그대로 저장</h3>
-    <div id="vr-list-keep"></div>
-  </div>
-
-  <div id="vr-section-fix" style="display:none;margin-bottom:20px">
-    <h3 style="color:#f57c00;font-size:16px;margin-bottom:10px">&#9651; 보완 필요 — 개선의견 정리</h3>
-    <div id="vr-list-fix"></div>
-  </div>
-
-  <div id="vr-section-err" style="display:none;margin-bottom:20px">
-    <h3 style="color:#c62828;font-size:16px;margin-bottom:10px">&#10005; 수정 필요 — 수정할 내용</h3>
-    <div id="vr-list-err"></div>
-  </div>
-
-  <div id="vr-empty" class="highlight-box" style="display:none">
-    아직 충분한 검수 데이터가 없습니다. 최소 3건 이상 검수된 항목이 있어야 리포트가 생성됩니다.
-  </div>
-
 <div class="fb-inline">
   <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
   <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
@@ -4457,8 +4449,8 @@ function exportWeeklyReport() {
     if (id === 'access-admin') { populateGhEmailSelect(); renderGhLinks(); }
     if (id === 'verify-game') { initGamePage(); }
     if (id === 'verify-history') { renderVerifyHistory(); }
-    if (id === 'verify-report') { vrShowLimits = { keep: 5, fix: 5, err: 5 }; renderVerifyReport(); }
-    if (id === 'feedback-board') { fbShowLimit = 5; renderFeedbackBoard(); }
+    if (id === 'verify-report') { go('feedback-board'); return; }
+    if (id === 'feedback-board') { fbShowLimit = 5; renderFeedbackBoard(); vrShowLimits = { keep: 5, fix: 5, err: 5 }; renderVerifyReport(); }
     if (id === 'admin-dashboard') { renderAdminDashboard(); }
   };
 })();
