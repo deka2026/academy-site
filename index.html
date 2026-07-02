@@ -1279,11 +1279,55 @@ async function sbSync() {
       });
       localStorage.setItem('academy_wiki_contrib', JSON.stringify(wcData));
     }
+    var ntRes = await sb.from('notices').select('*').order('created_at', { ascending: false });
+    if (ntRes.data) {
+      var ntData = ntRes.data.map(function(r) {
+        return { id: r.id, title: r.title, content: r.content, date: r.date };
+      });
+      localStorage.setItem('academy_notices', JSON.stringify(ntData));
+    }
+    var schRes = await sb.from('schedule').select('*').order('date', { ascending: true });
+    if (schRes.data) {
+      var schData = schRes.data.map(function(r) {
+        return { id: r.id, date: r.date, title: r.title };
+      });
+      localStorage.setItem('academy_schedule', JSON.stringify(schData));
+    }
     sbReady = true;
     console.log('[Supabase] 데이터 동기화 완료');
+    if (typeof renderHomeNotices === 'function') renderHomeNotices();
+    if (document.getElementById('schedule-notice') && document.getElementById('schedule-notice').classList.contains('active') && typeof renderScheduleNotice === 'function') renderScheduleNotice();
   } catch (e) {
     console.warn('[Supabase] 동기화 실패, localStorage 사용:', e.message);
   }
+}
+
+// Supabase에 공지사항 저장 (전체 교체 방식)
+async function sbSaveNotices(notices) {
+  if (!sbReady) return;
+  try {
+    await sb.from('notices').delete().neq('id', 0);
+    if (notices.length) {
+      var rows = notices.map(function(n) {
+        return { id: n.id, title: n.title, content: n.content, date: n.date };
+      });
+      await sb.from('notices').upsert(rows, { onConflict: 'id' });
+    }
+  } catch (e) { console.warn('[Supabase] notices 저장 실패:', e.message); }
+}
+
+// Supabase에 교육 일정 저장 (전체 교체 방식)
+async function sbSaveSchedule(schedule) {
+  if (!sbReady) return;
+  try {
+    await sb.from('schedule').delete().neq('id', 0);
+    if (schedule.length) {
+      var rows = schedule.map(function(e) {
+        return { id: e.id, date: e.date, title: e.title };
+      });
+      await sb.from('schedule').upsert(rows, { onConflict: 'id' });
+    }
+  } catch (e) { console.warn('[Supabase] schedule 저장 실패:', e.message); }
 }
 
 // Supabase에 피드백 저장 (로컬 저장 후 호출)
@@ -4317,7 +4361,7 @@ function exportWeeklyReport() {
 // ===== NOTICES (공지사항) =====
 var NOTICE_KEY = 'academy_notices';
 function getNotices() { try { return JSON.parse(localStorage.getItem(NOTICE_KEY)) || []; } catch(e) { return []; } }
-function saveNotices(arr) { localStorage.setItem(NOTICE_KEY, JSON.stringify(arr)); }
+function saveNotices(arr) { localStorage.setItem(NOTICE_KEY, JSON.stringify(arr)); sbSaveNotices(arr); }
 
 function addNotice() {
   if (!isAdmin()) { alert('관리자만 공지를 등록할 수 있습니다.'); return; }
@@ -4377,7 +4421,7 @@ function renderNoticeAdmin() {
 var SCHEDULE_KEY = 'academy_schedule';
 var calYear, calMonth;
 function getSchedule() { try { return JSON.parse(localStorage.getItem(SCHEDULE_KEY)) || []; } catch(e) { return []; } }
-function saveSchedule(arr) { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(arr)); }
+function saveSchedule(arr) { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(arr)); sbSaveSchedule(arr); }
 
 function addScheduleEvent() {
   if (!isAdmin()) { alert('관리자만 일정을 추가할 수 있습니다.'); return; }
