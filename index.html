@@ -268,7 +268,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     <button onclick="requestAccess()" style="margin-top:6px">교육 신청</button>
   </div>
   <div id="accessStatus"></div>
-  <div class="back-btn-wrap"><button class="back-btn" onclick="showApp()">&#8592; 대시보드로 돌아가기</button></div>
+  <div class="back-btn-wrap"><button class="back-btn" onclick="showApp()">&#8592; 아카데미 개요로 돌아가기</button></div>
 </div>
 
 <!-- MAIN APP (shown by default) -->
@@ -331,8 +331,9 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sec-title">홈</div>
-  <a href="javascript:void(0)" class="active" onclick="go('home',this)">대시보드</a>
+  <a href="javascript:void(0)" class="active" onclick="go('home',this)">아카데미 개요</a>
   <a href="javascript:void(0)" onclick="go('feedback-board',this)">의견 게시판</a>
+  <a href="javascript:void(0)" onclick="go('verify-report',this)">검증 종합 리포트</a>
 
   <div class="sec-title">교육과정</div>
   <a href="javascript:void(0)" onclick="go('course-unified',this)" style="font-weight:800">AI 학습 가이드</a>
@@ -345,7 +346,6 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <div class="sec-title">검증 게임</div>
   <a href="javascript:void(0)" onclick="go('verify-game',this)" style="font-weight:800">지식 검증 챌린지</a>
   <a href="javascript:void(0)" onclick="go('verify-history',this)">내 검증 기록</a>
-  <a href="javascript:void(0)" onclick="go('verify-report',this)">검증 종합 리포트</a>
 
   <div class="sec-title">성과</div>
   <a href="javascript:void(0)" onclick="go('contributions',this)">위키 활동 평가</a>
@@ -366,7 +366,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
 <!-- HOME -->
 <div id="home" class="page active">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">대시보드</h2>
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">아카데미 개요</h2>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">교육 모듈</div></div>
     <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">문서 유형</div></div>
@@ -3779,6 +3779,12 @@ function renderVerifyHistory() {
   recEl.innerHTML = html;
 }
 
+var vrShowLimits = { keep: 5, fix: 5, err: 5 };
+function vrShowMore(verdict) {
+  vrShowLimits[verdict] += 5;
+  renderVerifyReport();
+}
+
 function renderVerifyReport() {
   var records = getGameRecords();
   var stmtMap = {};
@@ -3843,8 +3849,9 @@ function renderVerifyReport() {
     var html = '';
     var verdictColors = { keep: '#2e7d32', fix: '#f57c00', err: '#c62828' };
     var verdictLabels = { keep: '유지', fix: '보완 필요', err: '수정 필요' };
-    for (var i = 0; i < list.length; i++) {
-      var s = list[i];
+    var shownList = list.slice(0, vrShowLimits[verdict]);
+    for (var i = 0; i < shownList.length; i++) {
+      var s = shownList[i];
       html += '<div class="card" style="margin-bottom:12px;border-left:4px solid ' + verdictColors[verdict] + '">';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
       html += '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;background:' + verdictColors[verdict] + '22;color:' + verdictColors[verdict] + '">' + verdictLabels[verdict] + '</span>';
@@ -3891,6 +3898,9 @@ function renderVerifyReport() {
       }
 
       html += '</div>';
+    }
+    if (list.length > vrShowLimits[verdict]) {
+      html += '<div style="text-align:center;margin-top:8px"><button onclick="vrShowMore(\'' + verdict + '\')" style="padding:10px 32px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">더보기 (' + (list.length - vrShowLimits[verdict]) + '개 남음)</button></div>';
     }
     el.innerHTML = html;
   }
@@ -3950,6 +3960,7 @@ function initGamePage() {
 // ── FEEDBACK BOARD ──
 var FB_KEY = 'academy_feedback';
 var fbFilter = 'all';
+var fbShowLimit = 5;
 
 function getFeedbacks() { return JSON.parse(localStorage.getItem(FB_KEY) || '[]'); }
 function saveFeedbacks(arr) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); sbSaveFeedback(arr); }
@@ -3984,6 +3995,7 @@ function getCategoryLabel(cat) {
 
 function filterFeedback(cat, btn) {
   fbFilter = cat;
+  fbShowLimit = 5;
   var btns = document.querySelectorAll('.fb-filter button');
   for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
   if (btn) btn.classList.add('active');
@@ -4061,9 +4073,10 @@ function renderFeedbackBoard() {
     return;
   }
 
+  var visible = filtered.slice(0, fbShowLimit);
   var html = '';
-  for (var i = 0; i < filtered.length; i++) {
-    var f = filtered[i];
+  for (var i = 0; i < visible.length; i++) {
+    var f = visible[i];
     var isMyPost = session && (f.email === session.email || session.role === 'admin');
     var liked = session && f.likes && f.likes.indexOf(session.email) !== -1;
     var likeCount = f.likes ? f.likes.length : 0;
@@ -4098,7 +4111,15 @@ function renderFeedbackBoard() {
 
     html += '</div>';
   }
+  if (filtered.length > fbShowLimit) {
+    html += '<div style="text-align:center;margin-top:12px"><button onclick="fbShowMore()" style="padding:10px 32px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">더보기 (' + (filtered.length - fbShowLimit) + '개 남음)</button></div>';
+  }
   container.innerHTML = html;
+}
+
+function fbShowMore() {
+  fbShowLimit += 5;
+  renderFeedbackBoard();
 }
 
 function submitInlineFeedback(btn) {
@@ -4425,8 +4446,8 @@ function exportWeeklyReport() {
     if (id === 'access-admin') { populateGhEmailSelect(); renderGhLinks(); }
     if (id === 'verify-game') { initGamePage(); }
     if (id === 'verify-history') { renderVerifyHistory(); }
-    if (id === 'verify-report') { renderVerifyReport(); }
-    if (id === 'feedback-board') { renderFeedbackBoard(); }
+    if (id === 'verify-report') { vrShowLimits = { keep: 5, fix: 5, err: 5 }; renderVerifyReport(); }
+    if (id === 'feedback-board') { fbShowLimit = 5; renderFeedbackBoard(); }
     if (id === 'admin-dashboard') { renderAdminDashboard(); }
   };
 })();
