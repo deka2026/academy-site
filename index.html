@@ -352,8 +352,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <div class="sec-title">관리</div>
   <a href="javascript:void(0)" onclick="go('admin-dashboard',this)">품질 리뷰 대시보드</a>
   <a href="javascript:void(0)" onclick="go('access-admin',this)">교육생 관리</a>
-  <a href="javascript:void(0)" onclick="go('schedule-mgmt',this)">교육 일정</a>
-  <a href="javascript:void(0)" onclick="go('notice-board',this)">공지사항</a>
+  <a href="javascript:void(0)" onclick="go('schedule-notice',this)">교육일정 · 공지사항</a>
 </nav>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
@@ -381,6 +380,9 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     </a>
   </div>
 
+  <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">공지사항</h3>
+  <div id="homeNotices" style="margin-bottom:20px"></div>
+
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">AI 대화</h3>
   <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육 과정이나 연대지능 활동에 대해 질문하세요.</p>
   <div class="chat-area" style="height:320px;margin-bottom:20px">
@@ -393,18 +395,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     </div>
   </div>
 
-  <div class="card">
-    <h3>빠른 시작</h3>
-    <p>왼쪽 메뉴에서 교육과정을 순서대로 따라하세요. 각 단계에 프롬프트가 제공됩니다.</p>
-  </div>
-
-  <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">교육 과정 진행</h3>
-  <div class="step-card" onclick="go('course-unified')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">1</span><span class="step-title">AI 학습 가이드 (11단계 대화형 학습)</span></div>
-  </div>
-  <div class="step-card" onclick="go('course-next')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">2</span><span class="step-title">현재 상태 & 다음 단계 진단</span></div>
-  </div>
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
@@ -1060,87 +1055,58 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
-<!-- SCHEDULE MANAGEMENT -->
-<div id="schedule-mgmt" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">교육 일정</h2>
-  <p style="color:var(--sub);margin-bottom:16px">아카데미 교육 커리큘럼 및 주요 일정</p>
 
-  <div class="section-block">
-    <h3>교육 과정 일정표</h3>
-    <div style="overflow-x:auto">
-    <table class="contrib-table">
-      <tr><th>주차</th><th>주제</th><th>학습 목표</th><th>과제</th></tr>
-      <tr><td><strong>1주차</strong></td><td>오리엔테이션 + 환경 구축</td><td>PC 로컬 도구 4종 설치, 계정 생성</td><td>환경 구축 스크린샷 제출</td></tr>
-      <tr><td><strong>2주차</strong></td><td>AI 도구 설정</td><td>Claude Code 설치, CLAUDE.md 작성</td><td>첫 번째 AI 대화 기록 공유</td></tr>
-      <tr><td><strong>3주차</strong></td><td>인터넷 서비스 연결 + 공개</td><td>GitHub, Cloudflare, Quartz 연결</td><td>개인 위키 URL 제출</td></tr>
-      <tr><td><strong>4주차</strong></td><td>위키 작성법 + 지식 분류</td><td>4종 문서 유형, 지식 분류 4요소 이해</td><td>현장기록 1건 반영 요청 제출</td></tr>
-      <tr><td><strong>5주차</strong></td><td>연대지능과 데이터 주권</td><td>연대지능 개념, 데이터 주권 실천</td><td>개념 문서 1건 반영 요청 제출</td></tr>
-      <tr><td><strong>6주차</strong></td><td>동료 검토 + 협업</td><td>반영 요청 검토 방법, 건설적 의견 나누기</td><td>동료 문서 검토 2건</td></tr>
-      <tr><td><strong>7주차</strong></td><td>우리 분야 전문 AI 이해</td><td>AI 검색 답변 개념, 위키 데이터의 AI 활용</td><td>사례연구 문서 1건</td></tr>
-      <tr><td><strong>8주차</strong></td><td>성과 발표 + 수료</td><td>포트폴리오 정리, 성과 공유</td><td>발표 자료 제출</td></tr>
-    </table>
+<!-- SCHEDULE + NOTICE (통합: 교육일정 · 공지사항) -->
+<div id="schedule-notice" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">교육일정 · 공지사항</h2>
+
+  <h3 style="font-size:16px;font-weight:800;margin-bottom:4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">교육 일정</h3>
+  <p style="color:var(--sub);margin:8px 0 12px">달력에서 날짜를 눌러 일정을 추가하세요. 등록된 일정은 달력과 목록에 표시됩니다.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <button onclick="calMove(-1)" style="background:#eee;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:700">&#8592;</button>
+      <strong id="calTitle" style="font-size:15px"></strong>
+      <button onclick="calMove(1)" style="background:#eee;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:700">&#8594;</button>
     </div>
+    <div id="calGrid"></div>
   </div>
 
-  <div class="section-block">
-    <h3>주요 일정</h3>
-    <div class="card">
-      <div style="display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-        <span style="background:var(--accent);color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap">안내</span>
-        <span style="font-size:13px">교육 일정은 기수별로 조정될 수 있습니다. 구체적 일정은 공지사항을 확인해주세요.</span>
+  <div class="card">
+    <h3 style="font-size:14px;margin-bottom:10px">일정 추가</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+      <div>
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:3px">날짜</label>
+        <input type="date" id="schDate" style="padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit">
       </div>
+      <div style="flex:1;min-width:180px">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:3px">일정 내용</label>
+        <input type="text" id="schTitle" placeholder="예: 3기 오리엔테이션" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit">
+      </div>
+      <button onclick="addScheduleEvent()" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">일정 추가</button>
     </div>
   </div>
 
-  <div class="section-block">
-    <h3>교육 운영 방식</h3>
-    <div class="vision-grid">
-      <div class="vision-card"><h4>비대면 중심</h4><p>Claude Code 기반 자기 주도 학습. 언제 어디서든 자신의 속도로 진행합니다.</p></div>
-      <div class="vision-card"><h4>실시간 세션</h4><p>주 1회 온라인 모임으로 질의응답, 동료 리뷰, 진도 확인을 합니다.</p></div>
-      <div class="vision-card"><h4>1:1 멘토링</h4><p>막히는 부분은 관리자 또는 선배 활동가에게 개별 지원을 받습니다.</p></div>
-      <div class="vision-card"><h4>과제 기반 평가</h4><p>시험 대신 실제 위키 활동과 반영 요청 이력으로 학습 성과를 평가해요.</p></div>
-    </div>
-  </div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- NOTICE BOARD -->
-<div id="notice-board" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">공지사항</h2>
-  <p style="color:var(--sub);margin-bottom:16px">아카데미 운영 관련 공지</p>
-
-  <div class="card" style="border-left:3px solid var(--accent)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="font-size:15px;margin:0">아카데미 사이트 오픈</h3>
-      <span style="font-size:12px;color:var(--sub)">2026-06-27</span>
-    </div>
-    <p style="font-size:13px;line-height:1.7">사교원 연대지능활동가 아카데미 사이트가 오픈되었습니다. 교육 과정, 연대지능 개념, 위키 작성법 등을 확인하실 수 있습니다. 교육 신청은 상단 "교육 신청" 버튼을 눌러주세요.</p>
+  <div class="card">
+    <h3 style="font-size:14px;margin-bottom:10px">등록된 일정</h3>
+    <div id="schList" style="font-size:13px;color:var(--sub)">등록된 일정이 없습니다.</div>
   </div>
 
-  <div class="card" style="border-left:3px solid var(--accent)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="font-size:15px;margin:0">연대지능 위키 저장소 개설</h3>
-      <span style="font-size:12px;color:var(--sub)">2026-06-27</span>
-    </div>
-    <p style="font-size:13px;line-height:1.7">GitHub에 연대지능 위키 저장소(<code>deka2026/solidarity-intelligence-wiki</code>)가 개설되었습니다. 4종 문서 템플릿과 지식 분류 안내가 준비되어 있어요. 내 공간에 복사하여 문서를 작성하고 반영 요청을 해주세요.</p>
+  <h3 style="font-size:16px;font-weight:800;margin:32px 0 4px;padding-bottom:6px;border-bottom:2px solid var(--accent)">공지사항</h3>
+  <p style="color:var(--sub);margin:8px 0 12px">작성한 공지는 홈(연대지능네트워크) 화면 상단에 최근 10건이 표시됩니다.</p>
+
+  <div class="card">
+    <h3 style="font-size:14px;margin-bottom:10px">공지 작성</h3>
+    <input type="text" id="noticeTitle" placeholder="제목" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px">
+    <textarea id="noticeContent" placeholder="공지 내용을 입력하세요..." style="width:100%;box-sizing:border-box;min-height:90px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;margin-bottom:8px"></textarea>
+    <button onclick="addNotice()" style="background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">공지 등록</button>
   </div>
 
-  <div class="card" style="border-left:3px solid var(--warn)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="font-size:15px;margin:0">1기 교육생 모집 예정</h3>
-      <span style="font-size:12px;color:var(--sub)">예정</span>
-    </div>
-    <p style="font-size:13px;line-height:1.7">1기 연대지능활동가 교육생을 모집할 예정입니다. 관심 있는 분은 교육 신청을 미리 해주시면 모집 시 우선 안내드리겠습니다.</p>
+  <div class="card">
+    <h3 style="font-size:14px;margin-bottom:10px">등록된 공지</h3>
+    <div id="noticeAdminList" style="font-size:13px;color:var(--sub)">등록된 공지가 없습니다.</div>
   </div>
 
-  <div class="highlight-box">
-    공지사항은 관리자가 수시로 업데이트합니다.
-  </div>
 <div class="fb-inline">
   <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
   <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
@@ -1943,7 +1909,7 @@ function goNoHistory(id) {
 
 function go(id, link) {
   closeSidebar();
-  var adminPages = ['access-admin','schedule-mgmt','notice-board'];
+  var adminPages = ['access-admin','schedule-notice'];
   var userPages = ['achievements','verify-game','verify-history'];
   var role = currentRole();
   if (adminPages.indexOf(id) !== -1 && role !== 'admin') {
@@ -4348,6 +4314,156 @@ function exportWeeklyReport() {
     '<span style="color:var(--success)">' + filtered.length + '건의 의견을 <strong>' + escHtml(fileName) + '</strong>으로 내보냈습니다.</span>';
 }
 
+// ===== NOTICES (공지사항) =====
+var NOTICE_KEY = 'academy_notices';
+function getNotices() { try { return JSON.parse(localStorage.getItem(NOTICE_KEY)) || []; } catch(e) { return []; } }
+function saveNotices(arr) { localStorage.setItem(NOTICE_KEY, JSON.stringify(arr)); }
+
+function addNotice() {
+  if (!isAdmin()) { alert('관리자만 공지를 등록할 수 있습니다.'); return; }
+  var title = document.getElementById('noticeTitle').value.trim();
+  var content = document.getElementById('noticeContent').value.trim();
+  if (!title) { alert('제목을 입력하세요.'); return; }
+  if (!content) { alert('내용을 입력하세요.'); return; }
+  var notices = getNotices();
+  notices.unshift({ id: Date.now(), title: title, content: content, date: fmtDate(new Date()) });
+  saveNotices(notices);
+  document.getElementById('noticeTitle').value = '';
+  document.getElementById('noticeContent').value = '';
+  renderNoticeAdmin();
+  renderHomeNotices();
+}
+
+function deleteNotice(id) {
+  if (!isAdmin()) return;
+  if (!confirm('이 공지를 삭제하시겠습니까?')) return;
+  saveNotices(getNotices().filter(function(n) { return n.id !== id; }));
+  renderNoticeAdmin();
+  renderHomeNotices();
+}
+
+function renderHomeNotices() {
+  var el = document.getElementById('homeNotices');
+  if (!el) return;
+  var notices = getNotices().slice(0, 10);
+  if (!notices.length) {
+    el.innerHTML = '<div class="card" style="color:var(--sub);font-size:13px">등록된 공지사항이 없습니다.</div>';
+    return;
+  }
+  el.innerHTML = notices.map(function(n) {
+    return '<div class="card" style="border-left:3px solid var(--accent);margin-bottom:10px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      + '<h4 style="font-size:14px;margin:0">' + escHtml(n.title) + '</h4>'
+      + '<span style="font-size:12px;color:var(--sub)">' + escHtml(n.date) + '</span></div>'
+      + '<p style="font-size:13px;line-height:1.7;margin:0;white-space:pre-wrap">' + escHtml(n.content) + '</p></div>';
+  }).join('');
+}
+
+function renderNoticeAdmin() {
+  var el = document.getElementById('noticeAdminList');
+  if (!el) return;
+  var notices = getNotices();
+  if (!notices.length) { el.innerHTML = '등록된 공지가 없습니다.'; return; }
+  el.innerHTML = notices.map(function(n) {
+    return '<div style="border-bottom:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;gap:10px">'
+      + '<div style="flex:1"><strong style="font-size:13px">' + escHtml(n.title) + '</strong>'
+      + '<span style="font-size:11px;color:var(--sub);margin-left:6px">' + escHtml(n.date) + '</span>'
+      + '<div style="font-size:12px;color:var(--sub);margin-top:2px;white-space:pre-wrap">' + escHtml(n.content) + '</div></div>'
+      + '<button onclick="deleteNotice(' + n.id + ')" style="font-size:11px;color:var(--danger);background:none;border:none;cursor:pointer;white-space:nowrap">삭제</button></div>';
+  }).join('');
+}
+
+// ===== SCHEDULE CALENDAR (교육 일정) =====
+var SCHEDULE_KEY = 'academy_schedule';
+var calYear, calMonth;
+function getSchedule() { try { return JSON.parse(localStorage.getItem(SCHEDULE_KEY)) || []; } catch(e) { return []; } }
+function saveSchedule(arr) { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(arr)); }
+
+function addScheduleEvent() {
+  if (!isAdmin()) { alert('관리자만 일정을 추가할 수 있습니다.'); return; }
+  var date = document.getElementById('schDate').value;
+  var title = document.getElementById('schTitle').value.trim();
+  if (!date) { alert('날짜를 선택하세요.'); return; }
+  if (!title) { alert('일정 내용을 입력하세요.'); return; }
+  var sch = getSchedule();
+  sch.push({ id: Date.now(), date: date, title: title });
+  saveSchedule(sch);
+  document.getElementById('schTitle').value = '';
+  var parts = date.split('-');
+  calYear = parseInt(parts[0], 10); calMonth = parseInt(parts[1], 10) - 1;
+  renderCalendar();
+  renderScheduleList();
+}
+
+function deleteScheduleEvent(id) {
+  if (!isAdmin()) return;
+  saveSchedule(getSchedule().filter(function(e) { return e.id !== id; }));
+  renderCalendar();
+  renderScheduleList();
+}
+
+function calMove(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  else if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  var grid = document.getElementById('calGrid');
+  if (!grid) return;
+  if (calYear == null) { var now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth(); }
+  document.getElementById('calTitle').textContent = calYear + '년 ' + (calMonth + 1) + '월';
+  var sch = getSchedule();
+  var byDate = {};
+  sch.forEach(function(e) { (byDate[e.date] = byDate[e.date] || []).push(e); });
+
+  var firstDay = new Date(calYear, calMonth, 1).getDay();
+  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  var weekdays = ['일','월','화','수','목','금','토'];
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">';
+  weekdays.forEach(function(w, i) {
+    var color = i === 0 ? '#c62828' : (i === 6 ? '#1565c0' : 'var(--sub)');
+    html += '<div style="text-align:center;font-size:12px;font-weight:700;color:' + color + ';padding:4px 0">' + w + '</div>';
+  });
+  for (var b = 0; b < firstDay; b++) html += '<div></div>';
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = calYear + '-' + String(calMonth + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    var events = byDate[dateStr] || [];
+    var evHtml = events.map(function(e) {
+      return '<div title="' + escHtml(e.title) + '" style="font-size:10px;background:var(--accent);color:#fff;border-radius:3px;padding:1px 3px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(e.title) + '</div>';
+    }).join('');
+    html += '<div onclick="pickCalDate(\'' + dateStr + '\')" style="min-height:56px;border:1px solid var(--border);border-radius:6px;padding:3px;cursor:pointer;background:' + (events.length ? '#f0f7f5' : '#fff') + '">'
+      + '<div style="font-size:12px;font-weight:600">' + d + '</div>' + evHtml + '</div>';
+  }
+  html += '</div>';
+  grid.innerHTML = html;
+}
+
+function pickCalDate(dateStr) {
+  var inp = document.getElementById('schDate');
+  if (inp) { inp.value = dateStr; document.getElementById('schTitle').focus(); }
+}
+
+function renderScheduleList() {
+  var el = document.getElementById('schList');
+  if (!el) return;
+  var sch = getSchedule().slice().sort(function(a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+  if (!sch.length) { el.innerHTML = '등록된 일정이 없습니다.'; return; }
+  el.innerHTML = sch.map(function(e) {
+    return '<div style="border-bottom:1px solid var(--border);padding:7px 0;display:flex;justify-content:space-between;gap:10px;align-items:center">'
+      + '<span><strong style="color:var(--accent)">' + escHtml(e.date) + '</strong> &nbsp; ' + escHtml(e.title) + '</span>'
+      + '<button onclick="deleteScheduleEvent(' + e.id + ')" style="font-size:11px;color:var(--danger);background:none;border:none;cursor:pointer">삭제</button></div>';
+  }).join('');
+}
+
+function renderScheduleNotice() {
+  renderCalendar();
+  renderScheduleList();
+  renderNoticeAdmin();
+}
+
 // Page open hooks — wrap go() to trigger data renders
 (function() {
   var _origGo = go;
@@ -4360,10 +4476,13 @@ function exportWeeklyReport() {
     if (id === 'verify-report') { go('feedback-board'); return; }
     if (id === 'feedback-board') { fbShowLimit = 5; renderFeedbackBoard(); vrShowLimits = { keep: 5, fix: 5, err: 5 }; renderVerifyReport(); }
     if (id === 'admin-dashboard') { renderAdminDashboard(); }
+    if (id === 'schedule-notice') { renderScheduleNotice(); }
+    if (id === 'home') { renderHomeNotices(); }
   };
 })();
 
 renderContribPage();
+renderHomeNotices();
 
 // ===== PWA INSTALL =====
 function openPwaModal() { document.getElementById('pwaOverlay').classList.add('show'); }
