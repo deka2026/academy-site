@@ -396,23 +396,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   </div>
 
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">교육 과정 진행</h3>
-  <div class="step-card" onclick="go('course-overview')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">1</span><span class="step-title">전체 환경 관계도</span></div>
-  </div>
-  <div class="step-card" onclick="go('course-local')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">2</span><span class="step-title">내 PC 도구 설치</span></div>
-  </div>
-  <div class="step-card" onclick="go('course-ai')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">3</span><span class="step-title">AI 도구 설정</span></div>
-  </div>
-  <div class="step-card" onclick="go('course-cloud')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">4</span><span class="step-title">인터넷 서비스 연결</span></div>
-  </div>
-  <div class="step-card" onclick="go('course-workflow')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">5</span><span class="step-title">바이브 코딩 작업 순서</span></div>
+  <div class="step-card" onclick="go('course-unified')" style="cursor:pointer">
+    <div class="step-header"><span class="step-num">1</span><span class="step-title">AI 학습 가이드 (11단계 대화형 학습)</span></div>
   </div>
   <div class="step-card" onclick="go('course-next')" style="cursor:pointer">
-    <div class="step-header"><span class="step-num">6</span><span class="step-title">현재 상태 & 다음 단계</span></div>
+    <div class="step-header"><span class="step-num">2</span><span class="step-title">현재 상태 & 다음 단계 진단</span></div>
   </div>
 <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
@@ -497,145 +485,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 </div>
 
 <!-- COURSE: OVERVIEW -->
-<div id="course-overview" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">전체 환경 관계도</h2>
-  <p style="color:var(--sub);margin-bottom:16px">내 PC ↔ 인터넷 서비스 ↔ AI 세 영역이 연결되어 바이브 코딩 환경을 이룹니다</p>
-
-  <div class="vision-grid">
-    <div class="vision-card"><h4>내 PC</h4><p>Node.js, Git, VSCode, Obsidian</p></div>
-    <div class="vision-card"><h4>AI 엔진</h4><p>Claude Code, CLAUDE.md, Anthropic API</p></div>
-    <div class="vision-card"><h4>인터넷 서비스</h4><p>GitHub, Cloudflare, Supabase, Quartz 위키</p></div>
-  </div>
-
-  <div class="highlight-box">
-    이 세 영역을 연결하면 "코드를 짜지 않아도 AI와 대화하며 웹사이트를 만들고 인터넷에 공개하는" 바이브 코딩 환경이 완성돼요.
-  </div>
-
-  <h3 style="margin:20px 0 8px;font-size:15px;font-weight:700">이 단계를 따라하기 위한 프롬프트</h3>
-  <div class="prompt-box">내 컴퓨터에 바이브 코딩 환경을 구축하려고 해.
-전체 구조를 설명해줘: PC 로컬 도구(Node.js, Git, VSCode, Obsidian), AI 도구(Claude Code, CLAUDE.md, Anthropic API), 클라우드 서비스(GitHub, Cloudflare, Supabase, Quartz)가 어떻게 연결되는지 관계도를 그려줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- COURSE: LOCAL -->
-<div id="course-local" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">내 PC 도구 설치</h2>
-  <p style="color:var(--sub);margin-bottom:16px">바이브 코딩을 시작하기 위해 필요한 4가지 프로그램을 설치해요</p>
-
-  <div class="step-card open"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">1</span><span class="step-title">Node.js 설치</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>AI 도구(Claude Code)를 실행하는 데 꼭 필요한 프로그램이에요. 설치하면 다양한 도구를 함께 쓸 수 있어요.</p><h4>설치 확인</h4><div class="prompt-box">node --version && npm --version<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">2</span><span class="step-title">Git 설치 및 설정</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>내가 만든 파일의 변경 기록을 관리해주는 도구예요. 수정한 내용을 저장하고 GitHub에 올리는 데 씁니다.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Git을 설치하고 내 GitHub 계정과 연결해줘.
-이름과 이메일을 설정하고, SSH 키도 생성해서 GitHub에 등록하는 방법을 알려줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">3</span><span class="step-title">VSCode 설치</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>파일을 편집하는 프로그램이에요. 명령어 입력창도 내장되어 있어서 이 안에서 대부분의 작업을 할 수 있어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">VSCode를 설치하고 바이브 코딩에 필요한 확장 프로그램을 추천해줘.
-터미널에서 code 명령어가 동작하도록 PATH도 설정해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">4</span><span class="step-title">Obsidian 설치</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>노트를 작성하는 앱이에요. 여기서 위키 문서를 쓰고, Quartz를 통해 웹에 공개할 수 있어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Obsidian을 설치하고, 위키 작성을 위한 Vault를 만들어줘.
-Quartz와 연동할 수 있도록 content 폴더 구조도 잡아줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- COURSE: AI -->
-<div id="course-ai" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">AI 도구 설정</h2>
-  <p style="color:var(--sub);margin-bottom:16px">Claude Code와 CLAUDE.md를 설정하여 AI와 함께 작업할 준비를 해요</p>
-
-  <div class="step-card open"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">1</span><span class="step-title">Claude Code 설치</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>명령어 입력창에서 claude를 입력해 실행하는 AI 도구예요. CLAUDE.md를 읽어 프로젝트의 배경 정보를 파악하고, 파일 만들기·수정하기·Git 명령 실행까지 직접 해줘요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Claude Code를 설치해줘.
-npm install -g @anthropic-ai/claude-code 명령어를 실행하고,
-claude --version으로 설치를 확인해줘.
-그리고 Anthropic API 키를 설정하는 방법도 알려줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">2</span><span class="step-title">CLAUDE.md 작성</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>Claude Code에 프로젝트의 배경 정보를 알려주는 파일이에요. 이름, 역할, 작업 규칙을 적어두면 AI가 자동으로 읽어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">내 프로젝트 폴더에 CLAUDE.md를 만들어줘.
-나는 연대지능활동가이고, 이 프로젝트는 연대지능 위키에 기여하기 위한 것이야.
-"연대위키에 올려줘"라고 하면 자동으로 위키 문서를 작성하고 PR을 제출하도록 규칙을 넣어줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">3</span><span class="step-title">Anthropic API 연결</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>Claude Code가 AI 답변을 만들기 위해 필요한 접속 열쇠예요. 이 열쇠를 등록해야 AI가 동작합니다.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Anthropic API 키를 환경변수에 설정해줘.
-ANTHROPIC_API_KEY를 시스템 환경변수에 등록하고,
-Claude Code에서 정상적으로 API가 연결되는지 테스트해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- COURSE: CLOUD -->
-<div id="course-cloud" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">인터넷 서비스 연결</h2>
-  <p style="color:var(--sub);margin-bottom:16px">GitHub, Cloudflare, Supabase를 연결하여 자동 공개 흐름을 만들어요</p>
-
-  <div class="step-card open"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">1</span><span class="step-title">GitHub 저장소 생성</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>코드를 인터넷에 보관하는 저장소예요. Git으로 올리면 여기에 저장되고, Cloudflare와 연결하면 자동으로 웹에 공개돼요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">GitHub에 내 위키 프로젝트용 저장소를 만들어줘.
-gh repo create 명령어를 사용하고,
-로컬 Git과 원격 저장소를 연결해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">2</span><span class="step-title">Cloudflare Pages 공개</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>GitHub에 올리면 자동으로 위키를 웹페이지로 만들어 공개해줘요. *.pages.dev 주소를 무료로 받을 수 있어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Cloudflare Pages에 내 Quartz 위키를 배포해줘.
-GitHub 저장소와 연동하고, push할 때마다 자동으로 빌드·배포되도록 설정해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">3</span><span class="step-title">Quartz 위키 설정</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>Obsidian 노트를 웹사이트로 바꿔주는 도구예요. content/ 폴더에 .md 파일을 넣으면 위키 페이지가 자동으로 만들어져요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Quartz v4를 설치하고 내 위키를 설정해줘.
-npx quartz create로 프로젝트를 만들고,
-content 폴더에 index.md를 작성해줘.
-로컬에서 npx quartz build --serve로 미리보기도 해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-
-  <div class="step-card"><div class="step-header" onclick="toggleStep(this)"><span class="step-num">4</span><span class="step-title">Supabase 연결 (M4 예정)</span><span class="step-toggle">&#9662;</span></div>
-    <div class="step-body"><p>무료 데이터베이스 서비스예요. 표(테이블)를 만든 뒤 접속 열쇠로 정보를 저장하고 불러올 수 있어요.</p><h4>따라하기 프롬프트</h4><div class="prompt-box">Supabase 프로젝트를 생성하고 기본 테이블을 만들어줘.
-API 키를 환경변수에 설정하고,
-간단한 데이터 읽기/쓰기 테스트를 해줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div></div></div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
-
-<!-- COURSE: WORKFLOW -->
-<div id="course-workflow" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">바이브 코딩 작업 순서</h2>
-  <p style="color:var(--sub);margin-bottom:16px">VSCode → Claude Code → Git → GitHub → Cloudflare → 라이브 URL</p>
-
-  <div class="step-card open"><div class="step-header"><span class="step-num">1</span><span class="step-title">VSCode에서 코드 작성 · CLAUDE.md 편집</span></div></div>
-  <div class="step-card"><div class="step-header"><span class="step-num">2</span><span class="step-title">Claude Code에서 AI에게 작업 지시</span></div></div>
-  <div class="step-card"><div class="step-header"><span class="step-num">3</span><span class="step-title">Git으로 변경사항 저장</span></div></div>
-  <div class="step-card"><div class="step-header"><span class="step-num">4</span><span class="step-title">GitHub에 올리기</span></div></div>
-  <div class="step-card"><div class="step-header"><span class="step-num">5</span><span class="step-title">Cloudflare에서 자동으로 웹페이지 만들기 · 공개</span></div></div>
-  <div class="step-card"><div class="step-header"><span class="step-num">6</span><span class="step-title">라이브 URL (*.pages.dev) 접속 확인</span></div></div>
-
-  <div class="highlight-box">"정리해"라고 하면 → 핸드오버 작성 + 스킬 정리 + 레슨 정리 + 위키 공개를 자동으로 해줘요.</div>
-
-  <h3 style="margin:20px 0 8px;font-size:15px;font-weight:700">전체 흐름을 따라하는 프롬프트</h3>
-  <div class="prompt-box">바이브 코딩 작업 흐름을 처음부터 끝까지 해볼게.
-1. VSCode에서 간단한 마크다운 문서를 하나 만들어줘
-2. Claude Code로 내용을 보완해줘
-3. Git으로 커밋하고 GitHub에 push해줘
-4. 배포 결과를 확인해줘<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
-<div class="fb-inline">
-  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
-  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
-  <button onclick="submitInlineFeedback(this)">등록</button>
-</div>
-<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
-</div>
+<!-- 옛 교육과정 페이지 5개 제거됨 — course-unified(AI 학습 가이드)로 통합 -->
 
 <!-- VERIFY GAME -->
 <div id="verify-game" class="page">
