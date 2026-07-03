@@ -1658,31 +1658,37 @@ async function requestAccess() {
     return;
   }
 
-  // Supabase Auth 계정 생성
+  // Supabase Auth 계정 생성 (이미 있으면 이어서 진행)
   var signUpRes = await sb.auth.signUp({ email: email, password: pw });
+  var alreadyExists = false;
   if (signUpRes.error) {
-    s.className = 'access-status';
-    s.innerHTML = '<span style="color:var(--danger)">계정 생성 실패: ' + escHtml(signUpRes.error.message) + '</span>';
-    return;
+    var m = signUpRes.error.message || '';
+    if (/already registered|already been registered|already exists|User already/i.test(m)) {
+      alreadyExists = true; // 이전 시도로 계정만 생긴 경우 → 프로필 생성 단계로 진행
+    } else {
+      s.className = 'access-status';
+      s.innerHTML = '<span style="color:var(--danger)">계정 생성 실패: ' + escHtml(m) + '</span>';
+      return;
+    }
   }
 
-  // profiles 테이블에 교육생으로 등록
-  var profileRes = await sb.from('profiles').upsert({
-    email: email, name: name, role: 'user', region: region, phone: phone, site: site || null
-  }, { onConflict: 'email' });
-
-  if (profileRes.error) {
-    s.className = 'access-status';
-    s.innerHTML = '<span style="color:var(--warn)">계정은 생성되었으나 프로필 저장에 실패했습니다. 관리자에게 문의하세요.</span>';
-    return;
-  }
-
-  // applications 테이블에도 기록 (관리자 이력 확인용)
-  await sb.from('applications').insert({
-    email: email, name: name, region: region, phone: phone, site: site
+  // applications 테이블에 신청 기록 (관리자 이력 + 상세정보 보관 · anon 쓰기 허용됨)
+  var appRes = await sb.from('applications').insert({
+    email: email, name: name, region: region, phone: phone, site: site || null
   });
+  // 재신청 등으로 실패해도 치명적이지 않으므로 계속 진행 (오류는 콘솔에만)
+  if (appRes && appRes.error) { console.warn('[applications] 기록 실패:', appRes.error.message); }
 
-  // 자동 로그인
+  // profiles 테이블에 교육생 프로필 생성 — RLS 우회를 위해 RPC(SECURITY DEFINER) 사용
+  var profRes = await sb.rpc('create_user_profile', { p_email: email, p_name: name });
+  if (profRes.error) {
+    s.className = 'access-status';
+    s.innerHTML = '<span style="color:var(--danger)">프로필 저장 실패: ' + escHtml(profRes.error.message)
+      + '<br>관리자에게 문의하세요. (create_user_profile RPC 미설치 시 발생)</span>';
+    return;
+  }
+
+  // 자동 로그인 (로컬 세션)
   setSession({ email: email, name: name, role: 'user' });
   s.className = 'access-status';
   s.innerHTML = '<strong style="color:var(--success)">가입 완료! 자동 로그인됩니다...</strong>';
