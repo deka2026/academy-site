@@ -256,10 +256,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     </div>
     <div style="text-align:left;margin-bottom:4px">
       <label style="font-size:13px;font-weight:700;display:block;margin-bottom:3px">이메일 <span style="color:var(--danger)">*</span></label>
-      <input type="email" id="accessEmail" placeholder="example@email.com">
+      <input type="email" id="accessEmail" placeholder="example@email.com" autocomplete="username">
     </div>
-    <div style="display:none">
-      <input type="hidden" id="accessPw" value="placeholder">
+    <div style="text-align:left;margin-bottom:4px">
+      <label style="font-size:13px;font-weight:700;display:block;margin-bottom:3px">비밀번호 <span style="color:var(--danger)">*</span> <span style="color:var(--sub);font-weight:400">(6자 이상 · 로그인에 사용)</span></label>
+      <input type="password" id="accessPw" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
     </div>
     <div style="text-align:left;margin-bottom:4px">
       <label style="font-size:13px;font-weight:700;display:block;margin-bottom:3px">운영 사이트 <span style="color:var(--sub);font-weight:400">(선택)</span></label>
@@ -1622,10 +1623,15 @@ async function requestAccess() {
   var region = document.getElementById('accessRegion').value.trim();
   var phone = document.getElementById('accessPhone').value.trim();
   var email = document.getElementById('accessEmail').value.trim().toLowerCase();
+  var pw = document.getElementById('accessPw').value;
   var site = document.getElementById('accessSite').value.trim();
 
   if (!name || !region || !phone || !email) {
     alert('이름, 활동지역, 전화번호, 이메일은 필수 입력 항목입니다.');
+    return;
+  }
+  if (!pw || pw.length < 6) {
+    alert('비밀번호는 6자 이상 입력해주세요.');
     return;
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -1648,13 +1654,6 @@ async function requestAccess() {
   }
   if (dupCheck.data === 'registered') {
     s.className = 'access-status'; s.innerHTML = '<span style="color:var(--danger)">이미 등록된 이메일입니다. 로그인해주세요.</span>';
-    return;
-  }
-
-  // 비밀번호 입력 받기
-  var pw = prompt('사용할 비밀번호를 입력하세요 (6자 이상):');
-  if (!pw || pw.length < 6) {
-    s.className = 'access-status'; s.innerHTML = '<span style="color:var(--warn)">비밀번호는 6자 이상이어야 합니다.</span>';
     return;
   }
 
