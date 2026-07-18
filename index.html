@@ -337,7 +337,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <a href="javascript:void(0)" onclick="go('feedback-board',this)">활동가 의견</a>
 
   <div class="sec-title">교육과정</div>
-  <a href="javascript:void(0)" onclick="go('course-unified',this)" class="menu-bold">AI 학습 가이드</a>
+  <a href="javascript:void(0)" onclick="go('course-overview',this)" class="menu-bold">학습개요</a>
+  <a href="javascript:void(0)" onclick="go('course-practice',this)" class="menu-bold">실습시작</a>
   <a href="javascript:void(0)" onclick="go('course-next',this)">현재 상태 & 다음 단계</a>
 
   <div class="sec-title">연대지능</div>
@@ -484,10 +485,10 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
 </div>
 
-<!-- UNIFIED COURSE -->
-<div id="course-unified" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">AI 학습 가이드</h2>
-  <p style="color:var(--sub);margin-bottom:16px">바이브 코딩 개념 이해부터 환경 구축 실습까지, AI와 대화하며 한 단계씩 진행합니다</p>
+<!-- COURSE OVERVIEW (학습개요) -->
+<div id="course-overview" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">학습개요</h2>
+  <p style="color:var(--sub);margin-bottom:16px">바이브 코딩이 무엇인지 큰 그림부터 이해해요. 개념을 읽은 뒤 '실습시작' 메뉴에서 한 단계씩 실습합니다</p>
 
   <div class="section-block">
     <h3>전체 환경 관계도</h3>
@@ -527,7 +528,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
           <li><b>클로드 코드 PC판</b>: 터미널&middot;편집기 없이 단독 실행 (최신)</li>
         </ul>
         <p>유료 구독이 필요하지만, 전문가에게 개발을 맡기는 비용(월 200만 원 이상)에 비하면 월 40만 원 미만으로 훨씬 저렴해요. Pro 요금제로 시작해서 필요해지면 Max로 올리는 걸 권해요.</p>
-        <div class="highlight-box">아래 <b>AI 학습 대화 5단계(Claude Code 설치)</b>에서 직접 설치해봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>5단계(Claude Code 설치)</b>에서 직접 설치해봐요.</div>
       </div>
     </div>
 
@@ -541,7 +542,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
           <li><b>&#9314; GitHub</b>: Git 기록을 보관하는 <b>인터넷 창고</b>. 가입 후 클로드 코드와 연결해요.</li>
         </ul>
         <div class="highlight-box">주의! GitHub는 자동 저장이 아니에요. "올려 줘"라고 직접 명령해야 인터넷 창고에 올라가요.</div>
-        <p>아래 <b>AI 학습 대화 2단계(Git)&middot;8단계(GitHub 저장소)</b>에서 하나씩 실습해요.</p>
+        <p><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>2단계(Git)&middot;8단계(GitHub 저장소)</b>에서 하나씩 실습해요.</p>
       </div>
     </div>
 
@@ -590,7 +591,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
           <li>내 컴퓨터가 꺼져 있어도 24시간 운영돼요.</li>
           <li>GitHub에 수정본을 올리면 사이트도 자동으로 업데이트돼요.</li>
         </ul>
-        <div class="highlight-box">아래 <b>AI 학습 대화 9단계(Cloudflare Pages 배포)</b>에서 직접 해봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>9단계(Cloudflare Pages 배포)</b>에서 직접 해봐요.</div>
       </div>
     </div>
 
@@ -614,7 +615,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <div class="step-body">
         <p><code>.md</code> 형식의 지시문 파일이에요. <b>CLAUDE.md</b>, AGENTS.md, GEMINI.md처럼 도구마다 이름이 달라요. AI가 작업을 시작할 때마다 자동으로 읽기 때문에 "헌법"이라고 불러요.</p>
         <ul><li><b>실제 사용 예</b>: "거짓말 금지", "데이터 우선" 같은 레드라인을 기록해둬요.</li></ul>
-        <div class="highlight-box">아래 <b>AI 학습 대화 6단계(CLAUDE.md 작성)</b>에서 직접 만들어봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>6단계(CLAUDE.md 작성)</b>에서 직접 만들어봐요.</div>
       </div>
     </div>
 
@@ -623,7 +624,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <div class="step-body">
         <p>자주 반복하는 작업을 이름 붙은 절차로 저장해두는 거예요. 요리 <b>레시피 카드</b>처럼, 이름만 부르면 정해진 순서대로 실행돼요.</p>
         <ul><li><b>실제 사용 예</b>: '배포', '지원사업', '위키 발행' 같은 스킬을 만들어두고 한 마디로 실행해요.</li></ul>
-        <div class="highlight-box">아래 <b>AI 학습 대화 12단계(스킬 만들기)</b>에서 직접 만들어봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>12단계(스킬 만들기)</b>에서 직접 만들어봐요.</div>
       </div>
     </div>
 
@@ -632,7 +633,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <div class="step-body">
         <p>AI를 외부 서비스에 연결하는 표준 규격이에요. 어떤 기기든 꽂을 수 있는 <b>콘센트</b>처럼, 한 가지 방식으로 여러 서비스를 연결해요.</p>
         <ul><li><b>실제 사용 예</b>: Supabase, Gmail, 캘린더, 텔레그램 등을 AI에 연결해서 "메일 확인해줘" 같은 요청이 가능해져요.</li></ul>
-        <div class="highlight-box">아래 <b>AI 학습 대화 13단계(커넥트 연결)</b>에서 GitHub를 직접 연결해봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>13단계(커넥트 연결)</b>에서 GitHub를 직접 연결해봐요.</div>
       </div>
     </div>
 
@@ -641,7 +642,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <div class="step-body">
         <p>프로그램들이 서로 정보를 교환하는 공식 창구예요. 민감한 키(열쇠)는 반드시 <b>환경변수</b>에 따로 저장해서 노출을 막아요.</p>
         <ul><li><b>실제 사용 예</b>: 법령&middot;날씨&middot;지도 API를 연결해서 AI가 실시간 정보를 활용하게 해요.</li></ul>
-        <div class="highlight-box">아래 <b>AI 학습 대화 7단계(API 키 설정)</b>에서 직접 등록해봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>7단계(API 키 설정)</b>에서 직접 등록해봐요.</div>
       </div>
     </div>
 
@@ -653,7 +654,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
           <li><b>Maker(생성) &harr; Checker(검증)</b> 역할을 분리하면 결과의 신뢰도가 올라가요.</li>
           <li><b>실제 사용 예</b>: 코드 담당, 문서 담당, 배포 담당 에이전트를 따로 두고 협업시켜요.</li>
         </ul>
-        <div class="highlight-box">아래 <b>AI 학습 대화 14단계(에이전트 분업)</b>에서 Maker&middot;Checker를 직접 만들어봐요.</div>
+        <div class="highlight-box"><a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>14단계(에이전트 분업)</b>에서 Maker&middot;Checker를 직접 만들어봐요.</div>
       </div>
     </div>
 
@@ -669,13 +670,31 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
         </ul>
         <h4>우리의 선택: 반자동 트리아지</h4>
         <p><b>AI는 발견&middot;분류까지(자동), 사람은 판단&middot;실행(수동)</b>. 예를 들어 서버 감시라면 AI가 5분마다 상태를 확인하고 이상을 분류하되, 재시작 여부는 사람이 판단해요.</p>
-        <div class="highlight-box"><b>판단의 자리에 사람을 두는 것</b> &mdash; 이것이 연대지능활동가의 AI 활용 원칙이에요. 아래 <b>AI 학습 대화 15단계(반자동 트리아지 루프)</b>에서 직접 경험해봐요.</div>
+        <div class="highlight-box"><b>판단의 자리에 사람을 두는 것</b> &mdash; 이것이 연대지능활동가의 AI 활용 원칙이에요. <a href="javascript:void(0)" onclick="go('course-practice',null)" style="color:var(--accent)"><b>실습시작</b></a> 메뉴의 <b>15단계(반자동 트리아지 루프)</b>에서 직접 경험해봐요.</div>
       </div>
     </div>
 
     <div class="highlight-box"><b>2부 3줄 요약</b><br>&#9312; 하네스 = <b>지시문&middot;기억&middot;도구&middot;검증</b>으로 만든 나만의 AI 작업장이에요.<br>&#9313; MD&middot;스킬&middot;커넥트&middot;API&middot;에이전트 다섯 부품이 모이면 <b>자동 작업장(루프)</b>이 돼요.<br>&#9314; 단, <b>판단의 자리에는 항상 사람</b>을 둬요 (반자동 트리아지).</div>
     <p style="font-size:12px;color:var(--sub)">원문: <a href="https://activist.poomasi.org/concepts/vibe-coding-part2.html" target="_blank" rel="noopener" style="color:var(--accent)">바이브 코딩 2부 &mdash; 하네스</a></p>
   </div>
+
+  <div class="highlight-box" style="text-align:center">
+    개념을 다 읽으셨나요? 이제 직접 해볼 차례예요!<br>
+    <button onclick="go('course-practice',null)" style="background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px">실습시작 하러 가기 &rarr;</button>
+  </div>
+
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
+<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
+</div>
+
+<!-- COURSE PRACTICE (실습시작) -->
+<div id="course-practice" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">실습시작</h2>
+  <p style="color:var(--sub);margin-bottom:16px">AI와 대화하며 환경 구축부터 하네스까지 15단계를 한 단계씩 실습합니다. 개념이 궁금하면 <a href="javascript:void(0)" onclick="go('course-overview',null)" style="color:var(--accent);font-weight:700">학습개요</a>를 먼저 읽어보세요</p>
 
   <div class="section-block">
     <h3>학습 진행 현황</h3>
@@ -711,7 +730,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 </div>
 
 <!-- COURSE: OVERVIEW -->
-<!-- 옛 교육과정 페이지 5개 제거됨 — course-unified(AI 학습 가이드)로 통합 -->
+<!-- 옛 교육과정 페이지 5개 제거됨 — course-overview(학습개요)·course-practice(실습시작)로 통합 -->
 
 <!-- VERIFY GAME -->
 <div id="verify-game" class="page">
@@ -2180,7 +2199,7 @@ function go(id, link) {
   var main = document.querySelector('.main');
   if (main) main.scrollTop = 0;
 
-  if (id === 'course-unified') renderLearnProgress();
+  if (id === 'course-practice') renderLearnProgress();
   if (id === 'solidarity-unified') renderSolidProgress();
 }
 
@@ -2725,7 +2744,7 @@ var SOLID_STEPS = [
   check:'문서 작성법과 지식 분류 체계를 이해하셨네요!'},
 
   {id:'first-doc', title:'첫 번째 위키 문서 작성', desc:'지금까지 배운 내용을 바탕으로 실제 위키 문서를 하나 작성해봐요.',
-  guide:'이제 직접 위키 문서를 하나 써볼 거예요!\n걱정 마세요, Claude Code가 도와줄 거예요.\n\n[준비물]\n교육과정 "AI 학습 가이드"에서 설치한 도구들이 필요해요:\n- Claude Code (터미널에서 claude 입력)\n- Git, GitHub 계정\n\n아직 설치하지 않았으면 왼쪽 메뉴의 "AI 학습 가이드"를 먼저 완료해주세요!\n\n[1단계] 주제 정하기\n위키에 올릴 주제를 하나 정해주세요.\n무엇이든 괜찮아요! 예를 들면:\n- 오늘 있었던 회의나 모임\n- 내가 아는 마을 이야기\n- 이 교육과정을 배우면서 느낀 점\n\n[2단계] Claude Code로 문서 작성\n터미널에서 claude 를 입력하고,\n아래 내용을 복사해서 붙여넣기 하세요:\n\n  연대위키에 올려줘.\n  오늘 [주제]에 대해 기록하고 싶어.\n  [내용을 자유롭게 적으세요]\n\n예시:\n  연대위키에 올려줘.\n  오늘 연대지능활동가 교육과정에 참여했어.\n  온라인으로 진행됐고 11단계 도구 설치와\n  연대지능 개념을 배웠어.\n  처음에 어려웠는데 하나씩 따라하니까 됐어.\n\nClaude Code가 4종 유형 중 적합한 것을 골라서\n지식 분류에 맞게 문서를 만들어줄 거예요!\n\n[3단계] 결과 확인\nClaude Code가 만든 문서를 확인하세요.\n- wiki/ 폴더에 .md 파일이 생겼는지 확인\n- 문서 내용이 적절한지 살펴보세요\n\n결과 화면을 캡처해서 올려주세요!',
+  guide:'이제 직접 위키 문서를 하나 써볼 거예요!\n걱정 마세요, Claude Code가 도와줄 거예요.\n\n[준비물]\n교육과정 "실습시작"에서 설치한 도구들이 필요해요:\n- Claude Code (터미널에서 claude 입력)\n- Git, GitHub 계정\n\n아직 설치하지 않았으면 왼쪽 메뉴의 "실습시작"을 먼저 완료해주세요!\n\n[1단계] 주제 정하기\n위키에 올릴 주제를 하나 정해주세요.\n무엇이든 괜찮아요! 예를 들면:\n- 오늘 있었던 회의나 모임\n- 내가 아는 마을 이야기\n- 이 교육과정을 배우면서 느낀 점\n\n[2단계] Claude Code로 문서 작성\n터미널에서 claude 를 입력하고,\n아래 내용을 복사해서 붙여넣기 하세요:\n\n  연대위키에 올려줘.\n  오늘 [주제]에 대해 기록하고 싶어.\n  [내용을 자유롭게 적으세요]\n\n예시:\n  연대위키에 올려줘.\n  오늘 연대지능활동가 교육과정에 참여했어.\n  온라인으로 진행됐고 11단계 도구 설치와\n  연대지능 개념을 배웠어.\n  처음에 어려웠는데 하나씩 따라하니까 됐어.\n\nClaude Code가 4종 유형 중 적합한 것을 골라서\n지식 분류에 맞게 문서를 만들어줄 거예요!\n\n[3단계] 결과 확인\nClaude Code가 만든 문서를 확인하세요.\n- wiki/ 폴더에 .md 파일이 생겼는지 확인\n- 문서 내용이 적절한지 살펴보세요\n\n결과 화면을 캡처해서 올려주세요!',
   check:'첫 번째 위키 문서를 작성했어요!'},
 
   {id:'wiki-contrib', title:'연대지능 위키에 기여하기', desc:'작성한 문서를 연대지능 위키에 반영 요청(PR)으로 올리는 실습이에요.',
