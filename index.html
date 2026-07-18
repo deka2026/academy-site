@@ -487,7 +487,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <!-- UNIFIED COURSE -->
 <div id="course-unified" class="page">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">AI 학습 가이드</h2>
-  <p style="color:var(--sub);margin-bottom:16px">환경 구축부터 바이브 코딩까지, AI와 대화하며 한 단계씩 진행합니다</p>
+  <p style="color:var(--sub);margin-bottom:16px">바이브 코딩 개념 이해부터 환경 구축 실습까지, AI와 대화하며 한 단계씩 진행합니다</p>
 
   <div class="section-block">
     <h3>전체 환경 관계도</h3>
@@ -498,6 +498,183 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <div class="vision-card"><h4>인터넷 서비스</h4><p>GitHub, Cloudflare, Supabase, Quartz 위키</p></div>
     </div>
     <div class="highlight-box">이 세 영역을 연결하면 "코드를 짜지 않아도 AI와 대화하며 웹사이트를 만들고 인터넷에 공개하는" 바이브 코딩 환경이 완성돼요.</div>
+  </div>
+
+  <div class="section-block">
+    <h3>바이브 코딩 한눈에 보기 (1부 &middot; 전체 지도)</h3>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:12px">웹사이트가 만들어지는 큰 그림을 "지도 한 장"으로 먼저 이해해요. 순서는 딱 4단계입니다.</p>
+    <div class="vision-grid">
+      <div class="vision-card"><h4>STEP 1. 도구 세팅</h4><p>클로드 코드 — AI와 대화하며 코드를 만드는 작업 도구</p></div>
+      <div class="vision-card"><h4>STEP 2. 프론트엔드</h4><p>HTML&middot;CSS&middot;JS — 눈에 보이는 화면</p></div>
+      <div class="vision-card"><h4>STEP 3. 백엔드</h4><p>Supabase — 데이터 저장&middot;처리</p></div>
+      <div class="vision-card"><h4>STEP 4. 배포</h4><p>Cloudflare Pages — 인터넷에 공개</p></div>
+    </div>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:12px">그리고 이 흐름 전체를 받쳐주는 것이 <b>Git(내 컴퓨터의 세이브 파일)</b>과 <b>GitHub(인터넷 창고)</b>예요. 아래 카드를 하나씩 눌러 읽어보세요.</p>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">1</span><span class="step-title">도구 &mdash; 두뇌와 손발</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>AI 코딩 도구는 두 부분으로 나눠 이해하면 쉬워요.</p>
+        <ul>
+          <li><b>두뇌(LLM)</b>: ChatGPT, Gemini, Claude 같은 거대 언어 모델. 생각을 담당해요.</li>
+          <li><b>손발(코딩 에이전트)</b>: 실제로 파일을 만들고 코드를 고치는 도구. 우리는 <b>클로드 코드</b>를 써요.</li>
+        </ul>
+        <h4>도구는 이렇게 진화해왔어요</h4>
+        <ul>
+          <li><b>터미널</b>: 검은 명령어 창으로 컴퓨터를 제어 (구식)</li>
+          <li><b>VS Code</b>: 코드 편집기에서 파일을 보며 작업</li>
+          <li><b>Cursor AI</b>: 편집기에 LLM을 통합</li>
+          <li><b>클로드 코드 PC판</b>: 터미널&middot;편집기 없이 단독 실행 (최신)</li>
+        </ul>
+        <p>유료 구독이 필요하지만, 전문가에게 개발을 맡기는 비용(월 200만 원 이상)에 비하면 월 40만 원 미만으로 훨씬 저렴해요. Pro 요금제로 시작해서 필요해지면 Max로 올리는 걸 권해요.</p>
+        <div class="highlight-box">아래 <b>AI 학습 대화 5단계(Claude Code 설치)</b>에서 직접 설치해봐요.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">2</span><span class="step-title">설치 3종 세트 &mdash; 도구 + 세이브 파일 + 인터넷 창고</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>바이브 코딩을 시작하려면 세 가지만 설치하면 돼요.</p>
+        <ul>
+          <li><b>&#9312; 클로드 코드</b>: AI 코딩 작업 도구</li>
+          <li><b>&#9313; Git</b>: 코드가 바뀔 때마다 저장&middot;복원할 수 있는 <b>게임 세이브 파일</b> 같은 도구. Mac은 기본 설치, Windows는 git-scm.com에서 다운로드해요.</li>
+          <li><b>&#9314; GitHub</b>: Git 기록을 보관하는 <b>인터넷 창고</b>. 가입 후 클로드 코드와 연결해요.</li>
+        </ul>
+        <div class="highlight-box">주의! GitHub는 자동 저장이 아니에요. "올려 줘"라고 직접 명령해야 인터넷 창고에 올라가요.</div>
+        <p>아래 <b>AI 학습 대화 2단계(Git)&middot;8단계(GitHub 저장소)</b>에서 하나씩 실습해요.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">3</span><span class="step-title">사이트의 두 얼굴 &mdash; 프론트엔드와 백엔드</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>웹사이트는 <b>시계</b>에 비유하면 쉽게 이해돼요.</p>
+        <ul>
+          <li><b>프론트엔드 = 시계판</b>: 초침&middot;분침&middot;숫자처럼 <b>눈에 보이는 화면</b>. HTML&middot;CSS&middot;JS, React 같은 기술을 써요.</li>
+          <li><b>백엔드 = 태엽</b>: 알람&middot;타이머처럼 <b>화면 뒤에서 데이터를 처리하는 장치</b>. 서버&middot;데이터베이스&middot;API가 여기 속해요.</li>
+        </ul>
+        <p>회원가입이나 게시판 같은 기능을 만들려면 백엔드가 꼭 필요해요. 백엔드는 복잡하지만 개념만이라도 이해해두면, 나중에 AI에게 요청할 때 훨씬 정확한 결과를 얻을 수 있어요.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">4</span><span class="step-title">프론트엔드 &mdash; '규모'만 전달하면 스택은 AI가 정해요</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>어떤 언어&middot;기술로 만들지 고민할 필요 없어요. AI에게 <b>만들려는 것의 규모</b>만 정확히 알려주면 돼요.</p>
+        <div class="prompt-box">간단한 한 페이지짜리 [우리 단체] 소개 사이트를 만들어 줘.
+어떤 스택과 어떤 언어로 제작할지도 미리 알려 줘.<button class="prompt-copy" onclick="copyText(this)">복사</button></div>
+        <h4>왜 '규모'가 중요할까요?</h4>
+        <ul>
+          <li>언어와 구성마다 장단점이 달라요.</li>
+          <li>작은 스택으로 큰 서비스를 만들면, 방문자가 몰릴 때 사이트가 멈출 수 있어요.</li>
+          <li>그래서 <b>처음 설계할 때부터 규모에 맞추는 것</b>이 매우 중요해요.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">5</span><span class="step-title">백엔드 &mdash; 복잡한 과정을 대신하는 두 매니저</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <h4>&#9312; Supabase &mdash; 데이터 매니저</h4>
+        <p>서버 빌리기, 데이터 저장, 프로그램 설치를 한 번에 처리해주는 서비스예요.</p>
+        <ul>
+          <li>GitHub 계정으로 가입 &rarr; New Project &rarr; 지역은 <b>서울</b> 선택</li>
+          <li>Connect 버튼에서 <b>프로젝트 URL</b>과 <b>공개(anon) 키</b>를 복사해 클로드 코드에 붙이면, 연결 코드와 테이블(표) 생성 명령문을 만들어줘요.</li>
+          <li>Supabase SQL Editor에 그 SQL을 붙여넣고 Run &rarr; 사이트에서 저장한 값이 표에 나타나면 연결 성공!</li>
+          <li>보안: 공개 키라도 환경변수 파일에 저장해서 노출을 막아요.</li>
+        </ul>
+        <h4>&#9313; Cloudflare Pages &mdash; 배포 매니저</h4>
+        <p>내 컴퓨터에 있는 사이트를 인터넷에 올려주는 서비스예요. 유튜브의 '업로드' 버튼과 같아요.</p>
+        <ul>
+          <li>GitHub 계정으로 연결 &rarr; 저장소 선택 &rarr; Deploy &rarr; 내 사이트 주소 발급</li>
+          <li>내 컴퓨터가 꺼져 있어도 24시간 운영돼요.</li>
+          <li>GitHub에 수정본을 올리면 사이트도 자동으로 업데이트돼요.</li>
+        </ul>
+        <div class="highlight-box">아래 <b>AI 학습 대화 9단계(Cloudflare Pages 배포)</b>에서 직접 해봐요.</div>
+      </div>
+    </div>
+
+    <div class="highlight-box"><b>1부 3줄 요약</b><br>&#9312; 도구는 <b>클로드 코드</b> 하나면 충분해요.<br>&#9313; 프론트엔드는 <b>규모</b>만 전달하면 언어&middot;스택은 AI가 정해줘요.<br>&#9314; 백엔드는 <b>Supabase(데이터) + Cloudflare Pages(배포)</b> 두 매니저에게 맡겨요.</div>
+    <p style="font-size:12px;color:var(--sub)">원문: <a href="https://activist.poomasi.org/concepts/vibe-coding-overview.html" target="_blank" rel="noopener" style="color:var(--accent)">바이브 코딩의 개요 (1부)</a></p>
+  </div>
+
+  <div class="section-block">
+    <h3>바이브 코딩 깊이 보기 (2부 &middot; 하네스, 나만의 AI 작업장)</h3>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:12px">1부가 "좋은 도구 고르기"였다면, 2부는 "좋은 작업장 만들기"예요. 명령 한 번의 '딸깍'만으로는 세 가지 벽에 부딪혀요: <b>매번 처음부터</b>(AI가 과거 맥락을 기억 못 함), <b>신뢰성 부족</b>(그럴듯한 거짓 생성), <b>기능 제한</b>(외부 데이터 연결 불가). 이 벽을 넘는 장치가 <b>하네스</b>입니다.</p>
+    <h4 style="font-size:14px;font-weight:700;margin:14px 0 4px">하네스의 네 기둥</h4>
+    <div class="vision-grid">
+      <div class="vision-card"><h4>지시문</h4><p>원칙과 말투를 규정</p></div>
+      <div class="vision-card"><h4>기억</h4><p>이전 작업 맥락을 유지</p></div>
+      <div class="vision-card"><h4>도구&middot;재료</h4><p>외부 데이터 접근&middot;연결</p></div>
+      <div class="vision-card"><h4>검증</h4><p>결과를 확인하는 습관</p></div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">1</span><span class="step-title">MD &mdash; AI가 매번 자동으로 읽는 헌법</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p><code>.md</code> 형식의 지시문 파일이에요. <b>CLAUDE.md</b>, AGENTS.md, GEMINI.md처럼 도구마다 이름이 달라요. AI가 작업을 시작할 때마다 자동으로 읽기 때문에 "헌법"이라고 불러요.</p>
+        <ul><li><b>실제 사용 예</b>: "거짓말 금지", "데이터 우선" 같은 레드라인을 기록해둬요.</li></ul>
+        <div class="highlight-box">아래 <b>AI 학습 대화 6단계(CLAUDE.md 작성)</b>에서 직접 만들어봐요.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">2</span><span class="step-title">스킬 &mdash; 반복 작업을 레시피 카드로</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>자주 반복하는 작업을 이름 붙은 절차로 저장해두는 거예요. 요리 <b>레시피 카드</b>처럼, 이름만 부르면 정해진 순서대로 실행돼요.</p>
+        <ul><li><b>실제 사용 예</b>: '배포', '지원사업', '위키 발행' 같은 스킬을 만들어두고 한 마디로 실행해요.</li></ul>
+        <div class="highlight-box">아래 <b>AI 학습 대화 12단계(스킬 만들기)</b>에서 직접 만들어봐요.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">3</span><span class="step-title">커넥트(MCP) &mdash; 외부 서비스를 잇는 표준 콘센트</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>AI를 외부 서비스에 연결하는 표준 규격이에요. 어떤 기기든 꽂을 수 있는 <b>콘센트</b>처럼, 한 가지 방식으로 여러 서비스를 연결해요.</p>
+        <ul><li><b>실제 사용 예</b>: Supabase, Gmail, 캘린더, 텔레그램 등을 AI에 연결해서 "메일 확인해줘" 같은 요청이 가능해져요.</li></ul>
+        <div class="highlight-box">아래 <b>AI 학습 대화 13단계(커넥트 연결)</b>에서 GitHub를 직접 연결해봐요.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">4</span><span class="step-title">API &mdash; 프로그램끼리 정보를 주고받는 창구</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>프로그램들이 서로 정보를 교환하는 공식 창구예요. 민감한 키(열쇠)는 반드시 <b>환경변수</b>에 따로 저장해서 노출을 막아요.</p>
+        <ul><li><b>실제 사용 예</b>: 법령&middot;날씨&middot;지도 API를 연결해서 AI가 실시간 정보를 활용하게 해요.</li></ul>
+        <div class="highlight-box">아래 <b>AI 학습 대화 7단계(API 키 설정)</b>에서 직접 등록해봐요.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">5</span><span class="step-title">에이전트 &mdash; 작업별 전담 AI 나누기</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>하나의 AI에게 모든 걸 시키는 대신, <b>특정 작업을 전담하는 AI 여럿</b>으로 나누는 방식이에요.</p>
+        <ul>
+          <li><b>Maker(생성) &harr; Checker(검증)</b> 역할을 분리하면 결과의 신뢰도가 올라가요.</li>
+          <li><b>실제 사용 예</b>: 코드 담당, 문서 담당, 배포 담당 에이전트를 따로 두고 협업시켜요.</li>
+        </ul>
+        <div class="highlight-box">아래 <b>AI 학습 대화 14단계(에이전트 분업)</b>에서 Maker&middot;Checker를 직접 만들어봐요.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header" onclick="toggleStep(this)"><span class="step-num">6</span><span class="step-title">루프 &mdash; 그리고 무인 루프를 돌리지 않는 이유</span><span class="step-toggle">&#9662;</span></div>
+      <div class="step-body">
+        <p>자동 실행(타이머), 격리 작업대, 스킬, 커넥트(MCP), 전담 에이전트, 디스크 기억 &mdash; 이 6가지 부품이 모이면 <b>스스로 도는 자동 작업장(루프)</b>이 완성돼요. 그런데 마지막 조각인 "완전 무인 재귀"는 <b>일부러 넣지 않아요</b>.</p>
+        <h4>무인 재귀의 세 함정</h4>
+        <ul>
+          <li><b>검증 붕괴</b>: 아무도 안 본 결과가 계속 쌓여요.</li>
+          <li><b>이해 부채</b>: 과정에 참여하지 않아서 문제가 생겨도 대응할 수 없어요.</li>
+          <li><b>인지 투항</b>: 사람이 생각하기를 포기하게 돼요.</li>
+        </ul>
+        <h4>우리의 선택: 반자동 트리아지</h4>
+        <p><b>AI는 발견&middot;분류까지(자동), 사람은 판단&middot;실행(수동)</b>. 예를 들어 서버 감시라면 AI가 5분마다 상태를 확인하고 이상을 분류하되, 재시작 여부는 사람이 판단해요.</p>
+        <div class="highlight-box"><b>판단의 자리에 사람을 두는 것</b> &mdash; 이것이 연대지능활동가의 AI 활용 원칙이에요. 아래 <b>AI 학습 대화 15단계(반자동 트리아지 루프)</b>에서 직접 경험해봐요.</div>
+      </div>
+    </div>
+
+    <div class="highlight-box"><b>2부 3줄 요약</b><br>&#9312; 하네스 = <b>지시문&middot;기억&middot;도구&middot;검증</b>으로 만든 나만의 AI 작업장이에요.<br>&#9313; MD&middot;스킬&middot;커넥트&middot;API&middot;에이전트 다섯 부품이 모이면 <b>자동 작업장(루프)</b>이 돼요.<br>&#9314; 단, <b>판단의 자리에는 항상 사람</b>을 둬요 (반자동 트리아지).</div>
+    <p style="font-size:12px;color:var(--sub)">원문: <a href="https://activist.poomasi.org/concepts/vibe-coding-part2.html" target="_blank" rel="noopener" style="color:var(--accent)">바이브 코딩 2부 &mdash; 하네스</a></p>
   </div>
 
   <div class="section-block">
@@ -2285,7 +2462,11 @@ var LEARN_STEPS = [
   {id:'github-repo', title:'GitHub 저장소 생성', desc:'내 파일을 인터넷에 안전하게 보관하는 "온라인 폴더"예요. 다른 사람과 공유하거나 웹사이트로 공개할 수도 있어요.', guide:'GitHub에 내 저장소를 만들어볼게요!\n\n[1단계] GitHub 가입\n아래 주소를 브라우저에 붙여넣기 하세요:\n\n  https://github.com\n\n오른쪽 위에 "Sign up" 버튼을 눌러서 가입하세요.\n이메일, 비밀번호, 사용자이름(영문)을 입력하면 돼요.\n이미 가입했으면 "Sign in"으로 로그인하세요.\n\n가입이 어려우면 화면을 캡처해서 올려주세요!\n\n[2단계] GitHub CLI 설치\nGitHub에 명령어로 접속하려면 gh(GitHub CLI)가 필요해요.\n\n아래 주소에서 다운로드하세요:\n\n  https://cli.github.com\n\n다운로드 후 설치하고, 명령 프롬프트(cmd)를 새로 열어서 입력:\n\n  gh auth login\n\n화면에 나오는 질문에 답하세요:\n- GitHub.com 선택\n- HTTPS 선택\n- 브라우저로 로그인 → 브라우저에서 "Authorize" 클릭\n\n로그인 성공하면 "Logged in as 내아이디" 가 나와요.\n\n[3단계] 저장소 만들기\nClaude Code를 실행하고 이렇게 말하세요:\n\n  GitHub에 "my-solidarity-wiki"라는 이름으로\n  공개(public) 저장소를 만들어줘.\n  지금 이 폴더를 그 저장소에 연결해줘.\n\n저장소가 만들어지면 "https://github.com/내아이디/my-solidarity-wiki"\n같은 주소가 나와요.\n\n그 화면을 캡처해서 올려주세요!', check:'GitHub에서 내 저장소 페이지가 열리면 완료!'},
   {id:'cloudflare', title:'Cloudflare Pages 배포', desc:'GitHub에 파일을 올리면 자동으로 웹사이트를 만들어주는 서비스예요. 무료이고, 내 위키를 누구나 볼 수 있게 공개해줘요.', guide:'Cloudflare Pages에 연결해서 내 위키를 웹사이트로 공개해볼게요!\n\n[1단계] Cloudflare 가입\n아래 주소를 브라우저에 붙여넣기 하세요:\n\n  https://dash.cloudflare.com/sign-up\n\n이메일과 비밀번호를 입력해서 가입하세요.\n이미 가입했으면 로그인하세요.\n\n[2단계] Pages 프로젝트 만들기\n로그인 후 왼쪽 메뉴에서 "Workers & Pages" 를 클릭하세요.\n그 다음 "Create" 버튼 → "Pages" 탭을 클릭하세요.\n"Connect to Git" 을 클릭하세요.\n\nGitHub 계정을 연결하라는 화면이 나와요.\n"Connect GitHub account" 를 클릭하고\n방금 만든 저장소(my-solidarity-wiki)를 선택하세요.\n\n잘 모르겠으면 이 화면을 캡처해서 올려주세요!\n\n[3단계] 빌드 설정\n- Project name: 기본값 그대로 두세요\n- Build command: npx quartz build\n- Build output directory: public\n\n이렇게 입력하고 "Save and Deploy" 버튼을 클릭하세요.\n\n[4단계] 배포 확인\n배포가 완료되면 "xxx.pages.dev" 같은 주소가 나와요.\n그 주소를 클릭해서 내 위키가 열리는지 확인하세요!\n\n배포된 화면을 캡처해서 올려주세요.', check:'xxx.pages.dev 주소에서 내 위키가 열리면 완료!'},
   {id:'quartz', title:'Quartz 위키 설정', desc:'Obsidian에서 작성한 노트를 예쁜 웹사이트로 자동 변환해주는 도구예요. 마크다운 파일만 작성하면 웹페이지가 만들어져요.', guide:'Quartz(쿼츠)를 설치하고 위키를 만들어볼게요!\n\n[1단계] Quartz 프로젝트 만들기\n명령 프롬프트(cmd)에서 아래를 한 줄씩 입력하세요:\n\n  cd Documents\n  npx quartz create\n\n실행하면 몇 가지 질문이 나와요:\n- "Choose how to initialize content" → "Empty Quartz" 선택\n- "Choose a link resolution style" → "Shortest path" 선택  \n- 폴더 이름을 물으면 기본값(quartz) 그대로 Enter\n\n질문에 뭘 골라야 할지 모르겠으면 화면을 캡처해서 올려주세요!\n\n[2단계] 첫 번째 문서 만들기\n설치가 끝나면 아래를 입력하세요:\n\n  cd quartz\n  claude\n\nClaude Code가 열리면 이렇게 말하세요:\n\n  content 폴더에 index.md 파일을 만들어줘.\n  제목은 "나의 연대지능 위키"로 하고\n  "안녕하세요! 이곳은 연대지능활동가의 학습 기록입니다."\n  라는 내용을 넣어줘.\n\n[3단계] 미리보기\nClaude Code를 종료(/exit)하고 아래를 입력하세요:\n\n  npx quartz build --serve\n\n실행되면 "Started a Quartz server" 메시지와 함께\nhttp://localhost:8080 같은 주소가 나와요.\n\n그 주소를 브라우저에 붙여넣기 하면 내 위키가 보여요!\n위키 화면을 캡처해서 올려주세요.\n\n(미리보기를 끝내려면 Ctrl+C를 누르세요)', check:'브라우저에서 내 위키 페이지가 보이면 완료!'},
-  {id:'workflow', title:'전체 작업 흐름 실습', desc:'지금까지 배운 모든 도구를 연결해서 실제로 한 번 해보는 최종 실습이에요! 문서 작성 → AI 보완 → 저장 → 업로드 → 배포까지 전 과정을 경험해요.', guide:'축하합니다! 드디어 마지막 단계예요!\n지금까지 설치한 모든 도구를 연결해서 실제 작업을 해볼게요.\n\n[1단계] VSCode에서 문서 작성\nVSCode를 열고 (윈도우키 → "vscode" 검색 → 클릭)\nFile(파일) → Open Folder(폴더 열기)에서\nDocuments > quartz > content 폴더를 선택하세요.\n\n왼쪽 파일 목록에서 마우스 오른쪽 클릭 → "New File"\n파일 이름을 "my-first-post.md" 로 입력하세요.\n\n열린 파일에 아래 내용을 입력하세요:\n\n  ---\n  title: 나의 첫 번째 위키 문서\n  ---\n  오늘 연대지능활동가 교육과정을 시작했습니다.\n\n[2단계] Claude Code로 내용 보완\nVSCode 안에서 터미널을 열어주세요.\n(상단 메뉴 → Terminal(터미널) → New Terminal(새 터미널))\n\n터미널에 claude 를 입력해서 Claude Code를 실행하세요.\n그리고 이렇게 말하세요:\n\n  my-first-post.md 파일 내용을 더 풍성하게 보완해줘.\n  연대지능활동가가 어떤 활동을 하는지 소개도 넣어줘.\n\nAI가 문서를 보완해줄 거예요!\n\n[3단계] Git으로 저장하고 GitHub에 올리기\nClaude Code에서 이렇게 말하세요:\n\n  이 변경사항을 Git으로 커밋하고 GitHub에 push해줘.\n  커밋 메시지는 "첫 번째 위키 문서 작성"으로 해줘.\n\n[4단계] 배포 확인\nGitHub에 올리면 Cloudflare Pages가 자동으로 배포해요.\n1~2분 기다린 뒤 아까 받은 xxx.pages.dev 주소를 열어보세요.\n\n내가 작성한 문서가 웹사이트에 보이면 모든 과정이 완료된 거예요!\n\n그 화면을 캡처해서 올려주세요!', check:'내가 작성한 문서가 라이브 URL에서 보이면 모든 학습 과정 완료! 축하합니다!'}
+  {id:'workflow', title:'전체 작업 흐름 실습', desc:'지금까지 배운 도구를 연결해서 실제로 한 번 해보는 1부 마무리 실습이에요! 문서 작성 → AI 보완 → 저장 → 업로드 → 배포까지 전 과정을 경험해요.', guide:'축하합니다! 기본 흐름(1부)의 마지막 단계예요!\n지금까지 설치한 모든 도구를 연결해서 실제 작업을 해볼게요.\n\n[1단계] VSCode에서 문서 작성\nVSCode를 열고 (윈도우키 → "vscode" 검색 → 클릭)\nFile(파일) → Open Folder(폴더 열기)에서\nDocuments > quartz > content 폴더를 선택하세요.\n\n왼쪽 파일 목록에서 마우스 오른쪽 클릭 → "New File"\n파일 이름을 "my-first-post.md" 로 입력하세요.\n\n열린 파일에 아래 내용을 입력하세요:\n\n  ---\n  title: 나의 첫 번째 위키 문서\n  ---\n  오늘 연대지능활동가 교육과정을 시작했습니다.\n\n[2단계] Claude Code로 내용 보완\nVSCode 안에서 터미널을 열어주세요.\n(상단 메뉴 → Terminal(터미널) → New Terminal(새 터미널))\n\n터미널에 claude 를 입력해서 Claude Code를 실행하세요.\n그리고 이렇게 말하세요:\n\n  my-first-post.md 파일 내용을 더 풍성하게 보완해줘.\n  연대지능활동가가 어떤 활동을 하는지 소개도 넣어줘.\n\nAI가 문서를 보완해줄 거예요!\n\n[3단계] Git으로 저장하고 GitHub에 올리기\nClaude Code에서 이렇게 말하세요:\n\n  이 변경사항을 Git으로 커밋하고 GitHub에 push해줘.\n  커밋 메시지는 "첫 번째 위키 문서 작성"으로 해줘.\n\n[4단계] 배포 확인\nGitHub에 올리면 Cloudflare Pages가 자동으로 배포해요.\n1~2분 기다린 뒤 아까 받은 xxx.pages.dev 주소를 열어보세요.\n\n내가 작성한 문서가 웹사이트에 보이면 모든 과정이 완료된 거예요!\n\n그 화면을 캡처해서 올려주세요!', check:'내가 작성한 문서가 라이브 URL에서 보이면 1부 전 과정 완료! 이어서 하네스 실습(12~15단계)으로 넘어가요!'},
+  {id:'skill', title:'스킬 만들기', desc:'자주 반복하는 작업을 "레시피 카드"처럼 저장해두는 기능이에요. 한 번 만들어두면 이름만 불러서 실행할 수 있어요.', guide:'여기서부터는 2부(하네스) 실습이에요!\n첫 번째로, 나만의 스킬을 만들어볼게요.\n\n[1단계] 프로젝트 폴더에서 Claude Code 실행\n명령 프롬프트(cmd)를 열고 아래를 한 줄씩 입력하세요:\n\n  cd Documents\\quartz\n  claude\n\n[2단계] 스킬 만들기\nClaude Code 대화창에 아래 내용을 복사해서 붙여넣으세요:\n\n  "위키발행"이라는 스킬을 만들어줘.\n  이 스킬이 실행되면:\n  1. content 폴더의 변경된 문서를 확인하고\n  2. Git으로 커밋한 다음\n  3. GitHub에 push해줘.\n  .claude/skills 폴더에 저장해줘.\n\nAI가 스킬 파일을 만들어줄 거예요.\n\n[3단계] 스킬 실행해보기\ncontent 폴더의 아무 문서나 한 줄 수정해달라고 한 뒤, 이렇게 말하세요:\n\n  위키발행 스킬 실행해줘\n\n커밋과 push가 자동으로 진행되면 성공!\n1~2분 뒤 내 위키 사이트(xxx.pages.dev)에 반영됐는지 확인하세요.\n\n실행된 화면을 캡처해서 올려주세요.', check:'스킬 이름 한 마디로 커밋→push→배포까지 이어지면 완료!'},
+  {id:'mcp', title:'커넥트(MCP) 연결', desc:'AI를 외부 서비스에 연결하는 "표준 콘센트"예요. 연결하면 AI가 GitHub 같은 서비스를 직접 읽고 다룰 수 있어요.', guide:'AI를 외부 서비스에 연결하는 커넥트(MCP)를 실습해볼게요!\n이미 계정이 있는 GitHub를 연결할 거예요.\n\n[1단계] GitHub MCP 추가\n명령 프롬프트(cmd)에서 아래 명령어를 입력하세요:\n\n  claude mcp add --transport http github https://api.githubcopilot.com/mcp/\n\n[2단계] 연결 승인\nClaude Code를 실행(claude 입력)한 뒤 아래를 입력하세요:\n\n  /mcp\n\n목록에 github가 보이면 선택해서 인증(Authenticate)을 진행하세요.\n브라우저가 열리면 "Authorize" 버튼을 클릭하면 돼요.\n\n화면이 다르게 나오면 캡처해서 올려주세요!\n\n[3단계] 연결 확인\nClaude Code 대화창에 이렇게 말해보세요:\n\n  내 GitHub 계정의 저장소 목록을 보여줘\n\nAI가 MCP를 통해 내 저장소들을 직접 읽어오면 성공이에요!\n그 화면을 캡처해서 올려주세요.', check:'AI가 내 GitHub 저장소 목록을 직접 읽어오면 완료!'},
+  {id:'agent', title:'에이전트 분업 (Maker·Checker)', desc:'하나의 AI에게 다 시키지 않고, 작업별 전담 AI를 나누는 방식이에요. 만드는 AI와 검증하는 AI를 분리하면 결과를 더 믿을 수 있어요.', guide:'작업별 전담 AI(에이전트)를 만들어 분업시켜볼게요!\n핵심은 만드는 AI(Maker)와 검증하는 AI(Checker)를 나누는 거예요.\n\n[1단계] 에이전트 두 개 만들기\nDocuments > quartz 폴더에서 Claude Code를 실행하고 아래를 붙여넣으세요:\n\n  서브에이전트 두 개를 만들어줘.\n  1. "maker": 위키 문서 초안을 작성하는 담당.\n  2. "checker": 작성된 문서에서 사실 확인이 필요한 부분과\n     어색한 문장을 찾아 지적만 하는 담당 (수정은 하지 않음).\n  .claude/agents 폴더에 저장해줘.\n\n[2단계] 분업 실행해보기\n에이전트가 만들어지면 이렇게 말하세요:\n\n  maker 에이전트로 "우리 동네 자랑거리" 문서 초안을 쓰고,\n  checker 에이전트로 그 초안을 검증해줘.\n  검증 결과를 나에게 보고해줘.\n\n[3단계] 결과 확인\n초안과 검증 지적사항이 함께 보고되면 성공!\nMaker가 만들고 Checker가 걸러내는 흐름을 직접 본 거예요.\n\n보고된 화면을 캡처해서 올려주세요.', check:'Maker의 초안과 Checker의 검증 보고가 모두 나오면 완료!'},
+  {id:'triage', title:'반자동 트리아지 루프', desc:'AI에게 "발견·분류까지만" 맡기고 판단·실행은 사람이 하는 방식이에요. 연대지능활동가의 AI 활용 원칙을 직접 경험하는 마지막 실습!', guide:'마지막 실습! AI에게 "분류까지만" 맡기는 반자동 트리아지를 경험해볼게요.\n(무인 자동화가 아니라, 판단은 사람이 하는 방식이에요)\n\n[1단계] AI에게 점검·분류 시키기\nDocuments > quartz 폴더에서 Claude Code를 실행하고 아래를 붙여넣으세요:\n\n  content 폴더의 모든 문서를 점검해줘.\n  각 문서를 [정상 / 보완 필요 / 오류] 세 가지로 분류해서\n  표로 보고만 해줘. 절대 수정하지 마.\n\n[2단계] 사람이 판단하기\nAI의 분류 보고를 읽고, 내가 직접 판단하세요.\n"보완 필요"로 분류된 것 중 하나만 골라 이렇게 지시하세요:\n\n  (문서이름)만 보완해줘. 나머지는 그대로 둬.\n\n[3단계] 왜 이렇게 할까요?\n- AI가 다 고치게 두면: 아무도 검증 안 한 결과가 쌓여요.\n- 분류까지만 맡기면: 사람이 판단의 자리를 지킬 수 있어요.\n\n"판단의 자리에 사람 두기" — 이 원칙이 연대지능활동가의 AI 활용 방식이에요!\n\n분류 보고 화면을 캡처해서 올려주세요.', check:'AI의 분류 보고 후, 내가 고른 문서 하나만 보완되면 전체 15단계 완료! 축하합니다!'}
 ];
 
 function getLearnProgress() {
