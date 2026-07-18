@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a6b5a' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>학</text></svg>">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a6b5a' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>학</text></svg>">
 <meta property="og:title" content="사교원 연대지능활동가 아카데미">
-<meta property="og:description" content="사회혁신교육원 연대지능 활동가 교육 플랫폼 — 교육과정, 위키 기여, 지식 검증 챌린지">
+<meta property="og:description" content="사회혁신교육원 연대지능 활동가 교육 플랫폼 — 교육과정, 위키 기여, 연대지능기여게임">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://deka2026.github.io/academy-site/">
 <title>사교원 연대지능활동가 아카데미</title>
@@ -345,8 +345,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <a href="javascript:void(0)" onclick="go('solidarity-unified',this)" class="menu-bold">연대지능 학습 가이드</a>
   <a href="javascript:void(0)" onclick="go('solidarity-wiki-hub',this)">연대지능 위키</a>
 
-  <div class="sec-title">검증 게임</div>
-  <a href="javascript:void(0)" onclick="go('verify-game',this)" class="menu-bold">지식 검증 챌린지</a>
+  <div class="sec-title">연대지능기여게임</div>
+  <a href="javascript:void(0)" onclick="go('verify-game',this)" class="menu-bold">연대지능기여게임</a>
   <a href="javascript:void(0)" onclick="go('verify-history',this)">내 검증 기록</a>
 
   <div class="sec-title">성과</div>
@@ -734,7 +734,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
 <!-- VERIFY GAME -->
 <div id="verify-game" class="page">
-  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">지식 검증 챌린지</h2>
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">연대지능기여게임</h2>
   <p style="color:var(--sub);margin-bottom:4px">위키에 올라온 실제 내용을 검수합니다. 이 내용이 <strong>그대로 좋은지, 보완이 필요한지, 오류인지</strong> 판정하고 품질평가와 개선의견을 작성하세요.</p>
   <p style="color:var(--sub);font-size:13px;margin-bottom:8px">활동가를 평가하는 것이 아니라 <strong>위키 콘텐츠의 품질을 높이기 위한 검수</strong>입니다. 매달 300문제가 새로 준비되며, 한 번 검증할 때마다 5문제씩 출제됩니다.</p>
   <div id="game-month-progress" style="margin-bottom:16px"></div>
@@ -806,7 +806,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
         <h3 style="margin-bottom:8px">검수 완료!</h3>
         <p id="game-final-score" style="font-size:16px;margin-bottom:12px"></p>
         <div id="game-final-stats" style="margin-bottom:16px"></div>
-        <button onclick="startNewGame()" style="padding:10px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">새 챌린지 시작</button>
+        <button onclick="startNewGame()" style="padding:10px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">새 게임 시작</button>
       </div>
     </div>
   </div>
@@ -816,7 +816,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <!-- VERIFY HISTORY -->
 <div id="verify-history" class="page">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">내 검증 기록</h2>
-  <p style="color:var(--sub);margin-bottom:16px">지금까지 참여한 지식 검증 챌린지의 기록입니다</p>
+  <p style="color:var(--sub);margin-bottom:16px">지금까지 참여한 연대지능기여게임의 기록입니다</p>
 
   <div id="vh-login-gate" class="highlight-box" style="display:none;border-color:#c62828;background:#fff5f5">
     로그인한 사용자만 볼 수 있습니다.
@@ -1041,7 +1041,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
     <div class="card" style="margin-top:20px">
       <h3>검증 참여 현황</h3>
-      <p style="font-size:12px;color:var(--sub);margin-bottom:12px">교육생별 검증 챌린지 참여 기록</p>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:12px">교육생별 연대지능기여게임 참여 기록</p>
       <div id="adm-user-table" style="overflow-x:auto"></div>
     </div>
 
@@ -3342,7 +3342,7 @@ function exportActivityReport() {
 // ===== VERIFY GAME =====
 var VGAME_KEY = 'academy_verify_game';
 // 월별 문제 풀 — 매달 연대지능 위키의 새 문서와 활동가 지식을 반영하여 300문제로 갱신
-// 갱신 방법: Claude Code에서 "검증 게임 이번 달 문제 300개 새로 만들어줘" 실행
+// 갱신 방법: Claude Code에서 "연대지능기여게임 이번 달 문제 300개 새로 만들어줘" 실행
 var GAME_POOL_MONTH = '2026-07';
 var GAME_SESSION_SIZE = 5;
 var GAME_STATEMENTS = [
@@ -3594,7 +3594,7 @@ var GAME_STATEMENTS = [
   {cat:'사용법', source:'검수 심화', text:'검수 결과 수정이 필요한 경우, 리뷰어가 직접 수정하는 것이 효율적이다.', answer:'error', hint:'리뷰어는 코멘트를 남기고, 작성자가 직접 수정하는 것이 원칙입니다. 이를 통해 작성자의 학습이 이루어집니다.'},
   {cat:'개념', source:'교육 체계', text:'연대지능활동가 아카데미의 교육 체계는 환경 구축 → 기록 실습 → 위키 기여 → 성과 발표의 흐름을 따른다.', answer:'good', hint:'교육 체계의 흐름을 적절히 요약합니다.'},
   {cat:'개념', source:'교육 체계', text:'성과 발표에서는 활동 배경과 문제 인식, 활동 과정과 방법, 성과와 변화, 교훈과 제안 4가지를 포함해야 한다.', answer:'good', hint:'성과 발표의 4가지 구성을 정확히 나열합니다.'},
-  {cat:'사용법', source:'교육 체계', text:'학습 포트폴리오에는 위키 기여 이력, GitHub PR 기록, 검증 게임 참여 등 정량적 데이터를 활용한다.', answer:'good', hint:'학습 기록의 구성 요소(위키 기여, 반영 요청 기록, 검증 게임 참여)를 적절히 설명합니다.'},
+  {cat:'사용법', source:'교육 체계', text:'학습 포트폴리오에는 위키 기여 이력, GitHub PR 기록, 연대지능기여게임 참여 등 정량적 데이터를 활용한다.', answer:'good', hint:'학습 기록의 구성 요소(위키 기여, 반영 요청 기록, 연대지능기여게임 참여)를 적절히 설명합니다.'},
   {cat:'개념', source:'교육 체계', text:'활동가의 성장 경로는 도구 익히기 → 기록하기 → 연결하기 → 가르치기의 4단계이다. 이는 L1~L4 등급과 대응한다.', answer:'good', hint:'성장 경로와 등급의 대응을 적절히 설명합니다.'},
   {cat:'현장기록', source:'종합 판단2', text:'2026년 6월 27일 삼천동에서 마을회의 후 주민 인터뷰를 실시했다. 3명의 주민 중 한 명은 \'회의 내용을 잊어버려서 나중에 다시 들을 수 있으면 좋겠다\'고 말했다. 이는 디지털 회의록의 필요성을 보여준다.', answer:'good', hint:'인용과 해석이 잘 분리되어 있고, 인터뷰 날짜와 인원수가 명확합니다.'},
   {cat:'개념', source:'종합 판단2', text:'연대지능 위키의 가장 큰 위험은 활동가가 떠나면 지식도 함께 사라진다는 것이다.', answer:'error', hint:'위키의 핵심 가치는 활동가가 떠나도 지식이 위키에 축적되어 남는다는 것입니다. 개인에게 종속되지 않는 것이 데이터 주권의 핵심입니다.'},
@@ -4027,7 +4027,7 @@ function renderVerifyHistory() {
 
   var recEl = document.getElementById('vh-records');
   if (!records.length) {
-    recEl.innerHTML = '아직 검증 기록이 없습니다. <a href="javascript:void(0)" onclick="go(\'verify-game\')" style="color:var(--accent);font-weight:700">챌린지 참여하기</a>';
+    recEl.innerHTML = '아직 검증 기록이 없습니다. <a href="javascript:void(0)" onclick="go(\'verify-game\')" style="color:var(--accent);font-weight:700">게임 참여하기</a>';
     return;
   }
   var html = '';
