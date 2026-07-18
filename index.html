@@ -691,7 +691,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <button onclick="learnCmd('resume')" style="background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">다시 이어서 학습 시작</button>
     </div>
     <div id="learnChatArea" class="chat-area" style="height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--bg)">
-      <div class="chat-msg ai"><div class="chat-bubble"><strong>AI 학습 도우미</strong><br>안녕하세요! 바이브 코딩 환경 구축을 도와드릴게요.<br><br>아래 버튼 중 하나를 눌러 시작하세요:<br>- <b>지금부터 학습 시작</b>: 1단계부터 차근차근 시작<br>- <b>다시 이어서 학습 시작</b>: 이전에 저장한 곳부터 이어서 진행</div></div>
+      <div class="chat-msg ai"><div class="chat-bubble"><strong>AI 학습 도우미</strong><br>안녕하세요! 바이브 코딩 환경 구축을 도와드릴게요.<br><br>아래 버튼 중 하나를 눌러 시작하세요:<br>- <b>지금부터 학습 시작</b>: 1단계부터 차근차근 시작<br>- <b>다시 이어서 학습 시작</b>: 이전에 저장한 곳부터 이어서 진행<br>- <b>중간 단계부터 시작</b>: 위 진행 현황의 단계 배지를 클릭하거나, "3단계부터 시작"이라고 입력<br><br>각 단계를 시작할 때마다 <b>이전 단계가 제대로 됐는지 점검</b>부터 안내해드려요. 점검에 문제가 있으면 "이전 단계"라고 입력하세요.</div></div>
     </div>
     <div style="display:flex;gap:6px">
       <input type="text" id="learnChatInput" placeholder="메시지를 입력하세요..." style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit" onkeydown="if(event.key==='Enter')sendLearnChat()">
@@ -2469,6 +2469,24 @@ var LEARN_STEPS = [
   {id:'triage', title:'반자동 트리아지 루프', desc:'AI에게 "발견·분류까지만" 맡기고 판단·실행은 사람이 하는 방식이에요. 연대지능활동가의 AI 활용 원칙을 직접 경험하는 마지막 실습!', guide:'마지막 실습! AI에게 "분류까지만" 맡기는 반자동 트리아지를 경험해볼게요.\n(무인 자동화가 아니라, 판단은 사람이 하는 방식이에요)\n\n[1단계] AI에게 점검·분류 시키기\nDocuments > quartz 폴더에서 Claude Code를 실행하고 아래를 붙여넣으세요:\n\n  content 폴더의 모든 문서를 점검해줘.\n  각 문서를 [정상 / 보완 필요 / 오류] 세 가지로 분류해서\n  표로 보고만 해줘. 절대 수정하지 마.\n\n[2단계] 사람이 판단하기\nAI의 분류 보고를 읽고, 내가 직접 판단하세요.\n"보완 필요"로 분류된 것 중 하나만 골라 이렇게 지시하세요:\n\n  (문서이름)만 보완해줘. 나머지는 그대로 둬.\n\n[3단계] 왜 이렇게 할까요?\n- AI가 다 고치게 두면: 아무도 검증 안 한 결과가 쌓여요.\n- 분류까지만 맡기면: 사람이 판단의 자리를 지킬 수 있어요.\n\n"판단의 자리에 사람 두기" — 이 원칙이 연대지능활동가의 AI 활용 방식이에요!\n\n분류 보고 화면을 캡처해서 올려주세요.', check:'AI의 분류 보고 후, 내가 고른 문서 하나만 보완되면 전체 15단계 완료! 축하합니다!'}
 ];
 
+// 각 단계 시작 전, 이전 단계가 제대로 됐는지 점검하는 안내 (key = 해당 단계 id)
+var LEARN_PRECHECKS = {
+  git: '이전 단계(Node.js 설치)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 입력하세요:\n\n  node --version\n\n"v20.xx.x" 같은 숫자가 나오면 통과!',
+  vscode: '이전 단계(Git 설치·설정)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 한 줄씩 입력하세요:\n\n  git --version\n  git config --global user.name\n\n버전 숫자와 내 이름이 각각 나오면 통과!',
+  obsidian: '이전 단계(VSCode 설치)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)를 새로 열고 아래를 입력하세요:\n\n  code --version\n\n숫자가 나오면 통과! (또는 VSCode 프로그램이 정상 실행되면 통과)',
+  'claude-code': '이전 단계(Obsidian 설치)가 잘 됐는지 먼저 확인해요.\nObsidian을 실행해서 solidarity-wiki 보관함이 열리면 통과!',
+  'claude-md': '이전 단계(Claude Code 설치)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 입력하세요:\n\n  claude --version\n\n"1.x.x" 같은 버전 숫자가 나오면 통과!',
+  'api-key': '이전 단계(CLAUDE.md 작성)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 입력하세요:\n\n  dir "%USERPROFILE%\\Documents\\my-wiki"\n\n목록에 CLAUDE.md가 보이면 통과! (탐색기에서 Documents > my-wiki 폴더를 열어 확인해도 돼요)',
+  'github-repo': '이전 단계(API 키 설정)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에서 claude 를 실행하고 "안녕"이라고 인사해보세요.\nAI가 정상적으로 답하면 통과! (API 키가 잘 등록된 거예요)',
+  cloudflare: '이전 단계(GitHub 저장소 생성)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 입력하세요:\n\n  gh repo view my-solidarity-wiki\n\n저장소 정보가 나오면 통과! (또는 브라우저에서 github.com/내아이디/my-solidarity-wiki 가 열리면 통과)',
+  quartz: '이전 단계(Cloudflare Pages 배포)가 잘 됐는지 먼저 확인해요.\n브라우저에서 배포 때 받은 xxx.pages.dev 주소를 열어보세요.\n페이지가 열리면 통과! (아직 내용이 없어도 페이지만 열리면 돼요)',
+  workflow: '이전 단계(Quartz 위키 설정)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 한 줄씩 입력하세요:\n\n  cd Documents\\quartz\n  npx quartz build --serve\n\n브라우저에서 http://localhost:8080 에 내 위키가 보이면 통과!\n(확인했으면 Ctrl+C로 미리보기를 종료하세요)',
+  skill: '이전 단계(전체 작업 흐름 실습)가 잘 됐는지 먼저 확인해요.\n브라우저에서 내 xxx.pages.dev 주소를 열어보세요.\n11단계에서 작성한 문서(my-first-post)가 보이면 통과!',
+  mcp: '이전 단계(스킬 만들기)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 한 줄씩 입력하세요:\n\n  cd Documents\\quartz\n  dir .claude\\skills\n\n"위키발행" 스킬이 목록에 보이면 통과!',
+  agent: '이전 단계(커넥트 MCP 연결)가 잘 됐는지 먼저 확인해요.\nclaude 를 실행하고 /mcp 를 입력하세요.\n목록에 github가 "connected(연결됨)"로 보이면 통과!',
+  triage: '이전 단계(에이전트 분업)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 한 줄씩 입력하세요:\n\n  cd Documents\\quartz\n  dir .claude\\agents\n\nmaker와 checker 파일이 목록에 보이면 통과!'
+};
+
 function getLearnProgress() {
   var s = getSession();
   if (!s) return {step:0,log:[]};
@@ -2495,9 +2513,10 @@ function renderLearnProgress() {
   for (var i = 0; i < total; i++) {
     var color = i < p.step ? 'var(--accent)' : (i === p.step ? 'var(--warn)' : 'var(--border)');
     var textColor = i < p.step ? '#fff' : (i === p.step ? '#fff' : 'var(--sub)');
-    html += '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:' + color + ';color:' + textColor + '">' + (i+1) + '. ' + LEARN_STEPS[i].title + '</span>';
+    html += '<span onclick="jumpToStep(' + i + ')" title="' + (i+1) + '단계부터 시작하기" style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;cursor:pointer;background:' + color + ';color:' + textColor + '">' + (i+1) + '. ' + LEARN_STEPS[i].title + '</span>';
   }
   html += '</div>';
+  html += '<div style="font-size:12px;color:var(--sub);margin-top:6px">단계 배지를 클릭하면 그 단계부터 바로 시작할 수 있어요. 채팅에 "3단계부터 시작"이라고 입력해도 돼요.</div>';
   el.innerHTML = html;
 }
 
@@ -2526,9 +2545,29 @@ function showLearnStep(stepIdx) {
   var step = LEARN_STEPS[stepIdx];
   var msg = '[ ' + (stepIdx+1) + '단계: ' + step.title + ' ]\n\n';
   msg += step.desc + '\n\n';
+  if (LEARN_PRECHECKS[step.id]) {
+    msg += '--- 시작 전 점검 (이전 단계 확인) ---\n' + LEARN_PRECHECKS[step.id] + '\n\n점검에 문제가 있으면 "이전 단계"라고 입력하세요. 전 단계부터 다시 안내해드릴게요.\n\n';
+  }
   msg += '--- 안내 ---\n' + step.guide;
   addLearnMsg('ai', msg);
   renderLearnProgress();
+}
+
+// 중간 단계부터 시작 (진행 배지 클릭 또는 "N단계부터 시작" 입력)
+function jumpToStep(idx) {
+  var session = getSession();
+  if (!session || session.role === 'guest') {
+    addLearnMsg('ai', '로그인 후 학습을 시작할 수 있습니다. 상단의 로그인 버튼을 눌러주세요.');
+    return;
+  }
+  if (idx < 0 || idx >= LEARN_STEPS.length) return;
+  var p = getLearnProgress();
+  p.step = idx;
+  p.log.push({action:'jump', step:idx, title:LEARN_STEPS[idx].title, date:new Date().toISOString().slice(0,16)});
+  saveLearnProgress(p);
+  var note = idx > 0 ? '\n(1~' + idx + '단계는 완료한 것으로 표시돼요. 시작 전 점검으로 이전 단계 상태를 먼저 확인할게요.)' : '';
+  addLearnMsg('ai', (idx+1) + '단계 "' + LEARN_STEPS[idx].title + '"부터 시작합니다!' + note);
+  showLearnStep(idx);
 }
 
 function learnCmd(cmd) {
@@ -2583,6 +2622,31 @@ function sendLearnChat() {
     var stepName = p.step < LEARN_STEPS.length ? LEARN_STEPS[p.step].title : '완료';
     addLearnMsg('ai', '이전 학습을 이어서 진행합니다!\n\n현재 위치: ' + (p.step+1) + '단계 (' + stepName + ')\n완료한 단계: ' + p.step + ' / ' + LEARN_STEPS.length + '\n\n이어서 진행할게요!');
     showLearnStep(p.step);
+    return;
+  }
+
+  var jumpMatch = text.match(/(\d+)\s*단계부터/);
+  if (jumpMatch) {
+    var jumpIdx = parseInt(jumpMatch[1], 10) - 1;
+    if (jumpIdx >= 0 && jumpIdx < LEARN_STEPS.length) {
+      jumpToStep(jumpIdx);
+    } else {
+      addLearnMsg('ai', '1~' + LEARN_STEPS.length + ' 사이의 단계 번호를 입력해주세요. (예: "3단계부터 시작")');
+    }
+    return;
+  }
+
+  if (text.indexOf('이전 단계') !== -1 || text.indexOf('전 단계') !== -1 || text.indexOf('이전단계') !== -1) {
+    if (p.step > 0) {
+      p.step--;
+      p.log.push({action:'back', step:p.step, title:LEARN_STEPS[p.step].title, date:new Date().toISOString().slice(0,16)});
+      saveLearnProgress(p);
+      addLearnMsg('ai', '알겠습니다. ' + (p.step+1) + '단계 "' + LEARN_STEPS[p.step].title + '"부터 다시 진행할게요.');
+      showLearnStep(p.step);
+    } else {
+      addLearnMsg('ai', '지금이 첫 번째 단계예요. 1단계 안내를 다시 보여드릴게요.');
+      showLearnStep(0);
+    }
     return;
   }
 
