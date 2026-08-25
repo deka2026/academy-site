@@ -1948,10 +1948,33 @@ async function approveUser(i) {
   if (!user) return;
 
   if (user.source === 'app') {
+    // 이미 승인된 교육생(프로필 존재)이면 계정을 다시 만들지 않고 중복 신청만 정리
+    var existing = await sb.from('profiles').select('email').eq('email', user.email).maybeSingle();
+    if (existing.data) {
+      await sb.from('applications').delete().eq('id', user.id);
+      alert((user.name || user.email) + '님은 이미 승인된 교육생입니다. 대기 목록의 중복 신청을 정리했습니다.');
+      renderPending();
+      renderApproved();
+      return;
+    }
     // Edge Function 호출: Auth 계정 자동 생성 + profiles 등록 + applications 삭제
     var fnRes = await sb.functions.invoke('approve-applicant', { body: { email: user.email, name: user.name } });
     if (fnRes.error) {
-      alert('승인 처리 중 오류가 발생했습니다: ' + (fnRes.error.message || fnRes.error));
+      // FunctionsHttpError의 generic 문구 대신 서버가 보낸 실제 오류 본문을 표시
+      var errMsg = fnRes.error.message || String(fnRes.error);
+      try {
+        if (fnRes.error.context && typeof fnRes.error.context.json === 'function') {
+          var errBody = await fnRes.error.context.json();
+          if (errBody && errBody.error) errMsg = errBody.error;
+        }
+      } catch (e) {}
+      alert('승인 처리 중 오류가 발생했습니다: ' + errMsg);
+      return;
+    }
+    if (fnRes.data && fnRes.data.alreadyRegistered) {
+      alert((user.name || user.email) + '님은 이미 승인된 교육생입니다. 대기 목록의 중복 신청을 정리했습니다.');
+      renderPending();
+      renderApproved();
       return;
     }
     var tempPw = fnRes.data && fnRes.data.password;

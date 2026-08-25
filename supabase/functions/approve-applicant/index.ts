@@ -55,8 +55,18 @@ Deno.serve(async (req) => {
       email, password, email_confirm: true,
     })
     if (createErr) {
-      return new Response(JSON.stringify({ error: createErr.message }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const isDuplicate = createErr.code === 'email_exists'
+        || /already|registered|exists/i.test(createErr.message ?? '')
+      if (!isDuplicate) {
+        return new Response(JSON.stringify({ error: createErr.message }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      // 이미 가입된 이메일: 계정 생성 없이 프로필 보정 + 남은 신청 행만 정리 (재승인 멱등 처리)
+      await admin.rpc('create_user_profile', { p_email: email, p_name: name || email })
+      await admin.from('applications').delete().eq('email', email)
+      return new Response(JSON.stringify({ alreadyRegistered: true }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
