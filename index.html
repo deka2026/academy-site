@@ -1146,7 +1146,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 <!-- SOLIDARITY WIKI HUB -->
 <div id="solidarity-unified" class="page">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">연대지능 학습 가이드</h2>
-  <p style="color:var(--sub);margin-bottom:16px">연대지능의 개념부터 위키 기여까지, AI와 대화하며 한 단계씩 배워요</p>
+  <p style="color:var(--sub);margin-bottom:16px">연대지능의 개념부터 위키 기여까지 7단계. 단계마다 나오는 프롬프트를 <b>복사해서 내 클로드 입력창에 붙여넣기</b>만 하면 돼요. 클로드가 설명하고 질문해 주고, 다 끝나면 <b>다음</b> 버튼을 누르세요.</p>
 
   <div class="vision-grid" style="margin-bottom:18px">
     <div class="vision-card"><h4>연대지능 이해</h4><p>개념, 원칙, 기존 방식과의 차이</p></div>
@@ -1156,7 +1156,10 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
   <div id="solidProgress" style="margin-bottom:18px"></div>
 
-  <div id="solidChatArea" style="min-height:400px;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--card)"></div>
+  <p style="font-size:13px;color:var(--sub);margin-bottom:10px">① 프롬프트 <b>복사</b> → ② <b>내 클로드 입력창</b>에 붙여넣고 Enter → ③ 클로드와 대화하며 배우기 → ④ 끝나면 <b>다음</b> 버튼. 이게 전부예요.</p>
+  <div id="solidChatArea" style="min-height:400px;max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--card)">
+    <div class="chat-msg ai"><div class="chat-bubble"><strong>학습 도우미</strong><br>안녕하세요! 아래 <b>학습 시작</b> 버튼을 누르면 1단계 프롬프트가 나와요.<br><br>단계마다 할 일은 세 가지뿐이에요:<br>1. <b>프롬프트 복사</b> 버튼 누르기<br>2. <b>내 클로드 입력창</b>에 붙여넣고 Enter (클로드가 쉽게 설명하고 질문해 줘요)<br>3. 다 끝나면 <b>다음 &#8594;</b> 버튼 누르기<br><br>하다 만 곳부터 하려면 <b>이어서 학습</b>, 특정 단계로 가려면 위 진행 현황의 단계 배지를 클릭하세요.</div></div>
+  </div>
 
   <div style="margin-bottom:10px">
     <label style="font-size:13px;color:var(--sub);cursor:pointer">
@@ -1168,10 +1171,13 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
     <button onclick="solidCmd('start')" style="padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">학습 시작</button>
     <button onclick="solidCmd('save')" style="padding:8px 14px;background:var(--warn);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">학습 저장</button>
     <button onclick="solidCmd('resume')" style="padding:8px 14px;background:var(--good);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">이어서 학습</button>
+    <span style="flex:1"></span>
+    <button onclick="solidPrevStep()" class="learn-btn prev" style="padding:8px 14px;font-size:13px">&#8592; 이전</button>
+    <button onclick="solidNextStep()" class="learn-btn next" style="padding:8px 18px;font-size:13px">다음 &#8594;</button>
   </div>
 
   <div style="display:flex;gap:8px">
-    <input type="text" id="solidChatInput" placeholder="메시지를 입력하세요..." style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit" onkeydown="if(event.key==='Enter')sendSolidChat()">
+    <input type="text" id="solidChatInput" placeholder="질문이나 메모를 남길 수 있어요 (예: 3단계부터 시작)" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit" onkeydown="if(event.key==='Enter')sendSolidChat()">
     <button onclick="sendSolidChat()" style="padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">전송</button>
   </div>
 <div class="fb-inline">
@@ -3032,6 +3038,17 @@ var SOLID_STEPS = [
   guide:'마지막 단계예요! 작성한 문서를 연대지능 위키에 올려볼게요!\n\n[반영 요청(PR)이란?]\n내가 쓴 문서를 공동 위키에 "이거 올려주세요" 하고 요청하는 거예요.\n검토자가 확인하고 승인하면 공식 위키에 게시돼요.\n\n카페에 글 올리는 것과 비슷하지만,\n검토 과정이 있어서 품질이 보장돼요.\n\n[1단계] 위키 저장소 연결\nClaude Code에서 아래를 복사해서 붙여넣기 하세요:\n\n  연대지능 위키에 기여하고 싶어. 다음을 순서대로 해줘:\n  1. GitHub 저장소 deka2026/solidarity-intelligence-wiki를\n     내 계정으로 Fork해줘\n  2. Fork한 저장소를 로컬에 clone해줘\n  3. CLAUDE.md에 "연대위키에 올려줘" 규칙을 추가해줘\n\nFork는 "내 공간에 복사본 만들기"라는 뜻이에요.\n원본을 직접 수정하는 게 아니라,\n내 복사본에서 작업하고 반영을 요청하는 방식이에요.\n\n어떤 메시지가 나오는지 모르겠으면 화면을 캡처해서 올려주세요!\n\n[2단계] 문서 올리기\n이전 단계에서 만든 문서가 있다면,\nClaude Code에서 이렇게 말하세요:\n\n  이 문서를 연대지능 위키에 PR로 올려줘.\n  온톨로지 5가지 질문으로 자체 검수도 해줘.\n\nPR이 만들어지면 GitHub에서 확인할 수 있어요.\n\n[3단계] PR 확인하기\nClaude Code에서 이렇게 확인하세요:\n\n  연대지능 위키에 올린 내 PR 상태를 확인해줘.\n\nPR 번호와 상태(open, merged 등)가 나오면 성공이에요!\n\nPR이 만들어진 화면을 캡처해서 올려주세요.\n\n이 단계를 완료하면 연대지능 학습 과정이 모두 끝나요!\n이제 연대지능 위키 메뉴에서 다양한 기여 활동을 할 수 있어요.'}
 ];
 
+// 연대지능 학습 가이드: 단계별 '내 클로드에 붙여넣는' 프롬프트 (where는 LEARN_WHERE와 공용)
+var SOLID_PROMPTS = {
+  what: {where:'web', text:'나는 연대지능활동가 아카데미에서 "연대지능"을 처음 배우는 초보자야. 아래 내용을 바탕으로, 어려운 말 없이 예를 들어 쉽게 설명해줘.\n- 연대지능(Solidarity Intelligence): 활동가들이 각자의 현장 경험을 기록하고 연결해서, 한 사람만으로는 알 수 없던 통찰을 만들어내는 방식.\n- 기존 방식(보고서 작성 → 파일 저장 → 개인 PC에 묻힘)과의 차이(위키에 기록 → Git으로 변경 관리 → 누구나 검색·활용).\n- 4가지 핵심 원칙: 기록 우선 / 맥락 보존 / 연결과 분류 / 상호 검증.\n설명이 끝나면 내가 제대로 이해했는지 확인하는 쉬운 질문을 2개만 해줘. 내 답을 듣고 부족한 부분을 보태 줘.'},
+  role: {where:'web', text:'나는 연대지능활동가 아카데미 2단계 "활동가의 4가지 역할"을 배우는 초보자야. 아래 내용을 마을 활동 예시를 들어 쉽게 설명해줘.\n- 기록자(Documenter): 회의·인터뷰·현장 방문을 글로 남기는 사람\n- 연결자(Connector): 흩어진 기록을 분류하고 "이 마을 경험이 저 마을과 비슷하네" 하고 연결하는 사람\n- 검증자(Reviewer): 동료의 기록이 정확한지, 빠진 게 없는지 검토하는 사람\n- 전파자(Educator): 쌓인 지식을 현장에 적용하고 새 활동가를 가르치는 사람\n- 성장 단계: L1 입문 → L2 기록 → L3 연결 → L4 멘토. 처음에는 기록자부터 시작한다.\n설명이 끝나면 "지금 내 활동에서 나는 어떤 역할을 가장 많이 하고 있나요?"를 물어봐 주고, 내 답을 듣고 다음에 해볼 만한 작은 실천 하나를 제안해줘.'},
+  data: {where:'web', text:'나는 연대지능활동가 아카데미 3단계 "데이터 주권"을 배우는 초보자야. 아래 내용을 쉽게 설명해줘.\n- 데이터 주권: "우리가 만든 데이터는 우리 것"이라는 원칙.\n- 예: 마을 회의 기록을 네이버 카페에 올리면 네이버가 관리하는 데이터, 우리 GitHub 위키에 올리면 우리가 소유하는 데이터. 카페가 문 닫으면 기록이 사라지지만 위키는 우리가 백업·이동할 수 있다.\n- 왜 중요한가: 현장 지식이 외부 플랫폼에 갇히지 않는다 / 활동가가 떠나도 기록은 공동체에 남는다 / 데이터 활용 방향을 우리가 결정한다 / 외부 서비스가 중단돼도 영향이 없다.\n- 실천 과제: 모든 현장 기록을 연대지능 위키에 남긴다 / 카페·블로그 대신 GitHub을 우선 쓴다 / AI 도구를 쓸 때 데이터가 어디로 가는지 확인한다.\n설명이 끝나면 "지금 내가 남기는 기록 하나를 떠올리면, 그 기록은 지금 어디에 있나요?"를 물어봐 주고, 내 답을 듣고 어디로 옮기면 좋을지 짧게 조언해줘.'},
+  'domain-ai': {where:'web', text:'나는 연대지능활동가 아카데미 4단계 "우리 분야 전문 AI 만들기"를 배우는 초보자야. 아래 내용을 쉽게 설명해줘.\n- 범용 AI(ChatGPT, Claude 등)는 모든 분야에 일반적으로 답한다. "우리 분야 전문 AI"는 사회혁신 현장의 용어(거버넌스, 숙의, 사회적 가치 등)를 정확히 알고, 우리 위키에 쌓인 실제 사례를 바탕으로 답한다.\n- 예: "농촌 마을에서 주민 참여를 높이려면?"에 범용 AI는 교과서적 일반론을, 전문 AI는 "정선 화암면에서는 이런 방법이, 완도에서는 이런 접근이 효과적이었다"처럼 구체적으로 답한다.\n- 만드는 4단계: 지식 축적(위키에 문서 쌓기) → 품질 검증(동료 검토) → AI 연결(검증된 문서를 AI가 검색) → 현장 적용.\n- 활동가가 올리는 위키 문서가 곧 AI의 지식이 된다. 정확하게 쓰고, 용어를 통일하고, 출처를 밝히고, 문서를 서로 연결할수록 AI가 똑똑해진다. 문서 50건 이상이면 의미 있는 AI 검색이 가능하다.\n설명이 끝나면 내 활동 분야에서 "전문 AI라면 더 잘 답할 질문" 예시를 하나 같이 만들어 보자고 제안해줘.'},
+  'wiki-write': {where:'web', text:'나는 연대지능활동가 아카데미 5단계 "위키 작성법과 지식 분류"를 배우는 초보자야. 아래 내용을 쉽게 설명해줘.\n- 문서 4종 유형: 개념 문서(핵심 용어 정의) / 현장기록(회의·인터뷰·방문 기록, 날짜·장소·참여자·맥락) / 사용법(따라 하면 결과가 나오는 절차) / 사례연구(배경·방법·결과·교훈).\n- 지식 분류 4요소: 클래스(어떤 분야?) / 인스턴스(구체적으로 무엇?) / 속성(어떤 정보가 있나?) / 관계(다른 문서와 어떻게 이어지나?).\n- 검토할 때 5가지 질문: 클래스가 명확한가? / 속성이 충분한가(5W1H)? / 다른 문서와 [[링크]]로 연결했는가? / 사실과 의견이 구분되는가? / 출처가 밝혀져 있는가?\n설명이 끝나면 "마을 회의 현장기록" 짧은 예시 문서를 하나 만들어서, 4요소가 각각 어디에 해당하는지 표시해서 보여줘. 그리고 5가지 질문으로 그 예시를 같이 검토해 보자.'},
+  'first-doc': {where:'code', text:'나는 컴퓨터 초보자야. 연대지능활동가 아카데미 6단계 "첫 번째 위키 문서 작성"을 하고 있어. Documents\\my-wiki 폴더에서 작업해줘.\n먼저 내가 기록하고 싶은 주제(오늘 있었던 회의나 모임, 내가 아는 마을 이야기, 이 교육을 배우며 느낀 점 등)와 내용을 질문 두세 개로 물어봐 줘.\n내 답을 바탕으로 문서 4종 유형(개념·현장기록·사용법·사례연구) 중 알맞은 것을 골라, 지식 분류 4요소(클래스·인스턴스·속성·관계)가 드러나게 위키 문서를 써서 wiki 폴더에 .md 파일로 만들어줘.\n다 만들면 파일 위치, 어떤 유형을 왜 골랐는지, 그리고 검토 5가지 질문(클래스 명확 / 속성 충분 / 링크 연결 / 사실·의견 구분 / 출처)으로 자체 점검한 결과를 알려줘.'},
+  'wiki-contrib': {where:'code', text:'나는 컴퓨터 초보자야. 연대지능활동가 아카데미 7단계 "연대지능 위키에 기여하기"를 하고 있어.\n① GitHub 저장소 deka2026/solidarity-intelligence-wiki 를 내 계정으로 Fork하고, Fork한 저장소를 Documents 폴더에 clone해줘.\n② 그 폴더의 CLAUDE.md에 "연대위키에 올려줘"라고 하면 위키 문서를 작성하고 PR(반영 요청)을 올리는 규칙을 추가해줘.\n③ 6단계에서 만든 내 문서(Documents\\my-wiki\\wiki 폴더)를 이 위키에 PR로 올려줘. 올리기 전에 검토 5가지 질문으로 자체 검수해줘.\n④ 끝나면 PR 번호와 상태(open 등), GitHub에서 확인하는 주소를 알려줘.\nFork·clone·PR이 무엇인지 처음 듣는 사람에게 하듯 한 줄씩 설명하면서, 한 번에 한 가지씩 진행해줘.'}
+};
+
 var SOLID_FUNCS = {
   getProgress: function() {
     var s = getSession();
@@ -3060,9 +3077,10 @@ function renderSolidProgress() {
   for (var i = 0; i < total; i++) {
     var color = i < p.step ? 'var(--accent)' : (i === p.step ? 'var(--warn)' : 'var(--border)');
     var textColor = i < p.step ? '#fff' : (i === p.step ? '#fff' : 'var(--sub)');
-    html += '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:' + color + ';color:' + textColor + '">' + (i+1) + '. ' + SOLID_STEPS[i].title + '</span>';
+    html += '<span onclick="solidJumpToStep(' + i + ')" title="' + (i+1) + '단계부터 시작하기" style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;cursor:pointer;background:' + color + ';color:' + textColor + '">' + (i+1) + '. ' + SOLID_STEPS[i].title + '</span>';
   }
   html += '</div>';
+  html += '<div style="font-size:12px;color:var(--sub);margin-top:6px">단계 배지를 클릭하면 그 단계 프롬프트가 바로 나와요.</div>';
   el.innerHTML = html;
 }
 
@@ -3075,7 +3093,7 @@ function addSolidMsg(who, text, isHtml) {
   bubble.className = 'chat-bubble';
   if (isHtml) bubble.innerHTML = text;
   else bubble.textContent = text;
-  if (who === 'ai') bubble.style.whiteSpace = 'pre-wrap';
+  if (who === 'ai' && !isHtml) bubble.style.whiteSpace = 'pre-wrap';
   div.appendChild(bubble);
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
@@ -3087,11 +3105,83 @@ function showSolidStep(stepIdx) {
     return;
   }
   var step = SOLID_STEPS[stepIdx];
-  var msg = '[ ' + (stepIdx+1) + '단계: ' + step.title + ' ]\n\n';
-  msg += step.desc + '\n\n';
-  msg += '--- 안내 ---\n' + step.guide;
-  addSolidMsg('ai', msg);
+  var pr = SOLID_PROMPTS[step.id];
+  var html = '<div class="learn-card">';
+  html += '<div class="lc-head">' + (stepIdx+1) + '단계 / ' + SOLID_STEPS.length + ' &middot; ' + escHtml(step.title) + '</div>';
+  html += '<div class="lc-desc">' + escHtml(step.desc) + '</div>';
+  html += '<div class="lc-how">아래 프롬프트를 <b>복사</b>해서 <b>내 클로드 입력창</b>에 붙여넣고 Enter를 누르세요. 클로드가 쉽게 설명하고 질문해 줘요. 다 끝나면 <b>다음 &rarr;</b> 버튼을 누르세요.</div>';
+  if (pr) {
+    html += '<div class="lc-where">붙여넣는 곳: ' + escHtml(LEARN_WHERE[pr.where] || '') + '</div>';
+    html += '<div class="prompt-box"><span class="learn-prompt-text">' + escHtml(pr.text) + '</span></div>';
+  }
+  html += '<div class="lc-actions">';
+  if (pr) html += '<button class="learn-btn copy" onclick="copyLearnPrompt(this)">프롬프트 복사</button>';
+  if (stepIdx > 0) html += '<button class="learn-btn prev" onclick="solidPrevStep()">&larr; 이전</button>';
+  html += '<button class="learn-btn next" onclick="solidNextStep()">' + (stepIdx + 1 >= SOLID_STEPS.length ? '완료 &#10003;' : '다음 &rarr;') + '</button>';
+  html += '</div></div>';
+  addSolidMsg('ai', html, true);
   renderSolidProgress();
+}
+
+// '다음' 버튼: 현재 단계를 완료 처리하고 다음 단계 카드를 띄움
+function solidNextStep() {
+  var session = getSession();
+  if (!session || session.role === 'guest') {
+    addSolidMsg('ai', '로그인 후 학습을 시작할 수 있습니다. 상단의 로그인 버튼을 눌러주세요.');
+    return;
+  }
+  var p = SOLID_FUNCS.getProgress();
+  if (p.step === 0 && p.log.length === 0) {
+    solidCmd('start');
+    return;
+  }
+  if (p.step >= SOLID_STEPS.length) {
+    addSolidMsg('ai', '이미 모든 단계를 완료했습니다!');
+    return;
+  }
+  var doneStep = SOLID_STEPS[p.step];
+  p.step++;
+  p.log.push({action:'complete', step:p.step, title:doneStep.title, date:new Date().toISOString().slice(0,16)});
+  SOLID_FUNCS.saveProgress(p);
+  addSolidMsg('ai', (doneStep.check ? doneStep.check + '\n\n' : '') + p.step + '단계 "' + doneStep.title + '" 완료! (' + p.step + '/' + SOLID_STEPS.length + ')');
+  showSolidStep(p.step);
+}
+
+// '이전' 버튼: 한 단계 뒤로
+function solidPrevStep() {
+  var session = getSession();
+  if (!session || session.role === 'guest') {
+    addSolidMsg('ai', '로그인 후 학습을 시작할 수 있습니다. 상단의 로그인 버튼을 눌러주세요.');
+    return;
+  }
+  var p = SOLID_FUNCS.getProgress();
+  if (p.step > 0) {
+    p.step--;
+    p.log.push({action:'back', step:p.step, title:SOLID_STEPS[p.step].title, date:new Date().toISOString().slice(0,16)});
+    SOLID_FUNCS.saveProgress(p);
+    addSolidMsg('ai', (p.step+1) + '단계 "' + SOLID_STEPS[p.step].title + '"부터 다시 진행할게요.');
+    showSolidStep(p.step);
+  } else {
+    addSolidMsg('ai', '지금이 첫 번째 단계예요. 1단계 프롬프트를 다시 보여드릴게요.');
+    showSolidStep(0);
+  }
+}
+
+// 진행 배지 클릭 또는 "N단계부터 시작" 입력
+function solidJumpToStep(idx) {
+  var session = getSession();
+  if (!session || session.role === 'guest') {
+    addSolidMsg('ai', '로그인 후 학습을 시작할 수 있습니다. 상단의 로그인 버튼을 눌러주세요.');
+    return;
+  }
+  if (idx < 0 || idx >= SOLID_STEPS.length) return;
+  var p = SOLID_FUNCS.getProgress();
+  p.step = idx;
+  p.log.push({action:'jump', step:idx, title:SOLID_STEPS[idx].title, date:new Date().toISOString().slice(0,16)});
+  SOLID_FUNCS.saveProgress(p);
+  var note = idx > 0 ? '\n(1~' + idx + '단계는 완료한 것으로 표시돼요.)' : '';
+  addSolidMsg('ai', (idx+1) + '단계 "' + SOLID_STEPS[idx].title + '"부터 시작합니다!' + note);
+  showSolidStep(idx);
 }
 
 function solidCmd(cmd) {
@@ -3117,9 +3207,9 @@ function sendSolidChat() {
   var p = SOLID_FUNCS.getProgress();
 
   if (text === '지금부터 학습 시작') {
-    p = {step:0, log:[]};
+    p = {step:0, log:[{action:'start', date:new Date().toISOString().slice(0,16)}]};
     SOLID_FUNCS.saveProgress(p);
-    addSolidMsg('ai', '연대지능 학습을 시작합니다! 총 ' + SOLID_STEPS.length + '단계를 진행할게요.\n\n이 과정에서는 연대지능의 개념, 활동가의 역할, 데이터 주권,\n위키 작성법을 배우고, 마지막에는 실제로 위키 문서를 작성해봐요.\n\n읽고 이해되면 "완료" 또는 "다음"이라고 입력하세요.\n궁금한 점이 있으면 자유롭게 질문해주세요!\n\n그럼 시작합니다!');
+    addSolidMsg('ai', '연대지능 학습을 시작합니다! 총 ' + SOLID_STEPS.length + '단계예요.\n1~5단계는 개념을 배우고, 6~7단계는 실제로 위키 문서를 써서 올려요.\n단계마다 프롬프트를 복사해서 내 클로드에 붙여넣고, 끝나면 "다음" 버튼을 누르면 돼요.');
     showSolidStep(0);
     return;
   }
@@ -3140,28 +3230,30 @@ function sendSolidChat() {
     showSolidStep(p.step);
     return;
   }
+  var solidJump = text.match(/(\d+)\s*단계부터/);
+  if (solidJump) {
+    var sj = parseInt(solidJump[1], 10) - 1;
+    if (sj >= 0 && sj < SOLID_STEPS.length) solidJumpToStep(sj);
+    else addSolidMsg('ai', '1~' + SOLID_STEPS.length + ' 사이의 단계 번호를 입력해주세요. (예: "3단계부터 시작")');
+    return;
+  }
+  if (text.indexOf('이전 단계') !== -1 || text.indexOf('전 단계') !== -1 || text.indexOf('이전단계') !== -1) {
+    solidPrevStep();
+    return;
+  }
   if (text.indexOf('완료') !== -1 || text.indexOf('다음') !== -1 || text.indexOf('넘어') !== -1 || text.indexOf('됐어') !== -1 || text.indexOf('했어') !== -1 || text.indexOf('성공') !== -1 || text.indexOf('이해') !== -1) {
-    if (p.step < SOLID_STEPS.length) {
-      var doneStep = SOLID_STEPS[p.step];
-      p.step++;
-      p.log.push({action:'complete', step:p.step, title:doneStep.title, date:new Date().toISOString().slice(0,16)});
-      SOLID_FUNCS.saveProgress(p);
-      addSolidMsg('ai', (doneStep.check || '') + '\n\n' + doneStep.title + ' 단계를 완료했습니다! (' + p.step + '/' + SOLID_STEPS.length + ')');
-      showSolidStep(p.step);
-    } else {
-      addSolidMsg('ai', '이미 모든 단계를 완료했습니다!');
-    }
+    solidNextStep();
     return;
   }
   if (text.indexOf('어려') !== -1 || text.indexOf('모르') !== -1 || text.indexOf('안 돼') !== -1 || text.indexOf('도움') !== -1 || text.indexOf('다시') !== -1 || text.indexOf('설명') !== -1) {
     if (p.step < SOLID_STEPS.length) {
-      var curStep = SOLID_STEPS[p.step];
-      addSolidMsg('ai', '"' + curStep.title + '" 단계를 다시 설명해드릴게요.\n\n' + curStep.guide);
+      addSolidMsg('ai', '막히셨군요. 가장 쉬운 방법은 지금 쓰고 있는 내 클로드 대화창에 이렇게 말하는 거예요:\n\n  "여기가 잘 이해가 안 돼. 더 쉬운 예를 들어 다시 설명해줘."\n\n프롬프트를 다시 보려면 아래 카드를 이용하세요.');
+      showSolidStep(p.step);
     }
     return;
   }
   if (p.step < SOLID_STEPS.length) {
-    addSolidMsg('ai', '현재 ' + (p.step+1) + '단계 "' + SOLID_STEPS[p.step].title + '"을 진행 중입니다.\n\n내용을 읽고 이해되셨으면 "완료" 또는 "다음"이라고 입력해주세요.\n다시 보고 싶으면 "다시 설명해줘"라고 입력해주세요.');
+    addSolidMsg('ai', '현재 ' + (p.step+1) + '단계 "' + SOLID_STEPS[p.step].title + '"을 진행 중이에요.\n\n프롬프트를 복사해 내 클로드에 붙여넣고, 다 끝나면 "다음 →" 버튼을 누르세요.\n막히면 "도움"이라고 입력해주세요.');
   } else {
     addSolidMsg('ai', '모든 학습을 완료한 상태입니다!\n왼쪽 메뉴의 "연대지능 위키"에서 기여 활동을 시작해보세요.');
   }
@@ -3182,7 +3274,7 @@ function uploadSolidCapture(fileInput) {
     var p = SOLID_FUNCS.getProgress();
     if (p.step < SOLID_STEPS.length) {
       var curStep = SOLID_STEPS[p.step];
-      addSolidMsg('ai', '캡처를 확인했습니다!\n\n이 단계가 완료되었다면 "완료"라고 입력해주세요.\n아직 진행 중이라면 상황을 알려주세요.');
+      addSolidMsg('ai', '캡처를 확인했습니다!\n\n이 단계가 끝났다면 "다음 →" 버튼을 누르세요.\n아직 문제가 있다면 내 클로드 대화창에 이 캡처를 올리고 물어보세요.');
     }
   };
   reader.readAsDataURL(file);
