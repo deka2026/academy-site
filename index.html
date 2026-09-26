@@ -1753,8 +1753,8 @@ async function sbCheckAuth() {
     if (!res.data.session) return;
     var email = res.data.session.user.email;
     var profile = await sb.from('profiles').select('role,name').eq('email', email).single();
-    if (profile.data && profile.data.role && profile.data.role !== 'pending') {
-      setSession({ email: email, name: profile.data.name || email, role: profile.data.role });
+    if (profile.data && profile.data.role && profile.data.role !== 'suspended') {
+      setSession({ email: email, name: profile.data.name || email, role: profile.data.role === 'pending' ? 'user' : profile.data.role });
     }
   } catch (e) { console.warn('[Supabase] 세션 복원 실패:', e.message); }
 }
@@ -1803,7 +1803,7 @@ function showInvite() {
   document.getElementById('app').style.display = 'none';
 }
 
-// 손님(비로그인)이 열 수 있는 페이지. 나머지는 교육 신청 → 승인 → 로그인 후 이용
+// 손님(비로그인)이 열 수 있는 페이지. 나머지는 교육 신청(회원가입) 후 바로 이용 (관리자 승인 없음)
 var GUEST_PAGES = ['home'];
 
 // ===== 사이드 메뉴 (역할별) =====
@@ -1858,7 +1858,7 @@ function renderSidebar() {
   } else if (role === 'user') {
     h += '<div class="sb-head">&#127891; <b>교육생</b> · ' + who + '<span>학습 기록은 이 브라우저에 저장돼요.</span></div>';
   } else {
-    h += '<div class="sb-head sb-guest">&#128075; <b>손님으로 보는 중</b><span>홈 화면 외의 메뉴는 교육 신청(회원가입) 후 승인을 받아 로그인하면 열려요.</span><button onclick="openLoginModal()">로그인</button><button onclick="showInvite()" style="background:var(--warn)">교육 신청</button></div>';
+    h += '<div class="sb-head sb-guest">&#128075; <b>손님으로 보는 중</b><span>홈 화면 외의 메뉴는 교육 신청(회원가입)을 하면 바로 열려요. 이미 신청했다면 로그인하세요.</span><button onclick="openLoginModal()">로그인</button><button onclick="showInvite()" style="background:var(--warn)">교육 신청</button></div>';
   }
   SIDEBAR_MENUS.forEach(function(sec) {
     var visible = sec.roles.indexOf(role) !== -1;
@@ -1989,9 +1989,9 @@ async function doLogin() {
   var name = (profile.data && profile.data.name) || email;
 
   if (role === 'pending') {
-    err.textContent = '관리자 승인 대기 중입니다. 승인 후 로그인할 수 있습니다.';
-    await sb.auth.signOut();
-    return;
+    // 관리자 승인 없이 이용: 프로필이 없거나 예전 신청(대기)이어도 교육생으로 들여보낸다
+    if (!profile.data) { try { await sb.rpc('create_user_profile', { p_email: email, p_name: name }); } catch (e) {} }
+    role = 'user';
   }
   if (role === 'suspended') {
     err.textContent = '이용이 제한된 계정입니다. 관리자에게 문의하세요.';
@@ -2427,7 +2427,7 @@ function go(id, link) {
     return;
   }
   if (role === 'guest' && GUEST_PAGES.indexOf(id) === -1) {
-    alert('홈 화면 외의 기능은 교육 신청(회원가입) 후 승인을 받아 로그인하면 이용할 수 있습니다.');
+    alert('홈 화면 외의 기능은 교육 신청(회원가입)을 하면 바로 이용할 수 있습니다. 이미 신청했다면 로그인하세요.');
     openLoginModal();
     return;
   }
@@ -3880,7 +3880,7 @@ var GAME_STATEMENTS = [
   {cat:'개념', source:'도메인 AI', text:'도메인 AI는 한번 구축하면 자동으로 발전한다. 활동가의 추가 입력 없이도 스스로 지식을 확장한다.', answer:'error', hint:'우리 분야 전문 AI는 활동가가 새로운 문서를 올려야 발전합니다. 자동 확장은 불가능합니다.'},
   {cat:'사용법', source:'아카데미 사이트', text:'아카데미 사이트는 GitHub Pages에서 호스팅되는 웹사이트이며, 로그인과 데이터 저장은 Supabase라는 외부 서비스가 처리한다.', answer:'good', hint:'현재 구조(GitHub Pages 호스팅 + Supabase 백엔드)를 정확히 설명합니다.'},
   {cat:'사용법', source:'아카데미 사이트', text:'아카데미 사이트에는 공용 관리자 비밀번호가 있어서, 그 비밀번호만 알면 누구나 관리자 화면에 들어갈 수 있다.', answer:'error', hint:'공용 비밀번호는 없습니다. 관리자도 자기 계정(관리자 권한이 부여된 계정)으로 정식 로그인해야 합니다.'},
-  {cat:'사용법', source:'아카데미 사이트', text:'교육 신청이 승인되면 계정과 임시 비밀번호가 자동 발급되며, 로그인 후 "비밀번호 변경" 메뉴에서 새 비밀번호로 바꿀 수 있다.', answer:'good', hint:'승인 자동화 흐름(계정 생성→임시 비밀번호→직접 변경)을 정확히 설명합니다.'},
+  {cat:'사용법', source:'아카데미 사이트', text:'교육 신청(회원가입)을 하면 관리자 승인 없이 바로 계정이 만들어져 자동 로그인되고, 이후에는 신청할 때 정한 비밀번호로 로그인한다.', answer:'good', hint:'교육 신청 즉시 이용 흐름(가입→자동 로그인→신청 때 정한 비밀번호로 재로그인)을 정확히 설명합니다.'},
   {cat:'사용법', source:'아카데미 사이트', text:'내 학습 기록은 지금 쓰는 브라우저에만 저장되므로, 다른 컴퓨터에서 로그인하면 기록이 보이지 않는다.', answer:'error', hint:'기록은 Supabase 서버에 저장됩니다. 어떤 기기에서든 같은 계정으로 로그인하면 동일한 기록을 볼 수 있습니다.'},
   {cat:'사용법', source:'현장조사 방법론', text:'현장 기록에서 5W1H는 누가, 언제, 어디서, 무엇을, 왜, 어떻게를 빠짐없이 기록하는 것을 의미한다.', answer:'good', hint:'5W1H를 정확히 설명합니다.'},
   {cat:'현장기록', source:'현장조사 방법론', text:'현장 관찰에서 관찰(무엇을 보았나)과 성찰(무엇을 느꼈나)을 명확히 구분하여 기록해야 한다.', answer:'good', hint:'관찰과 성찰의 구분을 정확히 설명합니다.'},
