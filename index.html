@@ -1811,7 +1811,8 @@ var SIDEBAR_MENUS = [
     ['schedule-notice','교육일정 · 공지사항']
   ]},
   {title:'홈', roles:['guest','user','admin'], items:[
-    ['home','연대지능네트워크',true],
+    ['https://wiki.poomasi.org','연대지능 위키 ↗',true],
+    ['https://sakyowon.co.kr/sakyowon-wiki/','사교원 위키 ↗',true],
     ['feedback-board','활동가 의견']
   ]},
   {title:'교육과정', roles:['guest','user','admin'], items:[
@@ -1832,13 +1833,6 @@ var SIDEBAR_MENUS = [
   ]},
   {title:'성과', roles:['user','admin'], lockedFor:['guest'], items:[
     ['achievements','성과 · 활동보고서 · 비밀번호 변경']
-  ]},
-  {title:'관련 사이트', roles:['guest','user','admin'], links:[
-    ['https://sakyowon.co.kr/','사교원 사이트 허브 ↗',true],
-    ['https://sakyowon.poomasi.org','사교원 홈페이지 ↗'],
-    ['https://sakyowon.co.kr/sakyowon-wiki/','사교원 위키 ↗'],
-    ['https://wiki.poomasi.org','연대지능 위키(공동) ↗'],
-    ['https://sakyowon.co.kr/mangnam-coop/','망남마을협동조합 ↗']
   ]}
 ];
 
@@ -1867,6 +1861,11 @@ function renderSidebar() {
     if (!visible && !locked) return;
     h += '<div class="sec-title' + (sec.admin ? ' sb-admin' : '') + '">' + escHtml(sec.title) + (sec.admin ? ' <span style="font-size:11px;font-weight:600">(관리자 전용)</span>' : '') + '</div>';
     (sec.items || []).forEach(function(it) {
+      // 주소(http)로 시작하는 항목은 바깥 사이트 링크로 그린다
+      if (/^https?:/.test(it[0])) {
+        h += '<a href="' + it[0] + '" target="_blank" rel="noopener"' + (it[2] ? ' class="menu-bold"' : '') + '>' + escHtml(it[1]) + '</a>';
+        return;
+      }
       var cls = [];
       if (it[2]) cls.push('menu-bold');
       if (sec.admin) cls.push('sb-admin-item');
