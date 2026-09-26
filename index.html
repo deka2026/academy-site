@@ -65,6 +65,19 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 .sidebar a.menu-bold{color:#2563eb;font-weight:800}
 .sidebar a:hover{background:var(--accent-light)}
 .sidebar a.active{border-left-color:var(--accent);background:var(--accent-light)}
+.sidebar a.locked{color:#9aa0a6;font-weight:400}
+.sidebar a.locked::after{content:' \1F512';font-size:11px}
+.sidebar .sec-title.sb-admin{color:#b45309;background:#fff7e6;margin:6px 8px 0;border-radius:8px;padding:8px 10px 4px}
+.sidebar a.sb-admin-item{color:#b45309;font-weight:700;background:#fff7e6;margin:0 8px;padding-left:16px}
+.sidebar a.sb-admin-item.active{border-left-color:#b45309}
+.sb-head{margin:0 12px 6px;padding:10px 12px;border-radius:10px;background:var(--accent-light);font-size:13px;line-height:1.5;color:var(--text)}
+.sb-head span{display:block;font-size:12px;color:var(--sub);margin-top:2px}
+.sb-head button{margin-top:8px;margin-right:6px;padding:6px 10px;border:none;border-radius:6px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--accent);color:#fff}
+.sb-head.sb-admin-head{background:#fff7e6;border:1px solid #f3d9a4}
+.sb-head.sb-admin-head button{background:#b45309}
+.sb-head.sb-preview{background:#ede7f6;border:1px solid #c5b8e8}
+.sb-head.sb-preview button{background:#4527a0}
+.sb-head.sb-guest{background:var(--card);border:1px dashed var(--border)}
 
 /* MAIN */
 .main{padding:24px 32px 60px;max-width:820px;overflow-y:auto;max-height:calc(100vh - var(--topbar-h))}
@@ -346,42 +359,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
 <div class="layout">
 <!-- SIDEBAR -->
-<nav class="sidebar">
-  <div class="sec-title">홈</div>
-  <a href="javascript:void(0)" class="active menu-bold" onclick="go('home',this)">연대지능네트워크</a>
-  <a href="javascript:void(0)" onclick="go('feedback-board',this)">활동가 의견</a>
-
-  <div class="sec-title">교육과정</div>
-  <a href="javascript:void(0)" onclick="go('course-overview',this)" class="menu-bold">학습개요</a>
-  <a href="javascript:void(0)" onclick="go('course-practice',this)" class="menu-bold">실습시작</a>
-  <a href="javascript:void(0)" onclick="go('course-next',this)">현재 상태 & 다음 단계</a>
-
-  <div class="sec-title">자격증아카데미</div>
-  <a href="javascript:void(0)" onclick="go('cert-sqld',this)" class="menu-bold">SQLD (SQL 개발자)</a>
-
-  <div class="sec-title">연대지능</div>
-  <a href="javascript:void(0)" onclick="go('solidarity-unified',this)" class="menu-bold">연대지능 학습 가이드</a>
-  <a href="javascript:void(0)" onclick="go('solidarity-wiki-hub',this)">연대지능 위키</a>
-
-  <div class="sec-title">연대지능기여게임</div>
-  <a href="javascript:void(0)" onclick="go('verify-game',this)" class="menu-bold">연대지능기여게임</a>
-  <a href="javascript:void(0)" onclick="go('verify-history',this)">내 검증 기록</a>
-
-  <div class="sec-title">성과</div>
-  <a href="javascript:void(0)" onclick="go('achievements',this)">성과</a>
-
-  <div class="sec-title">관리</div>
-  <a href="javascript:void(0)" onclick="go('admin-dashboard',this)">품질 리뷰 대시보드</a>
-  <a href="javascript:void(0)" onclick="go('access-admin',this)">교육생 관리</a>
-  <a href="javascript:void(0)" onclick="go('schedule-notice',this)">교육일정 · 공지사항</a>
-
-  <div class="sec-title">관련 사이트</div>
-  <a href="https://sakyowon.co.kr/" target="_blank" rel="noopener" style="font-weight:800">사교원 사이트 허브 ↗</a>
-  <a href="https://sakyowon.poomasi.org" target="_blank" rel="noopener">사교원 홈페이지 ↗</a>
-  <a href="https://sakyowon.co.kr/sakyowon-wiki/" target="_blank" rel="noopener">사교원 위키 ↗</a>
-  <a href="https://wiki.poomasi.org" target="_blank" rel="noopener">연대지능 위키 ↗</a>
-  <a href="https://sakyowon.co.kr/mangnam-coop/" target="_blank" rel="noopener">망남마을협동조합 ↗</a>
-</nav>
+<nav class="sidebar" id="sidebarNav"></nav>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <!-- MAIN CONTENT -->
@@ -1796,8 +1774,18 @@ function setSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 function currentRole() {
   var s = getSession();
   if (!s) return 'guest';
-  if (s.role === 'admin') return 'admin';
+  if (s.role === 'admin') {
+    // 관리자가 '교육생/손님 화면 보기'를 켜 두면 그 역할로 동작 (이 탭에서만)
+    try { var pv = sessionStorage.getItem('academy_preview_role'); if (pv === 'user' || pv === 'guest') return pv; } catch(e) {}
+    return 'admin';
+  }
   return 'user';
+}
+function isRealAdmin() { var s = getSession(); return !!(s && s.role === 'admin'); }
+function sidebarPreview(role) {
+  try { if (role) sessionStorage.setItem('academy_preview_role', role); else sessionStorage.removeItem('academy_preview_role'); } catch(e) {}
+  applyRole();
+  go('home', null);
 }
 
 function isAdmin() { return currentRole() === 'admin'; }
@@ -1812,6 +1800,85 @@ function showApp() {
 function showInvite() {
   document.getElementById('accessGate').style.display = '';
   document.getElementById('app').style.display = 'none';
+}
+
+// ===== 사이드 메뉴 (역할별) =====
+// roles: 그 역할에게 보이는 섹션 / lockedFor: 잠금 표시로 보여줄 역할(클릭하면 로그인 안내)
+var SIDEBAR_MENUS = [
+  {title:'관리자', admin:true, roles:['admin'], items:[
+    ['admin-dashboard','품질 리뷰 대시보드'],
+    ['access-admin','교육생 관리'],
+    ['schedule-notice','교육일정 · 공지사항']
+  ]},
+  {title:'홈', roles:['guest','user','admin'], items:[
+    ['home','연대지능네트워크',true],
+    ['feedback-board','활동가 의견']
+  ]},
+  {title:'교육과정', roles:['guest','user','admin'], items:[
+    ['course-overview','학습개요',true],
+    ['course-practice','실습시작',true],
+    ['course-next','현재 상태 & 다음 단계']
+  ]},
+  {title:'자격증아카데미', roles:['guest','user','admin'], items:[
+    ['cert-sqld','SQLD (SQL 개발자)',true]
+  ]},
+  {title:'연대지능', roles:['guest','user','admin'], items:[
+    ['solidarity-unified','연대지능 학습 가이드',true],
+    ['solidarity-wiki-hub','연대지능 위키']
+  ]},
+  {title:'연대지능기여게임', roles:['user','admin'], lockedFor:['guest'], items:[
+    ['verify-game','연대지능기여게임',true],
+    ['verify-history','내 검증 기록']
+  ]},
+  {title:'성과', roles:['user','admin'], lockedFor:['guest'], items:[
+    ['achievements','성과 · 활동보고서 · 비밀번호 변경']
+  ]},
+  {title:'관련 사이트', roles:['guest','user','admin'], links:[
+    ['https://sakyowon.co.kr/','사교원 사이트 허브 ↗',true],
+    ['https://sakyowon.poomasi.org','사교원 홈페이지 ↗'],
+    ['https://sakyowon.co.kr/sakyowon-wiki/','사교원 위키 ↗'],
+    ['https://wiki.poomasi.org','연대지능 위키(공동) ↗'],
+    ['https://sakyowon.co.kr/mangnam-coop/','망남마을협동조합 ↗']
+  ]}
+];
+
+function renderSidebar() {
+  var nav = document.getElementById('sidebarNav');
+  if (!nav) return;
+  var role = currentRole();
+  var sess = getSession();
+  var who = sess ? escHtml(sess.name || sess.email || '') : '';
+  var preview = isRealAdmin() && role !== 'admin';
+  var activeEl = document.querySelector('.page.active');
+  var activeId = activeEl ? activeEl.id : 'home';
+  var h = '';
+  if (preview) {
+    h += '<div class="sb-head sb-preview">&#128065; <b>' + (role === 'guest' ? '손님' : '교육생') + ' 화면 미리보기</b><span>관리자님이 이용자가 보는 화면을 보고 있어요.</span><button onclick="sidebarPreview(null)">관리자 화면으로</button></div>';
+  } else if (role === 'admin') {
+    h += '<div class="sb-head sb-admin-head">&#128295; <b>관리자 모드</b> · ' + who + '<span>주황색 메뉴는 관리자만 봅니다.</span><button onclick="sidebarPreview(\'user\')">교육생 화면 보기</button><button onclick="sidebarPreview(\'guest\')">손님 화면 보기</button></div>';
+  } else if (role === 'user') {
+    h += '<div class="sb-head">&#127891; <b>교육생</b> · ' + who + '<span>학습 기록은 이 브라우저에 저장돼요.</span></div>';
+  } else {
+    h += '<div class="sb-head sb-guest">&#128075; <b>손님으로 보는 중</b><span>로그인하면 실습 프롬프트·기여게임·성과가 열려요.</span><button onclick="openLoginModal()">로그인</button><button onclick="showInvite()" style="background:var(--warn)">교육 신청</button></div>';
+  }
+  SIDEBAR_MENUS.forEach(function(sec) {
+    var visible = sec.roles.indexOf(role) !== -1;
+    var locked = !visible && sec.lockedFor && sec.lockedFor.indexOf(role) !== -1;
+    if (!visible && !locked) return;
+    h += '<div class="sec-title' + (sec.admin ? ' sb-admin' : '') + '">' + escHtml(sec.title) + (sec.admin ? ' <span style="font-size:11px;font-weight:600">(관리자 전용)</span>' : '') + '</div>';
+    (sec.items || []).forEach(function(it) {
+      var cls = [];
+      if (it[2]) cls.push('menu-bold');
+      if (sec.admin) cls.push('sb-admin-item');
+      if (locked) cls.push('locked');
+      if (it[0] === activeId) cls.push('active');
+      h += '<a href="javascript:void(0)" onclick="go(\'' + it[0] + '\',this)" class="' + cls.join(' ') + '"' + (locked ? ' title="로그인 후 이용할 수 있어요"' : '') + '>' + escHtml(it[1]) + '</a>';
+    });
+    (sec.links || []).forEach(function(lk) {
+      h += '<a href="' + lk[0] + '" target="_blank" rel="noopener"' + (lk[2] ? ' style="font-weight:800"' : '') + '>' + escHtml(lk[1]) + '</a>';
+    });
+  });
+  nav.innerHTML = h;
 }
 
 function applyRole() {
@@ -1831,26 +1898,8 @@ function applyRole() {
     loginBar.style.display = 'none';
   }
 
-  // sidebar: 관리 section
-  var sidebarSections = document.querySelectorAll('.sidebar .sec-title');
-  sidebarSections.forEach(function(sec) {
-    if (sec.textContent === '관리') {
-      sec.style.display = (role === 'admin') ? '' : 'none';
-      var next = sec.nextElementSibling;
-      while (next && !next.classList.contains('sec-title')) {
-        next.style.display = (role === 'admin') ? '' : 'none';
-        next = next.nextElementSibling;
-      }
-    }
-    if (sec.textContent === '성과') {
-      sec.style.display = (role !== 'guest') ? '' : 'none';
-      var next = sec.nextElementSibling;
-      while (next && !next.classList.contains('sec-title')) {
-        next.style.display = (role !== 'guest') ? '' : 'none';
-        next = next.nextElementSibling;
-      }
-    }
-  });
+  // sidebar: 역할별로 새로 그림
+  renderSidebar();
 
   // prompt boxes: hide for guests
   var prompts = document.querySelectorAll('.prompt-box');
@@ -1951,6 +2000,7 @@ async function doLogin() {
 }
 
 async function logout() {
+  try { sessionStorage.removeItem('academy_preview_role'); } catch(e) {}
   await sb.auth.signOut();
   localStorage.removeItem(SESSION_KEY);
   showApp();
@@ -2365,7 +2415,7 @@ function goNoHistory(id) {
 
 function go(id, link) {
   closeSidebar();
-  var adminPages = ['access-admin','schedule-notice'];
+  var adminPages = ['access-admin','schedule-notice','admin-dashboard'];
   var userPages = ['achievements','verify-game','verify-history'];
   var role = currentRole();
   if (adminPages.indexOf(id) !== -1 && role !== 'admin') {
