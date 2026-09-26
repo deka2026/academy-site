@@ -1491,6 +1491,7 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
         <button class="btn-cancel" onclick="closeLoginModal()">취소</button>
         <button class="btn-primary" onclick="doLogin()">로그인</button>
       </div>
+      <p style="font-size:12.5px;color:var(--sub);margin-top:10px;text-align:center">아직 신청하지 않으셨나요? <a href="javascript:void(0)" onclick="closeLoginModal();showInvite()" style="color:var(--accent);font-weight:700">교육 신청(회원가입)</a></p>
       <!-- 관리자 계정도 위와 동일한 이메일/비밀번호 로그인을 사용합니다.
            (과거 임시 관리자 비밀번호 버튼은 실제 승인/거절 등 쓰기 작업에서
            더 이상 동작하지 않아 혼선을 줄 수 있어 제거했습니다.) -->
@@ -1802,6 +1803,9 @@ function showInvite() {
   document.getElementById('app').style.display = 'none';
 }
 
+// 손님(비로그인)이 열 수 있는 페이지. 나머지는 교육 신청 → 승인 → 로그인 후 이용
+var GUEST_PAGES = ['home'];
+
 // ===== 사이드 메뉴 (역할별) =====
 // roles: 그 역할에게 보이는 섹션 / lockedFor: 잠금 표시로 보여줄 역할(클릭하면 로그인 안내)
 var SIDEBAR_MENUS = [
@@ -1854,7 +1858,7 @@ function renderSidebar() {
   } else if (role === 'user') {
     h += '<div class="sb-head">&#127891; <b>교육생</b> · ' + who + '<span>학습 기록은 이 브라우저에 저장돼요.</span></div>';
   } else {
-    h += '<div class="sb-head sb-guest">&#128075; <b>손님으로 보는 중</b><span>로그인하면 실습 프롬프트·기여게임·성과가 열려요.</span><button onclick="openLoginModal()">로그인</button><button onclick="showInvite()" style="background:var(--warn)">교육 신청</button></div>';
+    h += '<div class="sb-head sb-guest">&#128075; <b>손님으로 보는 중</b><span>홈 화면 외의 메뉴는 교육 신청(회원가입) 후 승인을 받아 로그인하면 열려요.</span><button onclick="openLoginModal()">로그인</button><button onclick="showInvite()" style="background:var(--warn)">교육 신청</button></div>';
   }
   SIDEBAR_MENUS.forEach(function(sec) {
     var visible = sec.roles.indexOf(role) !== -1;
@@ -1870,9 +1874,10 @@ function renderSidebar() {
       var cls = [];
       if (it[2]) cls.push('menu-bold');
       if (sec.admin) cls.push('sb-admin-item');
-      if (locked) cls.push('locked');
+      var itemLocked = locked || (role === 'guest' && GUEST_PAGES.indexOf(it[0]) === -1);
+      if (itemLocked) cls.push('locked');
       if (it[0] === activeId) cls.push('active');
-      h += '<a href="javascript:void(0)" onclick="go(\'' + it[0] + '\',this)" class="' + cls.join(' ') + '"' + (locked ? ' title="로그인 후 이용할 수 있어요"' : '') + '>' + escHtml(it[1]) + '</a>';
+      h += '<a href="javascript:void(0)" onclick="go(\'' + it[0] + '\',this)" class="' + cls.join(' ') + '"' + (itemLocked ? ' title="교육 신청 후 로그인하면 이용할 수 있어요"' : '') + '>' + escHtml(it[1]) + '</a>';
     });
     (sec.links || []).forEach(function(lk) {
       h += '<a href="' + lk[0] + '" target="_blank" rel="noopener"' + (lk[2] ? ' style="font-weight:800"' : '') + '>' + escHtml(lk[1]) + '</a>';
@@ -2416,14 +2421,13 @@ function goNoHistory(id) {
 function go(id, link) {
   closeSidebar();
   var adminPages = ['access-admin','schedule-notice','admin-dashboard'];
-  var userPages = ['achievements','verify-game','verify-history'];
   var role = currentRole();
   if (adminPages.indexOf(id) !== -1 && role !== 'admin') {
     alert('관리자만 접근할 수 있는 페이지입니다.');
     return;
   }
-  if (userPages.indexOf(id) !== -1 && role === 'guest') {
-    alert('로그인 후 이용할 수 있습니다.');
+  if (role === 'guest' && GUEST_PAGES.indexOf(id) === -1) {
+    alert('홈 화면 외의 기능은 교육 신청(회원가입) 후 승인을 받아 로그인하면 이용할 수 있습니다.');
     openLoginModal();
     return;
   }
