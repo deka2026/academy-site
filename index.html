@@ -65,6 +65,18 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 .sidebar a.menu-bold{color:#2563eb;font-weight:800}
 .sidebar a:hover{background:var(--accent-light)}
 .sidebar a.active{border-left-color:var(--accent);background:var(--accent-light)}
+.sb-search{padding:0 16px 10px}
+.sb-search input{width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.sb-search input:focus{border-color:var(--accent)}
+.sb-results{padding:0 10px 10px}
+.sb-results .sb-rcount{font-size:11px;color:var(--sub);padding:2px 6px 6px}
+.sb-results a.sb-r{display:block;padding:8px 10px;border-radius:8px;border-left:0;color:inherit;text-decoration:none;margin-bottom:2px}
+.sb-results a.sb-r:hover{background:var(--accent-light)}
+.sb-results .sb-rwhere{display:block;font-size:11px;font-weight:700;color:var(--accent)}
+.sb-results .sb-rtext{display:block;font-size:12px;color:var(--sub);line-height:1.5;margin-top:2px}
+.sb-results mark{background:#fde68a;color:inherit;padding:0 1px;border-radius:2px}
+.sb-results .sb-rlock{opacity:.65}
+.sb-results .sb-empty{font-size:12px;color:var(--sub);padding:8px 10px}
 .sidebar a.locked{color:#9aa0a6;font-weight:400}
 .sidebar a.locked::after{content:' \1F512';font-size:11px}
 .sidebar .sec-title.sb-admin{color:#b45309;background:#fff7e6;margin:6px 8px 0;border-radius:8px;padding:8px 10px 4px}
@@ -1894,6 +1906,9 @@ function renderSidebar() {
   var activeEl = document.querySelector('.page.active');
   var activeId = activeEl ? activeEl.id : 'home';
   var h = '';
+  // 2026-09-28: 사이트 검색. 실습 15단계·학습 7단계·각 화면 본문을 한 번에 찾는다.
+  h += '<div class="sb-search"><input id="siteSearch" type="search" placeholder="사이트 검색 (예: 설치, 위키, 비밀번호)" oninput="runSiteSearch(this.value)" onkeydown="if(event.key===\'Escape\'){this.value=\'\';runSiteSearch(\'\');}"></div>';
+  h += '<div class="sb-results" id="siteSearchResults" style="display:none"></div>';
   if (preview) {
     h += '<div class="sb-head sb-preview">&#128065; <b>' + (role === 'guest' ? '손님' : '교육생') + ' 화면 미리보기</b><span>관리자님이 이용자가 보는 화면을 보고 있어요.</span><button onclick="sidebarPreview(null)">관리자 화면으로</button></div>';
   } else if (role === 'admin') {
@@ -1927,6 +1942,92 @@ function renderSidebar() {
     });
   });
   nav.innerHTML = h;
+  // 메뉴를 다시 그려도 검색어는 남긴다
+  if (siteSearchQuery) {
+    var box = document.getElementById('siteSearch');
+    if (box) box.value = siteSearchQuery;
+    runSiteSearch(siteSearchQuery);
+  }
+}
+
+// ===== 사이트 검색 =====
+// 각 화면의 본문(textContent)과 실습·학습 단계 목록을 훑는다. 단계는 화면에 한 번에
+// 하나만 그려지므로 배열에서 따로 모은다.
+var siteSearchQuery = '';
+var siteSearchIndex = null;
+
+function buildSearchIndex() {
+  var idx = [];
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    var el = pages[i];
+    var h2 = el.querySelector('h2');
+    var 제목 = h2 ? h2.textContent.trim() : el.id;
+    var 본문 = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (본문) idx.push({ page: el.id, where: 제목, text: 본문 });
+  }
+  if (typeof LEARN_STEPS !== 'undefined') {
+    LEARN_STEPS.forEach(function(st, i) {
+      idx.push({ page: 'course-practice', where: '실습시작 · ' + (i + 1) + '단계 ' + st.title,
+                 text: st.title + ' ' + (st.desc || '') + ' ' + (st.check || '') });
+    });
+  }
+  if (typeof SOLID_STEPS !== 'undefined') {
+    SOLID_STEPS.forEach(function(st, i) {
+      idx.push({ page: 'solidarity-unified', where: '학습 가이드 · ' + (i + 1) + '단계 ' + st.title,
+                 text: st.title + ' ' + (st.desc || '') + ' ' + (st.check || '') });
+    });
+  }
+  return idx;
+}
+
+// go() 와 같은 기준으로 열 수 있는 화면인지 본다
+function canOpenPage(id) {
+  var role = currentRole();
+  if (['access-admin', 'schedule-notice', 'admin-dashboard'].indexOf(id) !== -1) return role === 'admin';
+  if (role === 'guest') return GUEST_PAGES.indexOf(id) !== -1;
+  return true;
+}
+
+function reEscape(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function runSiteSearch(q) {
+  siteSearchQuery = q;
+  var box = document.getElementById('siteSearchResults');
+  if (!box) return;
+  var 말 = (q || '').trim();
+  if (말.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  if (!siteSearchIndex) siteSearchIndex = buildSearchIndex();
+
+  var 낱말 = 말.toLowerCase().split(/\s+/).filter(Boolean);
+  var 결과 = [];
+  siteSearchIndex.forEach(function(it) {
+    var lower = it.text.toLowerCase();
+    for (var i = 0; i < 낱말.length; i++) if (lower.indexOf(낱말[i]) === -1) return;
+    var at = lower.indexOf(낱말[0]);
+    var from = Math.max(0, at - 30);
+    var 조각 = (from > 0 ? '…' : '') + it.text.substr(from, 110) + (from + 110 < it.text.length ? '…' : '');
+    결과.push({ page: it.page, where: it.where, snippet: 조각,
+                제목맞음: it.where.toLowerCase().indexOf(낱말[0]) !== -1 });
+  });
+  결과.sort(function(a, b) { return (b.제목맞음 ? 1 : 0) - (a.제목맞음 ? 1 : 0); });
+
+  if (!결과.length) {
+    box.innerHTML = '<div class="sb-empty">\'' + escHtml(말) + '\' 에 대한 결과가 없습니다.</div>';
+    box.style.display = '';
+    return;
+  }
+  var 보임 = 결과.slice(0, 12);
+  var html = '<div class="sb-rcount">검색 결과 ' + 결과.length + '건' + (결과.length > 보임.length ? ' (위 ' + 보임.length + '건)' : '') + '</div>';
+  var 표시어 = new RegExp(reEscape(escHtml(낱말[0])), 'ig');
+  보임.forEach(function(r) {
+    var 잠김 = !canOpenPage(r.page);
+    html += '<a href="javascript:void(0)" class="sb-r' + (잠김 ? ' sb-rlock' : '') + '" onclick="go(\'' + r.page + '\')">';
+    html += '<span class="sb-rwhere">' + (잠김 ? '&#128274; ' : '') + escHtml(r.where) + '</span>';
+    html += '<span class="sb-rtext">' + escHtml(r.snippet).replace(표시어, '<mark>$&</mark>') + '</span></a>';
+  });
+  box.innerHTML = html;
+  box.style.display = '';
 }
 
 function applyRole() {
@@ -2489,6 +2590,7 @@ function go(id, link) {
   var pages = document.querySelectorAll('.page');
   for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
   target.classList.add('active');
+  siteSearchIndex = null;   // 화면마다 그려지는 내용이 달라지므로 검색 색인을 다시 만든다
 
   var links = document.querySelectorAll('.sidebar a');
   for (var i = 0; i < links.length; i++) links[i].classList.remove('active');
