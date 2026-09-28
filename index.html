@@ -390,14 +390,14 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <div id="homeNotices" style="margin-bottom:20px"></div>
 
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">AI 대화</h3>
-  <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육 과정이나 연대지능 활동에 대해 질문하세요.</p>
+  <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육 과정이나 연대지능 활동에 대해 질문하세요. 답이 오기까지 몇 초 걸립니다.</p>
   <div class="chat-area" style="height:320px;margin-bottom:20px">
     <div class="chat-messages" id="chatMessages">
       <div class="msg ai"><div class="sender">AI 어시스턴트</div>안녕하세요! 사교원 연대지능활동가 아카데미입니다. 교육 과정, 환경 설정, 위키 기여 방법 등 무엇이든 질문해주세요.</div>
     </div>
     <div class="chat-input">
       <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button onclick="sendChat()">전송</button>
+      <button id="chatSend" onclick="sendChat()">전송</button>
     </div>
   </div>
 
@@ -3442,22 +3442,85 @@ function findReply(text) {
   return fb;
 }
 
-function sendChat() {
+// 2026-09-28: 예전엔 findReply(키워드 맞추기) 결과를 400ms 뒤에 보여주는 게 전부였다.
+// 이용자는 답을 못 찾은 건지 고장 난 건지 알 수 없었다(2026-07-23 이사장 의견
+// "메세지 입력창이 활성화된 것인지 알 수 없다"). 이제 진짜 클로드에 물어보고,
+// 기다리는 동안 입력창을 잠그고 "생각하는 중"을 보여준다.
+// 서버가 안 되면 예전 키워드 안내로 대신한다 — 답이 아예 안 나오는 일은 없다.
+var AI_CHAT_URL = 'https://home.sakyowon.co.kr/api/ai/chat';
+var chatHistory = [];
+var chatBusy = false;
+
+function chatAppend(who, text) {
+  var msgs = document.getElementById('chatMessages');
+  var sender = who === 'user' ? '나' : 'AI 어시스턴트';
+  msgs.innerHTML += '<div class="msg ' + who + '"><div class="sender">' + sender + '</div>' + escHtml(text).replace(/\n/g, '<br>') + '</div>';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function chatSetBusy(busy) {
+  chatBusy = busy;
+  var input = document.getElementById('chatInput');
+  var btn = document.getElementById('chatSend');
+  if (input) {
+    input.disabled = busy;
+    input.placeholder = busy ? '답변을 기다리는 중입니다...' : '메시지를 입력하세요...';
+    input.style.background = busy ? '#f2f2f2' : '';
+    if (!busy) input.focus();
+  }
+  if (btn) {
+    btn.disabled = busy;
+    btn.textContent = busy ? '...' : '전송';
+    btn.style.opacity = busy ? '0.5' : '';
+    btn.style.cursor = busy ? 'default' : 'pointer';
+  }
+  var msgs = document.getElementById('chatMessages');
+  var old = document.getElementById('chatThinking');
+  if (busy && !old && msgs) {
+    msgs.innerHTML += '<div class="msg ai" id="chatThinking"><div class="sender">AI 어시스턴트</div>생각하는 중...</div>';
+    msgs.scrollTop = msgs.scrollHeight;
+  } else if (!busy && old) {
+    old.parentNode.removeChild(old);
+  }
+}
+
+async function sendChat() {
+  if (chatBusy) return;
   var input = document.getElementById('chatInput');
   var text = input.value.trim();
   if (!text) return;
   input.value = '';
 
-  var msgs = document.getElementById('chatMessages');
-  msgs.innerHTML += '<div class="msg user"><div class="sender">나</div>' + escHtml(text) + '</div>';
-  msgs.scrollTop = msgs.scrollHeight;
+  chatAppend('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  chatSetBusy(true);
 
-  setTimeout(function() {
-    var reply = findReply(text);
-    var formatted = escHtml(reply).replace(/\n/g, '<br>');
-    msgs.innerHTML += '<div class="msg ai"><div class="sender">AI 어시스턴트</div>' + formatted + '</div>';
-    msgs.scrollTop = msgs.scrollHeight;
-  }, 400 + Math.floor(Math.random() * 400));
+  var answer = '';
+  try {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function() { ctrl.abort(); }, 40000);
+    var res = await fetch(AI_CHAT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: text, context: 'academy', history: chatHistory.slice(-10) }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    var data = await res.json();
+    if (res.status === 429) {
+      answer = '질문이 조금 빨랐어요. 1분 뒤에 다시 물어봐 주세요.';
+    } else if (res.ok && data.answer) {
+      answer = data.answer;
+      chatHistory.push({ role: 'assistant', content: answer });
+    } else {
+      throw new Error(data.error || ('HTTP ' + res.status));
+    }
+  } catch (e) {
+    console.warn('[AI] 연결 실패, 키워드 안내로 대신합니다:', e.message);
+    answer = findReply(text) + '\n\n(지금은 AI 연결이 안 되어 준비된 안내로 답했습니다. 잠시 뒤 다시 물어보시면 AI가 답합니다.)';
+  }
+  chatSetBusy(false);
+  chatAppend('ai', answer);
 }
 
 function escHtml(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
