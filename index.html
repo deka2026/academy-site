@@ -1991,6 +1991,48 @@ function canOpenPage(id) {
 
 function reEscape(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
+// 같은 뜻으로 함께 찾을 말들. 본문은 도구 이름을 영문으로 적어 두는데(Node.js, Git…)
+// 활동가는 한글로 검색한다("노드 설치"가 0건이던 문제).
+// 한 묶음 안의 말은 서로 바꿔 찾는다. 새 말은 묶음에 한 줄 보태면 된다.
+var SEARCH_ALIASES = [
+  ['노드', 'node.js', 'node', '노드제이에스'],
+  ['깃', 'git'],
+  ['깃허브', '깃헙', 'github'],
+  ['옵시디언', 'obsidian'],
+  ['브이에스코드', '비주얼스튜디오코드', 'vscode', 'vs code'],
+  ['클로드', 'claude'],
+  ['클로드코드', '클로드 코드', 'claude code'],
+  ['쿼츠', 'quartz'],
+  ['클라우드플레어', 'cloudflare'],
+  ['수파베이스', 'supabase'],
+  ['터미널', '명령 프롬프트', '명령프롬프트', 'cmd'],
+  ['엠시피', 'mcp', '커넥트'],
+  ['에이피아이', 'api'],
+  ['에스큐엘디', 'sqld'],
+  ['피알', '반영 요청', '풀리퀘스트', 'pr'],
+  ['스킬', 'skill'],
+  ['에이전트', 'agent', '분업'],
+  ['위키', 'wiki'],
+  ['비번', '비밀번호'],
+  ['가입', '교육 신청', '회원가입', '신청'],
+  ['설치', '내려받', '다운로드'],
+  ['의견', '건의', '불편', '개선'],
+  ['게임', '기여게임', '검증'],
+  ['자격증', '자격', 'sqld'],
+  ['오류', '에러', '안 됨', '문제']
+];
+
+// 검색어 한 낱말 → 함께 찾을 말들 (자기 자신 포함)
+function expandTerm(w) {
+  var out = [w];
+  SEARCH_ALIASES.forEach(function(그룹) {
+    var 걸림 = 그룹.some(function(m) { return m === w || m.indexOf(w) === 0; });
+    if (!걸림) return;
+    그룹.forEach(function(m) { if (out.indexOf(m) === -1) out.push(m); });
+  });
+  return out;
+}
+
 function runSiteSearch(q) {
   siteSearchQuery = q;
   var box = document.getElementById('siteSearchResults');
@@ -2000,15 +2042,25 @@ function runSiteSearch(q) {
   if (!siteSearchIndex) siteSearchIndex = buildSearchIndex();
 
   var 낱말 = 말.toLowerCase().split(/\s+/).filter(Boolean);
+  var 확장 = 낱말.map(expandTerm);
+  var 별칭씀 = 확장.some(function(c) { return c.length > 1; });
   var 결과 = [];
   siteSearchIndex.forEach(function(it) {
     var lower = it.text.toLowerCase();
-    for (var i = 0; i < 낱말.length; i++) if (lower.indexOf(낱말[i]) === -1) return;
-    var at = lower.indexOf(낱말[0]);
+    var 첫말 = null;
+    for (var i = 0; i < 확장.length; i++) {
+      var 맞은말 = null;
+      for (var j = 0; j < 확장[i].length; j++) {
+        if (lower.indexOf(확장[i][j]) !== -1) { 맞은말 = 확장[i][j]; break; }
+      }
+      if (!맞은말) return;
+      if (i === 0) 첫말 = 맞은말;
+    }
+    var at = lower.indexOf(첫말);
     var from = Math.max(0, at - 30);
     var 조각 = (from > 0 ? '…' : '') + it.text.substr(from, 110) + (from + 110 < it.text.length ? '…' : '');
-    결과.push({ page: it.page, where: it.where, snippet: 조각,
-                제목맞음: it.where.toLowerCase().indexOf(낱말[0]) !== -1 });
+    결과.push({ page: it.page, where: it.where, snippet: 조각, 표시: 첫말,
+                제목맞음: it.where.toLowerCase().indexOf(첫말) !== -1 });
   });
   결과.sort(function(a, b) { return (b.제목맞음 ? 1 : 0) - (a.제목맞음 ? 1 : 0); });
 
@@ -2018,9 +2070,9 @@ function runSiteSearch(q) {
     return;
   }
   var 보임 = 결과.slice(0, 12);
-  var html = '<div class="sb-rcount">검색 결과 ' + 결과.length + '건' + (결과.length > 보임.length ? ' (위 ' + 보임.length + '건)' : '') + '</div>';
-  var 표시어 = new RegExp(reEscape(escHtml(낱말[0])), 'ig');
+  var html = '<div class="sb-rcount">검색 결과 ' + 결과.length + '건' + (결과.length > 보임.length ? ' (위 ' + 보임.length + '건)' : '') + (별칭씀 ? ' · 비슷한 말도 함께 찾았습니다' : '') + '</div>';
   보임.forEach(function(r) {
+    var 표시어 = new RegExp(reEscape(escHtml(r.표시)), 'ig');
     var 잠김 = !canOpenPage(r.page);
     html += '<a href="javascript:void(0)" class="sb-r' + (잠김 ? ' sb-rlock' : '') + '" onclick="go(\'' + r.page + '\')">';
     html += '<span class="sb-rwhere">' + (잠김 ? '&#128274; ' : '') + escHtml(r.where) + '</span>';
