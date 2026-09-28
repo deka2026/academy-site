@@ -1605,8 +1605,11 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ===== SUPABASE INIT =====
-var SB_URL = 'https://gklecgujcoznxyvywnyu.supabase.co';
-var SB_KEY = 'sb_publishable_gedQpfHqmnd1hlGNnrglLw_n5b3f3YN';
+// 2026-09-28: 클라우드 Supabase → 사교원 자체 서버(3호기 셀프호스트)로 전환.
+// 데이터·RPC(create_user_profile, check_application_duplicate)·엣지함수(approve-applicant)
+// 모두 이관 확인, 계정 8개 그대로. 되돌리려면 옛 주소 https://gklecgujcoznxyvywnyu.supabase.co 로.
+var SB_URL = 'https://api.sakyowon.co.kr';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkwNTAzMzc1LCJleHAiOjE5NDgxODMzNzV9.G4ID46_hTmLW6Rh_K--SypPry6mH7_mNFL4NlT2YEZc';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
 var sbReady = false;
 
