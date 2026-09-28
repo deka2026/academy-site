@@ -1622,10 +1622,13 @@ var sbReady = false;
 // Supabase → localStorage 동기화 (페이지 로드 시)
 async function sbSync() {
   try {
-    var fbRes = await sb.from('feedback').select('*').order('created_at', { ascending: false });
+    // 2026-09-28: email 컬럼을 받지 않는다 — 화면에 쓰이지 않는데 브라우저까지 내려와
+    // 개발자도구로 활동가 이메일이 보였다. '내 글'인지는 아래 sbRefreshMyFeedbackIds 가
+    // 서버에서 내 글 id 만 받아 와 가린다(이메일은 조건으로만 쓰이고 내려오지 않는다).
+    var fbRes = await sb.from('feedback').select('id,author,category,content,date,likes,replies').order('created_at', { ascending: false });
     if (fbRes.data && fbRes.data.length) {
       var fbData = fbRes.data.map(function(r) {
-        return { id: r.id, author: r.author, email: r.email, category: r.category,
+        return { id: r.id, author: r.author, category: r.category,
           content: r.content, date: r.date, likes: r.likes || [], replies: r.replies || [] };
       });
       localStorage.setItem('academy_feedback', JSON.stringify(fbData));
@@ -1668,6 +1671,7 @@ async function sbSync() {
     }
     sbReady = true;
     console.log('[Supabase] 데이터 동기화 완료');
+    sbRefreshMyFeedbackIds();
     if (typeof renderHomeNotices === 'function') renderHomeNotices();
     if (document.getElementById('schedule-notice') && document.getElementById('schedule-notice').classList.contains('active') && typeof renderScheduleNotice === 'function') renderScheduleNotice();
   } catch (e) {
@@ -1703,23 +1707,46 @@ async function sbSaveSchedule(schedule, removedId) {
   } catch (e) { console.warn('[Supabase] schedule 저장 실패:', e.message); }
 }
 
-// Supabase에 피드백 저장 (로컬 저장 후 호출)
-// 2026-09-28: 옛 방식은 표를 통째로 비운 뒤(delete().neq('id',0)) 글쓴이 브라우저의
-// localStorage 사본을 다시 올렸다. 로드 동기화가 조용히 실패한 브라우저가 글을 쓰면
-// 남의 의견이 통째로 사라진다(의견 6건의 created_at 이 2026-07-23 한 시각으로 덮어써진 흔적).
-// 지금은 지우지 않고 올리기만 하고, 삭제는 지운 글 한 건만 지운다.
-async function sbSaveFeedback(fb, removedId) {
+// 의견 저장 — 바뀐 한 건만 건드린다.
+// 2026-09-28 ①: 옛 방식은 표를 통째로 비운 뒤(delete().neq('id',0)) 글쓴이 브라우저의
+//   localStorage 사본을 다시 올렸다. 로드 동기화가 조용히 실패한 브라우저가 글을 쓰면
+//   남의 의견이 통째로 사라진다(의견 6건의 created_at 이 한 시각으로 덮어써진 흔적).
+// 2026-09-28 ②: 목록 전체를 올리려면 남의 이메일(NOT NULL 컬럼)이 필요했다.
+//   한 건만 손대면 내 이메일 말고는 필요 없어져, 목록에서 이메일을 안 받아도 된다.
+async function sbInsertFeedback(row) {
   if (!sbReady) return;
   try {
-    if (removedId !== undefined && removedId !== null) await sb.from('feedback').delete().eq('id', removedId);
-    if (fb.length) {
-      var rows = fb.map(function(f) {
-        return { id: f.id, author: f.author, email: f.email, category: f.category,
-          content: f.content, date: f.date, likes: f.likes || [], replies: f.replies || [] };
-      });
-      await sb.from('feedback').upsert(rows, { onConflict: 'id' });
-    }
-  } catch (e) { console.warn('[Supabase] feedback 저장 실패:', e.message); }
+    await sb.from('feedback').insert({
+      id: row.id, author: row.author, email: row.email, category: row.category,
+      content: row.content, date: row.date, likes: row.likes || [], replies: row.replies || []
+    });
+  } catch (e) { console.warn('[Supabase] feedback 등록 실패:', e.message); }
+}
+
+async function sbPatchFeedback(id, patch) {
+  if (!sbReady) return;
+  try { await sb.from('feedback').update(patch).eq('id', id); }
+  catch (e) { console.warn('[Supabase] feedback 수정 실패:', e.message); }
+}
+
+async function sbDeleteFeedbackRow(id) {
+  if (!sbReady) return;
+  try { await sb.from('feedback').delete().eq('id', id); }
+  catch (e) { console.warn('[Supabase] feedback 삭제 실패:', e.message); }
+}
+
+// 내 글 id 목록만 서버에서 받아 온다(이메일은 조건으로만 쓰고 내려받지 않는다).
+var MY_FB_KEY = 'academy_my_feedback_ids';
+function myFeedbackIds() { try { return JSON.parse(localStorage.getItem(MY_FB_KEY)) || []; } catch (e) { return []; } }
+
+async function sbRefreshMyFeedbackIds() {
+  var session = getSession();
+  if (!session || session.role === 'guest') { localStorage.setItem(MY_FB_KEY, '[]'); return; }
+  if (!sbReady) return;
+  try {
+    var r = await sb.from('feedback').select('id').eq('email', session.email);
+    if (r.data) localStorage.setItem(MY_FB_KEY, JSON.stringify(r.data.map(function(x) { return x.id; })));
+  } catch (e) { console.warn('[Supabase] 내 의견 목록 확인 실패:', e.message); }
 }
 
 // Supabase에 검증 기록 추가
@@ -1767,7 +1794,8 @@ async function sbCheckAuth() {
     var email = res.data.session.user.email;
     var profile = await sb.from('profiles').select('role,name').eq('email', email).single();
     if (profile.data && profile.data.role && profile.data.role !== 'suspended') {
-      setSession({ email: email, name: profile.data.name || email, role: profile.data.role === 'pending' ? 'user' : profile.data.role });
+      setSession({ email: email, uid: res.data.session.user.id, name: profile.data.name || email, role: profile.data.role === 'pending' ? 'user' : profile.data.role });
+      sbRefreshMyFeedbackIds();
     }
   } catch (e) { console.warn('[Supabase] 세션 복원 실패:', e.message); }
 }
@@ -2014,12 +2042,14 @@ async function doLogin() {
     return;
   }
 
-  setSession({ email: email, name: name, role: role });
+  setSession({ email: email, uid: (res.data && res.data.user ? res.data.user.id : undefined), name: name, role: role });
+  sbRefreshMyFeedbackIds();
   closeLoginModal();
   showApp();
 }
 
 async function logout() {
+  localStorage.setItem(MY_FB_KEY, '[]');
   try { sessionStorage.removeItem('academy_preview_role'); } catch(e) {}
   await sb.auth.signOut();
   localStorage.removeItem(SESSION_KEY);
@@ -4720,7 +4750,17 @@ var fbFilter = 'all';
 var fbShowLimit = 5;
 
 function getFeedbacks() { return JSON.parse(localStorage.getItem(FB_KEY) || '[]'); }
-function saveFeedbacks(arr, removedId) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); sbSaveFeedback(arr, removedId); }
+
+// 공감 표시는 이메일 대신 계정 id 로 남긴다 — 이 값은 모두에게 내려가는 칸이라
+// 이메일을 넣으면 누가 눌렀는지가 그대로 공개된다. (옛 세션엔 uid 가 없어 이메일로 물러선다)
+function likeKey(session) { return session ? (session.uid || session.email) : ''; }
+
+function isMyFeedback(fbId, session) {
+  if (!session || session.role === 'guest') return false;
+  if (session.role === 'admin') return true;
+  return myFeedbackIds().indexOf(fbId) !== -1;
+}
+function saveFeedbacks(arr) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); }
 
 function submitFeedback() {
   var session = getSession();
@@ -4730,7 +4770,7 @@ function submitFeedback() {
   if (content.length < 5) { alert('5자 이상 입력해주세요.'); return; }
   var category = document.getElementById('fbCategory').value;
   var fb = getFeedbacks();
-  fb.unshift({
+  var 새글 = {
     id: Date.now(),
     author: session.name || session.email,
     email: session.email,
@@ -4739,7 +4779,13 @@ function submitFeedback() {
     date: new Date().toISOString().slice(0,10),
     likes: [],
     replies: []
-  });
+  };
+  sbInsertFeedback(새글);
+  var 내글 = myFeedbackIds();
+  내글.push(새글.id);
+  localStorage.setItem(MY_FB_KEY, JSON.stringify(내글));
+  delete 새글.email;                     // 화면·로컬 사본에는 이메일을 두지 않는다
+  fb.unshift(새글);
   saveFeedbacks(fb);
   document.getElementById('fbContent').value = '';
   renderFeedbackBoard();
@@ -4763,12 +4809,14 @@ function toggleLike(fbId) {
   var session = getSession();
   if (!session || session.role === 'guest') { alert('로그인 후 공감할 수 있습니다.'); return; }
   var fb = getFeedbacks();
+  var 나 = likeKey(session);
   for (var i = 0; i < fb.length; i++) {
     if (fb[i].id === fbId) {
       if (!fb[i].likes) fb[i].likes = [];
-      var idx = fb[i].likes.indexOf(session.email);
-      if (idx === -1) fb[i].likes.push(session.email);
+      var idx = fb[i].likes.indexOf(나);
+      if (idx === -1) fb[i].likes.push(나);
       else fb[i].likes.splice(idx, 1);
+      sbPatchFeedback(fbId, { likes: fb[i].likes });
       break;
     }
   }
@@ -4796,10 +4844,10 @@ function submitReply(fbId) {
       if (!fb[i].replies) fb[i].replies = [];
       fb[i].replies.push({
         author: session.name || session.email,
-        email: session.email,
         text: text,
         date: new Date().toISOString().slice(0,10)
       });
+      sbPatchFeedback(fbId, { replies: fb[i].replies });
       break;
     }
   }
@@ -4810,10 +4858,11 @@ function submitReply(fbId) {
 function deleteFeedback(fbId) {
   var session = getSession();
   if (!session) return;
-  var fb = getFeedbacks();
-  var before = fb.length;
-  fb = fb.filter(function(f) { return f.id !== fbId || (f.email !== session.email && session.role !== 'admin'); });
-  saveFeedbacks(fb, fb.length < before ? fbId : null);
+  if (!isMyFeedback(fbId, session)) return;
+  var fb = getFeedbacks().filter(function(f) { return f.id !== fbId; });
+  sbDeleteFeedbackRow(fbId);
+  localStorage.setItem(MY_FB_KEY, JSON.stringify(myFeedbackIds().filter(function(id) { return id !== fbId; })));
+  saveFeedbacks(fb);
   renderFeedbackBoard();
 }
 
@@ -4841,8 +4890,8 @@ function renderFeedbackBoard() {
   var html = '';
   for (var i = 0; i < visible.length; i++) {
     var f = visible[i];
-    var isMyPost = session && (f.email === session.email || session.role === 'admin');
-    var liked = session && f.likes && f.likes.indexOf(session.email) !== -1;
+    var isMyPost = isMyFeedback(f.id, session);
+    var liked = session && f.likes && f.likes.indexOf(likeKey(session)) !== -1;
     var likeCount = f.likes ? f.likes.length : 0;
 
     html += '<div class="fb-post">';
@@ -4863,7 +4912,7 @@ function renderFeedbackBoard() {
       html += '<div class="fb-replies">';
       for (var j = 0; j < f.replies.length; j++) {
         var r = f.replies[j];
-        html += '<div class="fb-reply"><span class="fb-reply-author">' + escHtml(r.author) + '</span> <span class="fb-reply-meta">' + r.date + '</span><div>' + escHtml(r.text) + '</div></div>';
+        html += '<div class="fb-reply"><span class="fb-reply-author">' + escHtml(r.author) + '</span> <span class="fb-reply-meta">' + r.date + '</span><div>' + escHtml(r.text || r.content || '') + '</div></div>';
       }
       html += '</div>';
     }
