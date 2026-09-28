@@ -2764,7 +2764,7 @@ var LEARN_STEPS = [
 
 // 각 단계 시작 전, 이전 단계가 제대로 됐는지 점검하는 안내 (key = 해당 단계 id)
 var LEARN_PRECHECKS = {
-  git: '이전 단계(Node.js 설치)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 입력하세요:\n\n  node --version\n\n"v20.xx.x" 같은 숫자가 나오면 통과!',
+  git: '이전 단계(Node.js 설치)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 입력하세요:\n\n  node --version\n\n"v" 로 시작하는 숫자가 나오면 통과!',
   vscode: '이전 단계(Git 설치·설정)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)에 아래를 한 줄씩 입력하세요:\n\n  git --version\n  git config --global user.name\n\n버전 숫자와 내 이름이 각각 나오면 통과!',
   obsidian: '이전 단계(VSCode 설치)가 잘 됐는지 먼저 확인해요.\n명령 프롬프트(cmd)를 새로 열고 아래를 입력하세요:\n\n  code --version\n\n숫자가 나오면 통과! (또는 VSCode 프로그램이 정상 실행되면 통과)',
   'claude-code': '이전 단계(Obsidian 설치)가 잘 됐는지 먼저 확인해요.\nObsidian을 실행해서 solidarity-wiki 보관함이 열리면 통과!',
