@@ -1666,11 +1666,11 @@ async function sbSync() {
   }
 }
 
-// Supabase에 공지사항 저장 (전체 교체 방식)
-async function sbSaveNotices(notices) {
+// Supabase에 공지사항 저장 (올리기만 — 지우기는 지운 한 건만)
+async function sbSaveNotices(notices, removedId) {
   if (!sbReady) return;
   try {
-    await sb.from('notices').delete().neq('id', 0);
+    if (removedId !== undefined && removedId !== null) await sb.from('notices').delete().eq('id', removedId);
     if (notices.length) {
       var rows = notices.map(function(n) {
         return { id: n.id, title: n.title, content: n.content, date: n.date };
@@ -1680,11 +1680,11 @@ async function sbSaveNotices(notices) {
   } catch (e) { console.warn('[Supabase] notices 저장 실패:', e.message); }
 }
 
-// Supabase에 교육 일정 저장 (전체 교체 방식)
-async function sbSaveSchedule(schedule) {
+// Supabase에 교육 일정 저장 (올리기만 — 지우기는 지운 한 건만)
+async function sbSaveSchedule(schedule, removedId) {
   if (!sbReady) return;
   try {
-    await sb.from('schedule').delete().neq('id', 0);
+    if (removedId !== undefined && removedId !== null) await sb.from('schedule').delete().eq('id', removedId);
     if (schedule.length) {
       var rows = schedule.map(function(e) {
         return { id: e.id, date: e.date, title: e.title };
@@ -1695,10 +1695,14 @@ async function sbSaveSchedule(schedule) {
 }
 
 // Supabase에 피드백 저장 (로컬 저장 후 호출)
-async function sbSaveFeedback(fb) {
+// 2026-09-28: 옛 방식은 표를 통째로 비운 뒤(delete().neq('id',0)) 글쓴이 브라우저의
+// localStorage 사본을 다시 올렸다. 로드 동기화가 조용히 실패한 브라우저가 글을 쓰면
+// 남의 의견이 통째로 사라진다(의견 6건의 created_at 이 2026-07-23 한 시각으로 덮어써진 흔적).
+// 지금은 지우지 않고 올리기만 하고, 삭제는 지운 글 한 건만 지운다.
+async function sbSaveFeedback(fb, removedId) {
   if (!sbReady) return;
   try {
-    await sb.from('feedback').delete().neq('id', 0);
+    if (removedId !== undefined && removedId !== null) await sb.from('feedback').delete().eq('id', removedId);
     if (fb.length) {
       var rows = fb.map(function(f) {
         return { id: f.id, author: f.author, email: f.email, category: f.category,
@@ -4637,7 +4641,7 @@ var fbFilter = 'all';
 var fbShowLimit = 5;
 
 function getFeedbacks() { return JSON.parse(localStorage.getItem(FB_KEY) || '[]'); }
-function saveFeedbacks(arr) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); sbSaveFeedback(arr); }
+function saveFeedbacks(arr, removedId) { localStorage.setItem(FB_KEY, JSON.stringify(arr)); sbSaveFeedback(arr, removedId); }
 
 function submitFeedback() {
   var session = getSession();
@@ -4725,8 +4729,9 @@ function deleteFeedback(fbId) {
   var session = getSession();
   if (!session) return;
   var fb = getFeedbacks();
+  var before = fb.length;
   fb = fb.filter(function(f) { return f.id !== fbId || (f.email !== session.email && session.role !== 'admin'); });
-  saveFeedbacks(fb);
+  saveFeedbacks(fb, fb.length < before ? fbId : null);
   renderFeedbackBoard();
 }
 
@@ -5113,7 +5118,7 @@ function exportWeeklyReport() {
 // ===== NOTICES (공지사항) =====
 var NOTICE_KEY = 'academy_notices';
 function getNotices() { try { return JSON.parse(localStorage.getItem(NOTICE_KEY)) || []; } catch(e) { return []; } }
-function saveNotices(arr) { localStorage.setItem(NOTICE_KEY, JSON.stringify(arr)); sbSaveNotices(arr); }
+function saveNotices(arr, removedId) { localStorage.setItem(NOTICE_KEY, JSON.stringify(arr)); sbSaveNotices(arr, removedId); }
 
 function addNotice() {
   if (!isAdmin()) { alert('관리자만 공지를 등록할 수 있습니다.'); return; }
@@ -5133,7 +5138,7 @@ function addNotice() {
 function deleteNotice(id) {
   if (!isAdmin()) return;
   if (!confirm('이 공지를 삭제하시겠습니까?')) return;
-  saveNotices(getNotices().filter(function(n) { return n.id !== id; }));
+  saveNotices(getNotices().filter(function(n) { return n.id !== id; }), id);
   renderNoticeAdmin();
   renderHomeNotices();
 }
@@ -5173,7 +5178,7 @@ function renderNoticeAdmin() {
 var SCHEDULE_KEY = 'academy_schedule';
 var calYear, calMonth;
 function getSchedule() { try { return JSON.parse(localStorage.getItem(SCHEDULE_KEY)) || []; } catch(e) { return []; } }
-function saveSchedule(arr) { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(arr)); sbSaveSchedule(arr); }
+function saveSchedule(arr, removedId) { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(arr)); sbSaveSchedule(arr, removedId); }
 
 function addScheduleEvent() {
   if (!isAdmin()) { alert('관리자만 일정을 추가할 수 있습니다.'); return; }
@@ -5193,7 +5198,7 @@ function addScheduleEvent() {
 
 function deleteScheduleEvent(id) {
   if (!isAdmin()) return;
-  saveSchedule(getSchedule().filter(function(e) { return e.id !== id; }));
+  saveSchedule(getSchedule().filter(function(e) { return e.id !== id; }), id);
   renderCalendar();
   renderScheduleList();
 }
