@@ -95,6 +95,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 .main{padding:24px 32px 60px;max-width:820px;overflow-y:auto;max-height:calc(100vh - var(--topbar-h))}
 @media(max-width:768px){.main{padding:16px}}
 
+/* SITE FOOTER (모든 페이지 하단 공통) */
+.site-foot{margin-top:40px;padding:20px 0 8px;border-top:1px solid var(--border);font-size:12px;color:var(--sub);line-height:1.85}
+.site-foot .org{font-weight:700;color:var(--text);font-size:13px}
+.site-foot a{color:var(--sub)}
+
 /* PAGES */
 .page{display:none}
 .page.active{display:block}
@@ -1495,6 +1500,14 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 
 <div class="back-btn-wrap"><button class="back-btn" onclick="go('cert-sqld')">&#8592; 과정 홈으로</button></div>
 </div>
+
+<!-- SITE FOOTER -->
+<footer class="site-foot">
+  <div class="org">사회혁신교육원 사회적협동조합</div>
+  본사 : 대전광역시 서구 관저중로80번길 8, 3층<br>
+  사업자등록번호 : 397-82-00424 · 사업 : 교육, 컨설팅, IT<br>
+  <a href="https://sakyowon.co.kr/" target="_blank" rel="noopener">사교원 관계 사이트 허브 ↗</a>
+</footer>
 
 <!-- LOGIN MODAL -->
 <div class="modal-bg" id="loginModal">
