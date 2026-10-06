@@ -1505,6 +1505,13 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 <style>
 .py-code{background:#1f2430;color:#e8e8e8;border-radius:8px;padding:10px 12px;margin:8px 0;font-family:Consolas,'D2Coding','Courier New',monospace;font-size:12.5px;line-height:1.6;white-space:pre;overflow-x:auto;font-weight:400;text-align:left}
 .py-code code,.sq-concept-body .py-code code{background:none;padding:0;color:inherit;font-size:inherit;border-radius:0}
+.pq-code-msg{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff;font-size:13.5px;line-height:1.7}
+.pq-code-msg.me{background:#f5f2fc;border-color:#d8cdf2}
+.pq-code-msg .who{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:4px}
+.pq-code-msg .txt{white-space:pre-wrap}
+.pq-code-msg .txt code{background:#f3f0fa;border-radius:4px;padding:1px 5px;font-size:12.5px}
+.pq-code-wrap{position:relative}
+.pq-code-copy{position:absolute;top:6px;right:6px;padding:4px 10px;border:none;border-radius:6px;background:#4527a0;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .py-q-text{font-size:15px;line-height:1.7;font-weight:600}
 .py-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}
 .py-steps div{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fff;font-size:13px;line-height:1.6}
@@ -1617,6 +1624,20 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
       <div id="pq-concepts"></div>
       <div id="pq-yt-links" style="margin-top:10px"></div>
       <button id="pq-quiz-btn" onclick="pycStartQuiz()" style="width:100%;margin-top:14px;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">확인 문제 풀기 &#8594;</button>
+    </div>
+
+    <div class="card" id="pq-code-card" style="border-left:4px solid #4527a0">
+      <h3 style="font-size:15px;margin-bottom:4px">&#129302; 과제를 주면 코드를 짜 드려요</h3>
+      <p style="font-size:13px;color:var(--sub);margin-bottom:10px">만들고 싶은 것을 우리말로 적으면 AI가 <strong>오늘까지 배운 문법</strong>으로 파이썬 코드를 짜고 설명해 줍니다. 받은 코드는 Colab 에 붙여 넣어 실행해 보세요. 이어서 「while 로 바꿔 줘」, 「입력을 두 번 받게 해 줘」처럼 고쳐 달라고 할 수도 있습니다.</p>
+      <div id="pq-code-ex" style="margin-bottom:8px"></div>
+      <textarea id="pq-code-input" placeholder="예) 점수 세 개를 입력받아 평균을 소수 첫째 자리까지 보여 줘" style="width:100%;box-sizing:border-box;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){pycCodeAsk();}"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+        <button id="pq-code-btn" onclick="pycCodeAsk()" style="padding:10px 20px;background:#4527a0;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">코드 짜 줘</button>
+        <button onclick="pycCodeReset()" style="padding:10px 14px;background:#f0f0f0;color:var(--sub);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">새 과제로 시작</button>
+        <span style="font-size:12px;color:var(--sub)">Ctrl+Enter 로도 보낼 수 있어요 · 답이 오기까지 20초 안팎</span>
+      </div>
+      <div id="pq-code-log" style="margin-top:12px"></div>
+      <p style="font-size:12px;color:var(--sub);margin-top:8px">개인정보(주민번호·전화번호 등)는 적지 마세요. AI가 짠 코드도 틀릴 수 있습니다 — 꼭 실행해 보고, 이해가 안 되는 줄은 다시 물어보세요.</p>
     </div>
   </div>
 
@@ -8089,6 +8110,7 @@ function pycEnterLearn(){
   pycShowArea('pq-learn-area');
   pycSetPhase('학습 30분','var(--accent)');
   pycStartTimer(1800);
+  if (window.pycCodeReset) pycCodeReset();
   var qb=document.getElementById('pq-quiz-btn');if(qb)qb.innerHTML='확인 문제 풀기 ('+mod.quiz.length+'문항) &#8594;';
   var html='';
   mod.concepts.forEach(function(c,i){
@@ -8182,6 +8204,118 @@ function pycFinish(){
     :'기록된 약점이 없습니다. 훌륭해요!';
   var nb=document.getElementById('pq-result-next-btn');
   nb.style.display=(pyState.m>=PYC_MODULES.length)?'none':'';
+}
+/* ---- 과제를 주면 코드 짜 주기 (2026-10-06) ----
+   홈 서버 /api/ai/chat 에 context 'academy-python' 으로 묻는다. 서버가 지금 일차까지 배운 문법으로
+   코드를 짜도록 시스템 프롬프트를 따로 둔다(/opt/sakyowon/home/server.py _ACADEMY_PY_SYSTEM).
+   대화는 일차마다 새로 시작하고, 이어서 고쳐 달라는 요청을 위해 최근 8개만 함께 보낸다. */
+var PYC_CODE_EX = {
+  1:['내 이름·나이·사는 곳을 세 줄로 소개하는 코드','이름과 좋아하는 음식을 변수에 담아 한 문장으로 출력'],
+  2:['섭씨 온도를 입력받아 화씨로 바꿔 줘','물건 값과 개수를 입력받아 합계를 천 단위 쉼표로 보여 줘'],
+  3:['이메일 주소를 입력받아 @ 앞부분(아이디)만 보여 줘','문장을 입력받아 글자 수와 공백 수를 세어 줘'],
+  4:['나이를 입력받아 어린이·청소년·성인으로 나눠 줘','숫자를 입력받아 짝수인지 홀수인지 알려 줘'],
+  5:['1부터 100까지 3의 배수의 합','비밀번호를 맞힐 때까지 다시 묻는 프로그램'],
+  6:['점수 다섯 개의 평균·최고·최저 점수','장보기 목록에 물건을 추가하고 가나다순으로 보여 줘'],
+  7:['문장 속 단어가 몇 번씩 나오는지 세어 줘','두 모임 명단에서 양쪽 다 온 사람 찾기'],
+  8:['넓이를 구하는 함수를 만들어 사각형·삼각형에 써 줘','시급과 시간을 받아 일당을 돌려주는 함수'],
+  9:['주사위를 100번 던져 숫자별로 몇 번 나왔는지','메모를 입력받아 파일에 날짜와 함께 이어 적기'],
+  10:['통장 클래스(입금·출금·잔액 보기)','학생 클래스로 성적표 만들기']
+};
+var pycCodeHist = [];
+var pycCodeBusy = false;
+
+function pycCodeReset(){
+  pycCodeHist = [];
+  var log = document.getElementById('pq-code-log'); if (log) log.innerHTML = '';
+  var inp = document.getElementById('pq-code-input'); if (inp) inp.value = '';
+  var mod = PYC_MODULES[pyState.m-1];
+  var ex = document.getElementById('pq-code-ex');
+  if (ex && mod) {
+    ex.innerHTML = '<span style="font-size:12px;color:var(--sub);margin-right:4px">눌러서 써 보기:</span>' +
+      (PYC_CODE_EX[mod.no] || []).map(function(t, i){
+        return '<button class="sq-chip" style="border:none;cursor:pointer;background:#ede7f6;color:#4527a0;font-family:inherit" onclick="pycCodeUseEx(' + i + ')">' + pycEsc(t) + '</button>';
+      }).join('');
+  }
+}
+function pycCodeUseEx(i){
+  var mod = PYC_MODULES[pyState.m-1]; if (!mod) return;
+  var inp = document.getElementById('pq-code-input');
+  inp.value = (PYC_CODE_EX[mod.no] || [])[i] || ''; inp.focus();
+}
+
+// AI 답 → 화면: ```python 블록은 코드 상자(복사 버튼), 나머지는 글. `한 줄 코드`는 code 로.
+function pycCodeRender(text){
+  var out = '', parts = String(text).split(/```[a-zA-Z]*[ \t]*\n?/);
+  parts.forEach(function(p, i){
+    if (i % 2 === 1) {
+      out += '<div class="pq-code-wrap"><button class="pq-code-copy" onclick="pycCodeCopy(this)">복사</button>'
+           + '<pre class="py-code"><code>' + pycEsc(p.replace(/\n+$/, '')) + '</code></pre></div>';
+    } else {
+      var t = p.replace(/^\n+|\n+$/g, '');
+      if (t) out += '<div class="txt">' + pycEsc(t).replace(/`([^`\n]+)`/g, '<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g, '$1') + '</div>';
+    }
+  });
+  return out;
+}
+function pycCodeCopy(btn){
+  var code = btn.parentNode.querySelector('code').textContent;
+  function done(){ btn.textContent = '복사됨'; setTimeout(function(){ btn.textContent = '복사'; }, 1500); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(done, function(){ pycCodeCopyOld(code); done(); });
+  } else { pycCodeCopyOld(code); done(); }
+}
+function pycCodeCopyOld(code){
+  var ta = document.createElement('textarea'); ta.value = code; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta);
+}
+function pycCodeAdd(who, html, id){
+  var log = document.getElementById('pq-code-log');
+  var d = document.createElement('div');
+  d.className = 'pq-code-msg' + (who === 'me' ? ' me' : '');
+  if (id) d.id = id;
+  d.innerHTML = '<div class="who">' + (who === 'me' ? '나의 과제' : 'AI 코드 도우미') + '</div>' + html;
+  log.appendChild(d);
+  return d;
+}
+function pycCodeSetBusy(b){
+  pycCodeBusy = b;
+  var btn = document.getElementById('pq-code-btn'), inp = document.getElementById('pq-code-input');
+  btn.disabled = b; btn.style.opacity = b ? '0.5' : ''; btn.textContent = b ? '짜는 중...' : '코드 짜 줘';
+  inp.disabled = b; inp.style.background = b ? '#f2f2f2' : '';
+}
+async function pycCodeAsk(){
+  if (pycCodeBusy) return;
+  var inp = document.getElementById('pq-code-input');
+  var task = inp.value.trim(); if (!task) { inp.focus(); return; }
+  var mod = PYC_MODULES[pyState.m-1]; if (!mod) return;
+  inp.value = '';
+  pycCodeAdd('me', '<div class="txt">' + pycEsc(task) + '</div>');
+  var wait = pycCodeAdd('ai', '<div class="txt" style="color:var(--sub)">코드를 짜는 중입니다... (20초 안팎)</div>', 'pq-code-wait');
+  wait.scrollIntoView({ block: 'nearest' });
+  pycCodeSetBusy(true);
+  var prompt = '[학습 단계] ' + mod.no + '일차 — ' + mod.title + '\n[과제] ' + task;
+  var answer = '', ok = false;
+  try {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, 90000);
+    var res = await fetch(AI_CHAT_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt, context: 'academy-python', history: pycCodeHist.slice(-8) }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    var data = await res.json();
+    if (res.status === 429) answer = '요청이 조금 빨랐어요. 1분 뒤에 다시 눌러 주세요.';
+    else if (res.ok && data.answer) { answer = data.answer; ok = true; }
+    else throw new Error(data.error || ('HTTP ' + res.status));
+  } catch (e) {
+    answer = '지금은 AI 연결이 되지 않습니다. 잠시 뒤 다시 시도해 주세요. (' + (e.name === 'AbortError' ? '응답 시간 초과' : e.message) + ')';
+  }
+  wait.parentNode.removeChild(wait);
+  if (ok) { pycCodeHist.push({ role: 'user', content: prompt }); pycCodeHist.push({ role: 'assistant', content: answer }); }
+  var box = pycCodeAdd('ai', pycCodeRender(answer));
+  pycCodeSetBusy(false);
+  box.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 function pycStartNextModule(){if(pyState.m<PYC_MODULES.length)pycStart(pyState.m+1);}
 </script>
