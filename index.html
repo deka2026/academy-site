@@ -1523,6 +1523,13 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
   <p style="color:var(--sub);margin-bottom:4px"><strong>자격증아카데미</strong>의 두 번째 과정입니다. 프로그래밍을 처음 하는 분이 <strong>하루 30분, 열흘</strong> 만에 파이썬의 기본기(변수·조건·반복·자료구조·함수·파일·클래스)를 갖추도록 짰습니다.</p>
   <p style="color:var(--sub);font-size:13px;margin-bottom:16px">틀린 문제의 주제는 <strong>약점</strong>으로 기록되고, 다음 날 학습을 시작할 때 <strong>5분 보완 학습</strong>이 먼저 나옵니다.</p>
 
+  <div class="card" id="pq-resume-card" style="display:none;margin-bottom:16px;border-left:4px solid var(--accent)">
+    <h3 style="font-size:15px;margin-bottom:4px">&#128214; 이어서 학습하기</h3>
+    <p id="pq-resume-where" style="font-size:13px;color:var(--sub);margin-bottom:10px"></p>
+    <button onclick="pycResume()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">이어서 하기 &#8594;</button>
+    <button onclick="pycResumeClear()" style="margin-left:8px;padding:9px 18px;background:#fff;color:var(--sub);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">저장한 위치 지우기</button>
+  </div>
+
   <div class="stats-grid" style="margin-bottom:16px">
     <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="pq-stat-done">0</div><div class="stat-label">완료 일차 / 10</div></div>
     <div class="stat-card"><div class="stat-num" style="color:#2e7d32" id="pq-stat-rate">-</div><div class="stat-label">평균 정답률</div></div>
@@ -1601,6 +1608,7 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
     <div style="display:flex;gap:8px;align-items:center">
       <span class="sq-phase-badge" id="pq-phase-badge">학습</span>
       <span class="sq-timer-badge">&#9201; <span id="pq-timer">30:00</span></span>
+      <button id="pq-save-btn" onclick="pycSaveAndPause()" style="display:none;padding:5px 12px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#128190; 지금까지 학습저장</button>
     </div>
   </div>
   <p id="pq-learn-sub" style="color:var(--sub);font-size:13px;margin-bottom:16px"></p>
@@ -1992,6 +2000,7 @@ async function sbCheckAuth() {
     if (profile.data && profile.data.role && profile.data.role !== 'suspended') {
       setSession({ email: email, uid: res.data.session.user.id, name: profile.data.name || email, role: profile.data.role === 'pending' ? 'user' : profile.data.role });
       sbRefreshMyFeedbackIds();
+      if (typeof pycPullProgress === 'function') pycPullProgress();
     }
   } catch (e) { console.warn('[Supabase] 세션 복원 실패:', e.message); }
 }
@@ -2383,6 +2392,7 @@ async function doLogin() {
 
   setSession({ email: email, uid: (res.data && res.data.user ? res.data.user.id : undefined), name: name, role: role });
   sbRefreshMyFeedbackIds();
+  if (typeof pycPullProgress === 'function') pycPullProgress();
   closeLoginModal();
   showApp();
 }
@@ -7971,9 +7981,105 @@ var PYC_MODULES = [
 
 /* ---- 저장 ---- */
 function pycQHtml(q){var i=q.lastIndexOf('\n\n');if(i<0)return '<span style="white-space:pre-wrap">'+pycEsc(q)+'</span>';return '<pre class="py-code"><code>'+pycEsc(q.slice(0,i))+'</code></pre><div>'+pycEsc(q.slice(i+2))+'</div>';}
-function pycLoadP(){try{var p=JSON.parse(localStorage.getItem(PYC_KEY));if(p&&p.done)return p;}catch(e){}return{done:{},weak:{},wrong:[]};}
-function pycSaveP(p){try{localStorage.setItem(PYC_KEY,JSON.stringify(p));}catch(e){}}
-function pycResetProgress(){if(!confirm('파이썬 학습 기록(완료 일차·약점)을 모두 지울까요?'))return;try{localStorage.removeItem(PYC_KEY);}catch(e){}renderPycHome();alert('초기화했습니다.');}
+// 2026-10-12: 학습 기록을 계정별로 두고 서버(learn_progress)에도 올린다.
+// 그 전에는 브라우저 한 곳에만 남아서, 다른 기기로 로그인하면 처음부터였다.
+function pycKey(){var ss=getSession();return (ss&&ss.email&&ss.role!=='guest')?(PYC_KEY+':'+ss.email):PYC_KEY;}
+function pycLoadP(){
+  var k=pycKey();
+  try{var p=JSON.parse(localStorage.getItem(k));if(p&&p.done)return p;}catch(e){}
+  if(k!==PYC_KEY){ // 로그인 전에 쌓아 둔 기록이 있으면 한 번만 물려받는다
+    try{var old=JSON.parse(localStorage.getItem(PYC_KEY));if(old&&old.done){localStorage.setItem(k,JSON.stringify(old));return old;}}catch(e){}
+  }
+  return{done:{},weak:{},wrong:[]};
+}
+function pycSaveP(p){try{p.ts=Date.now();localStorage.setItem(pycKey(),JSON.stringify(p));}catch(e){}}
+function pycToday(){var t=new Date();return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);}
+
+// 서버에 올리기 — 로그인한 사람의 행 하나(email+course)만 건드린다
+async function pycPushProgress(){
+  if(!window.sb||!window.sbReady)return false;
+  var ss=getSession();if(!ss||!ss.email||ss.role==='guest')return false;
+  try{
+    var r=await sb.from('learn_progress').upsert(
+      {email:ss.email,course:'python',data:pycLoadP(),updated_at:new Date().toISOString()},
+      {onConflict:'email,course'});
+    if(r&&r.error)throw new Error(r.error.message);
+    return true;
+  }catch(e){console.warn('[학습저장] 서버 저장 실패:',e.message);return false;}
+}
+
+// 서버에서 받아오기 — 더 최근 것이면 이 브라우저 기록을 덮는다
+async function pycPullProgress(){
+  if(!window.sb||!window.sbReady)return;
+  var ss=getSession();if(!ss||!ss.email||ss.role==='guest')return;
+  try{
+    var r=await sb.from('learn_progress').select('data').eq('email',ss.email).eq('course','python').maybeSingle();
+    if(!r||r.error||!r.data||!r.data.data)return;
+    var srv=r.data.data,loc=pycLoadP();
+    if((srv.ts||0)>(loc.ts||0)){
+      localStorage.setItem(pycKey(),JSON.stringify(srv));
+      var pg=document.getElementById('cert-python');
+      if(pg&&pg.classList.contains('active'))renderPycHome();
+    }
+  }catch(e){console.warn('[학습저장] 서버 조회 실패:',e.message);}
+}
+
+// 지금 어디까지 했는지 기록해 둔다(버튼을 안 눌러도 이 브라우저에는 남는다)
+function pycMarkCur(phase){
+  var mod=PYC_MODULES[pyState.m-1];if(!mod)return;
+  var p=pycLoadP();
+  p.cur={m:pyState.m,qi:pyState.qi,correct:pyState.correct,phase:phase,title:mod.title,d:pycToday()};
+  pycSaveP(p);
+}
+
+// 「지금까지 학습저장」 버튼
+async function pycSaveAndPause(){
+  var mod=PYC_MODULES[pyState.m-1];
+  if(!mod){alert('진행 중인 학습이 없습니다.');return;}
+  var qa=document.getElementById('pq-quiz-area');
+  var quizOn=qa&&qa.style.display!=='none';
+  pycMarkCur(quizOn?'quiz':'learn');
+  var ok=await pycPushProgress();
+  pycClearTimer();
+  var where=quizOn?('확인 문제 '+(pyState.qi+1)+'번'):'개념 학습';
+  alert(pyState.m+'일차 · '+where+'까지 저장했습니다.\n\n'
+    +(ok?'다음에 로그인하면 이 자리에서 이어집니다.':'이 브라우저에 저장했습니다.\n(서버 저장은 안 됐습니다 — 로그인 상태를 확인해 주세요)'));
+  go('cert-python');
+}
+
+// 「이어서 하기」
+function pycResume(){
+  var p=pycLoadP(),c=p.cur;
+  var mod=c&&PYC_MODULES[c.m-1];
+  if(!mod){alert('저장된 위치가 없습니다. 과정 홈에서 일차를 골라 시작하세요.');return;}
+  pyState={m:c.m,qi:c.qi||0,correct:c.correct||0,answered:false,retry:[]};
+  go('cert-python-learn');
+  document.getElementById('pq-learn-title').textContent=c.m+'일차 · '+mod.title;
+  document.getElementById('pq-learn-sub').textContent=mod.intro;
+  if(c.phase==='quiz'&&mod.quiz[pyState.qi]){
+    pycClearTimer();
+    pycShowArea('pq-quiz-area');
+    pycSetPhase('확인 문제','#2e7d32');
+    var tm=document.getElementById('pq-timer');if(tm)tm.textContent='이어서';
+    pycRenderQuestion();
+  }else{
+    pycEnterLearn();
+  }
+}
+
+function pycResumeClear(){
+  if(!confirm('저장해 둔 위치를 지울까요? 완료한 일차와 약점 기록은 그대로 둡니다.'))return;
+  var p=pycLoadP();p.cur=null;pycSaveP(p);pycPushProgress();
+  renderPycHome();
+}
+
+function pycResetProgress(){
+  if(!confirm('파이썬 학습 기록(완료 일차·약점·저장한 위치)을 모두 지울까요?'))return;
+  try{localStorage.removeItem(pycKey());}catch(e){}
+  pycSaveP({done:{},weak:{},wrong:[],cur:null});
+  pycPushProgress();
+  renderPycHome();alert('초기화했습니다.');
+}
 
 function pycFindConcept(topic){for(var i=0;i<PYC_MODULES.length;i++){var cs=PYC_MODULES[i].concepts;for(var j=0;j<cs.length;j++)if(cs[j].topic===topic)return cs[j];}return null;}
 function pycYt(q){return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);}
@@ -7988,6 +8094,16 @@ function renderPycHome(){
   document.getElementById('pq-stat-rate').textContent=t?Math.round(s/t*100)+'%':'-';
   var weakTopics=Object.keys(p.weak).filter(function(k){return p.weak[k]>0;});
   document.getElementById('pq-stat-weak').textContent=weakTopics.length;
+  var rc=document.getElementById('pq-resume-card');
+  if(rc){
+    var c=p.cur,cm=c&&PYC_MODULES[c.m-1];
+    if(cm){
+      rc.style.display='';
+      var where=(c.phase==='quiz')?('확인 문제 '+((c.qi||0)+1)+'번'):'개념 학습';
+      document.getElementById('pq-resume-where').textContent=
+        c.m+'일차 · '+cm.title+' — '+where+'에서 멈췄습니다'+(c.d?' ('+c.d+' 저장)':'');
+    }else{rc.style.display='none';}
+  }
   var wc=document.getElementById('pq-weak-card');
   if(weakTopics.length){wc.style.display='';
     document.getElementById('pq-weak-chips').innerHTML=weakTopics.map(function(tp){return '<span class="sq-chip">'+pycEsc(tp)+' ('+p.weak[tp]+')</span>';}).join('');
@@ -8028,6 +8144,8 @@ function pycShowArea(id){
   ['pq-guard','pq-review-area','pq-learn-area','pq-quiz-area','pq-result-area'].forEach(function(a){
     var el=document.getElementById(a);if(el)el.style.display=(a===id)?'':'none';
   });
+  var btn=document.getElementById('pq-save-btn');   // 학습·확인문제 중에만 저장 버튼
+  if(btn)btn.style.display=(id==='pq-learn-area'||id==='pq-quiz-area')?'':'none';
 }
 function pycSetPhase(label,color){
   var b=document.getElementById('pq-phase-badge');
@@ -8122,6 +8240,7 @@ function pycEnterLearn(){
     yt+='<a href="'+pycYt(q)+'" target="_blank" rel="noopener" class="sq-chip" style="background:#ede7f6;color:#4527a0;text-decoration:none">'+pycEsc(q)+' 검색 ↗</a>';
   });
   document.getElementById('pq-yt-links').innerHTML=yt;
+  pycMarkCur('learn');
 }
 function pycToggleConcept(el){el.parentElement.classList.toggle('open');}
 
@@ -8148,6 +8267,7 @@ function pycRenderQuestion(){
   document.getElementById('pq-choices').innerHTML=html;
   document.getElementById('pq-exp').style.display='none';
   document.getElementById('pq-next-btn').style.display='none';
+  pycMarkCur('quiz');
 }
 function pycAnswer(ci){
   if(pyState.answered)return;
@@ -8191,7 +8311,9 @@ function pycFinish(){
   var today=new Date();
   var ds=today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+today.getDate()).slice(-2);
   p.done[pyState.m]={s:pyState.correct,t:mod.quiz.length,d:ds};
+  p.cur=null;              // 끝냈으니 이어서 할 자리는 지운다
   pycSaveP(p);
+  pycPushProgress();
   pycShowArea('pq-result-area');
   pycSetPhase('완료','#2e7d32');
   document.getElementById('pq-timer').textContent='끝';
