@@ -1382,6 +1382,13 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
   <p style="color:var(--sub);margin-bottom:4px"><strong>자격증아카데미</strong>의 첫 번째 과정입니다. 하루 10분 학습 모듈로 SQLD 시험을 준비합니다. 앞으로 다른 자격증 과정도 이곳에 추가됩니다.</p>
   <p style="color:var(--sub);font-size:13px;margin-bottom:16px">학습 중 틀린 문제의 주제는 <strong>약점</strong>으로 기록되고, 다음 회차를 시작할 때 <strong>5분 보완 학습</strong>이 자동으로 먼저 진행됩니다.</p>
 
+  <div class="card" id="sq-resume-card" style="display:none;margin-bottom:16px;border-left:4px solid var(--accent)">
+    <h3 style="font-size:15px;margin-bottom:4px">&#128214; 이어서 학습하기</h3>
+    <p id="sq-resume-where" style="font-size:13px;color:var(--sub);margin-bottom:10px"></p>
+    <button onclick="sqldResume()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">이어서 하기 &#8594;</button>
+    <button onclick="sqldResumeClear()" style="margin-left:8px;padding:9px 18px;background:#fff;color:var(--sub);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">저장한 위치 지우기</button>
+  </div>
+
   <div class="stats-grid" style="margin-bottom:16px">
     <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="sq-stat-done">0</div><div class="stat-label">완료 회차 / 20</div></div>
     <div class="stat-card"><div class="stat-num" style="color:#2e7d32" id="sq-stat-rate">-</div><div class="stat-label">평균 정답률</div></div>
@@ -1444,6 +1451,7 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
     <div style="display:flex;gap:8px;align-items:center">
       <span class="sq-phase-badge" id="sq-phase-badge">학습</span>
       <span class="sq-timer-badge">&#9201; <span id="sq-timer">10:00</span></span>
+      <button id="sq-save-btn" onclick="sqldSaveAndPause()" style="display:none;padding:5px 12px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#128190; 지금까지 학습저장</button>
     </div>
   </div>
   <p id="sq-learn-sub" style="color:var(--sub);font-size:13px;margin-bottom:16px"></p>
@@ -2001,6 +2009,7 @@ async function sbCheckAuth() {
       setSession({ email: email, uid: res.data.session.user.id, name: profile.data.name || email, role: profile.data.role === 'pending' ? 'user' : profile.data.role });
       sbRefreshMyFeedbackIds();
       if (typeof pycPullProgress === 'function') pycPullProgress();
+      if (typeof sqldPullProgress === 'function') sqldPullProgress();
     }
   } catch (e) { console.warn('[Supabase] 세션 복원 실패:', e.message); }
 }
@@ -2393,6 +2402,7 @@ async function doLogin() {
   setSession({ email: email, uid: (res.data && res.data.user ? res.data.user.id : undefined), name: name, role: role });
   sbRefreshMyFeedbackIds();
   if (typeof pycPullProgress === 'function') pycPullProgress();
+  if (typeof sqldPullProgress === 'function') sqldPullProgress();
   closeLoginModal();
   showApp();
 }
@@ -6157,9 +6167,99 @@ var SQLD_MODULES = [
 ];
 
 /* ---- 저장 ---- */
-function sqldLoadP(){try{var p=JSON.parse(localStorage.getItem(SQLD_KEY));if(p&&p.done)return p;}catch(e){}return{done:{},weak:{},wrong:[]};}
-function sqldSaveP(p){try{localStorage.setItem(SQLD_KEY,JSON.stringify(p));}catch(e){}}
-function sqldResetProgress(){if(!confirm('SQLD 학습 기록(완료 회차·약점)을 모두 지울까요?'))return;try{localStorage.removeItem(SQLD_KEY);}catch(e){}renderSqldHome();alert('초기화했습니다.');}
+// 2026-10-12: 파이썬 과정과 같은 방식 — 계정별 기록 + 서버 learn_progress(course='sqld')
+function sqldKey(){var ss=getSession();return (ss&&ss.email&&ss.role!=='guest')?(SQLD_KEY+':'+ss.email):SQLD_KEY;}
+function sqldLoadP(){
+  var k=sqldKey();
+  try{var p=JSON.parse(localStorage.getItem(k));if(p&&p.done)return p;}catch(e){}
+  if(k!==SQLD_KEY){ // 로그인 전에 쌓아 둔 기록을 한 번만 물려받는다
+    try{var old=JSON.parse(localStorage.getItem(SQLD_KEY));if(old&&old.done){localStorage.setItem(k,JSON.stringify(old));return old;}}catch(e){}
+  }
+  return{done:{},weak:{},wrong:[]};
+}
+function sqldSaveP(p){try{p.ts=Date.now();localStorage.setItem(sqldKey(),JSON.stringify(p));}catch(e){}}
+function sqldToday(){var t=new Date();return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);}
+
+async function sqldPushProgress(){
+  if(!window.sb||!window.sbReady)return false;
+  var ss=getSession();if(!ss||!ss.email||ss.role==='guest')return false;
+  try{
+    var r=await sb.from('learn_progress').upsert(
+      {email:ss.email,course:'sqld',data:sqldLoadP(),updated_at:new Date().toISOString()},
+      {onConflict:'email,course'});
+    if(r&&r.error)throw new Error(r.error.message);
+    return true;
+  }catch(e){console.warn('[학습저장] SQLD 서버 저장 실패:',e.message);return false;}
+}
+
+async function sqldPullProgress(){
+  if(!window.sb||!window.sbReady)return;
+  var ss=getSession();if(!ss||!ss.email||ss.role==='guest')return;
+  try{
+    var r=await sb.from('learn_progress').select('data').eq('email',ss.email).eq('course','sqld').maybeSingle();
+    if(!r||r.error||!r.data||!r.data.data)return;
+    var srv=r.data.data,loc=sqldLoadP();
+    if((srv.ts||0)>(loc.ts||0)){
+      localStorage.setItem(sqldKey(),JSON.stringify(srv));
+      var pg=document.getElementById('cert-sqld');
+      if(pg&&pg.classList.contains('active'))renderSqldHome();
+    }
+  }catch(e){console.warn('[학습저장] SQLD 서버 조회 실패:',e.message);}
+}
+
+function sqldMarkCur(phase){
+  var mod=SQLD_MODULES[sqState.m-1];if(!mod)return;
+  var p=sqldLoadP();
+  p.cur={m:sqState.m,qi:sqState.qi,correct:sqState.correct,phase:phase,title:mod.title,d:sqldToday()};
+  sqldSaveP(p);
+}
+
+async function sqldSaveAndPause(){
+  var mod=SQLD_MODULES[sqState.m-1];
+  if(!mod){alert('진행 중인 학습이 없습니다.');return;}
+  var qa=document.getElementById('sq-quiz-area');
+  var quizOn=qa&&qa.style.display!=='none';
+  sqldMarkCur(quizOn?'quiz':'learn');
+  var ok=await sqldPushProgress();
+  sqldClearTimer();
+  var where=quizOn?('확인 문제 '+(sqState.qi+1)+'번'):'개념 학습';
+  alert(sqState.m+'회차 · '+where+'까지 저장했습니다.\n\n'
+    +(ok?'다음에 로그인하면 이 자리에서 이어집니다.':'이 브라우저에 저장했습니다.\n(서버 저장은 안 됐습니다 — 로그인 상태를 확인해 주세요)'));
+  go('cert-sqld');
+}
+
+function sqldResume(){
+  var p=sqldLoadP(),c=p.cur;
+  var mod=c&&SQLD_MODULES[c.m-1];
+  if(!mod){alert('저장된 위치가 없습니다. 과정 홈에서 회차를 골라 시작하세요.');return;}
+  sqState={m:c.m,qi:c.qi||0,correct:c.correct||0,answered:false,retry:[]};
+  go('cert-sqld-learn');
+  document.getElementById('sq-learn-title').textContent=c.m+'회차 · '+mod.title;
+  document.getElementById('sq-learn-sub').textContent=mod.intro;
+  if(c.phase==='quiz'&&mod.quiz[sqState.qi]){
+    sqldClearTimer();
+    sqldShowArea('sq-quiz-area');
+    sqldSetPhase('확인 문제','#2e7d32');
+    var tm=document.getElementById('sq-timer');if(tm)tm.textContent='이어서';
+    sqldRenderQuestion();
+  }else{
+    sqldEnterLearn();
+  }
+}
+
+function sqldResumeClear(){
+  if(!confirm('저장해 둔 위치를 지울까요? 완료한 회차와 약점 기록은 그대로 둡니다.'))return;
+  var p=sqldLoadP();p.cur=null;sqldSaveP(p);sqldPushProgress();
+  renderSqldHome();
+}
+
+function sqldResetProgress(){
+  if(!confirm('SQLD 학습 기록(완료 회차·약점·저장한 위치)을 모두 지울까요?'))return;
+  try{localStorage.removeItem(sqldKey());}catch(e){}
+  sqldSaveP({done:{},weak:{},wrong:[],cur:null});
+  sqldPushProgress();
+  renderSqldHome();alert('초기화했습니다.');
+}
 
 function sqldFindConcept(topic){for(var i=0;i<SQLD_MODULES.length;i++){var cs=SQLD_MODULES[i].concepts;for(var j=0;j<cs.length;j++)if(cs[j].topic===topic)return cs[j];}return null;}
 function sqldYt(q){return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);}
@@ -6174,6 +6274,16 @@ function renderSqldHome(){
   document.getElementById('sq-stat-rate').textContent=t?Math.round(s/t*100)+'%':'-';
   var weakTopics=Object.keys(p.weak).filter(function(k){return p.weak[k]>0;});
   document.getElementById('sq-stat-weak').textContent=weakTopics.length;
+  var rc=document.getElementById('sq-resume-card');
+  if(rc){
+    var c=p.cur,cm=c&&SQLD_MODULES[c.m-1];
+    if(cm){
+      rc.style.display='';
+      var where=(c.phase==='quiz')?('확인 문제 '+((c.qi||0)+1)+'번'):'개념 학습';
+      document.getElementById('sq-resume-where').textContent=
+        c.m+'회차 · '+cm.title+' — '+where+'에서 멈췄습니다'+(c.d?' ('+c.d+' 저장)':'');
+    }else{rc.style.display='none';}
+  }
   var wc=document.getElementById('sq-weak-card');
   if(weakTopics.length){wc.style.display='';
     document.getElementById('sq-weak-chips').innerHTML=weakTopics.map(function(tp){return '<span class="sq-chip">'+sqldEsc(tp)+' ('+p.weak[tp]+')</span>';}).join('');
@@ -6214,6 +6324,8 @@ function sqldShowArea(id){
   ['sq-guard','sq-review-area','sq-learn-area','sq-quiz-area','sq-result-area'].forEach(function(a){
     var el=document.getElementById(a);if(el)el.style.display=(a===id)?'':'none';
   });
+  var btn=document.getElementById('sq-save-btn');   // 학습·확인문제 중에만 저장 버튼
+  if(btn)btn.style.display=(id==='sq-learn-area'||id==='sq-quiz-area')?'':'none';
 }
 function sqldSetPhase(label,color){
   var b=document.getElementById('sq-phase-badge');
@@ -6307,6 +6419,7 @@ function sqldEnterLearn(){
     yt+='<a href="'+sqldYt(q)+'" target="_blank" rel="noopener" class="sq-chip" style="background:#ede7f6;color:#4527a0;text-decoration:none">'+sqldEsc(q)+' 검색 ↗</a>';
   });
   document.getElementById('sq-yt-links').innerHTML=yt;
+  sqldMarkCur('learn');
 }
 function sqldToggleConcept(el){el.parentElement.classList.toggle('open');}
 
@@ -6333,6 +6446,7 @@ function sqldRenderQuestion(){
   document.getElementById('sq-choices').innerHTML=html;
   document.getElementById('sq-exp').style.display='none';
   document.getElementById('sq-next-btn').style.display='none';
+  sqldMarkCur('quiz');
 }
 function sqldAnswer(ci){
   if(sqState.answered)return;
@@ -6376,7 +6490,9 @@ function sqldFinish(){
   var today=new Date();
   var ds=today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+today.getDate()).slice(-2);
   p.done[sqState.m]={s:sqState.correct,t:mod.quiz.length,d:ds};
+  p.cur=null;              // 끝냈으니 이어서 할 자리는 지운다
   sqldSaveP(p);
+  sqldPushProgress();
   sqldShowArea('sq-result-area');
   sqldSetPhase('완료','#2e7d32');
   document.getElementById('sq-timer').textContent='끝';
