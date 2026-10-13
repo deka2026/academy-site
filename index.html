@@ -4241,7 +4241,8 @@ function exportActivityReport() {
   html += '.summary-table td{padding:7px 12px;border-bottom:1px solid #d4dce2;font-size:10pt}';
   html += '.grade-box{background:#f0f7f5;border-left:4px solid #1a6b5a;padding:12px 16px;margin:12px 0;font-size:12pt;font-weight:bold}';
   html += '.footer{margin-top:30px;padding-top:12px;border-top:1px solid #d4dce2;font-size:9pt;color:#5a7282}';
-  html += '</style></head><body>';
+  html += '</style><script src="/ai-dock.js" defer></script>
+</head><body>';
 
   html += '<h1>연대지능활동가 활동보고서</h1>';
   html += '<p class="meta">활동가: ' + escHtml(name) + ' | GitHub: ' + (myGh ? '@' + escHtml(myGh) : '(미연결)') + ' | 생성일: ' + today + '</p>';
