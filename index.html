@@ -1,4 +1,5 @@
 <meta charset="UTF-8">
+<script src="/ai-dock.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1b2a36">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1886,6 +1887,34 @@ var SB_URL = 'https://api.sakyowon.co.kr';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkwNTAzMzc1LCJleHAiOjE5NDgxODMzNzV9.G4ID46_hTmLW6Rh_K--SypPry6mH7_mNFL4NlT2YEZc';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
 var sbReady = false;
+// 2026-10-14 통합 로그인: 아카데미도 사교원 통합 계정으로. 허브 로그인 → Supabase 토큰 다리로 sb 재초기화(진도·RLS 보존).
+var academyToken = '';
+function initSbToken(tok) {
+  academyToken = tok || '';
+  sb = tok ? window.supabase.createClient(SB_URL, SB_KEY, { global: { headers: { Authorization: 'Bearer ' + tok } } })
+           : window.supabase.createClient(SB_URL, SB_KEY);
+}
+async function academyEnsureProfile(email, name) {
+  try { await sb.rpc('create_user_profile', { p_email: email, p_name: name || email }); } catch (e) {}
+}
+// 허브 세션이 있으면 그 계정으로 아카데미 로그인시킨다. 없으면 로컬 세션 정리.
+async function academyHubBoot() {
+  try {
+    var me = await fetch('/api/auth/me', { credentials: 'same-origin' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    if (!me || !me.ok || !me.user) { return; }
+    var u = me.user;
+    if (!u.email) { return; }   // 통합 계정에 이메일 미등록 — 아카데미는 로그인 전까지 손님
+    var tk = await fetch('/api/academy/sb-token', { credentials: 'same-origin' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    if (!tk || !tk.ok || !tk.access_token) { return; }
+    initSbToken(tk.access_token);
+    var role = (u.role === 'admin') ? 'admin' : 'user';
+    await academyEnsureProfile(u.email, u.name || u.email);
+    setSession({ email: u.email, name: u.name || u.email, role: role });
+    try { sbRefreshMyFeedbackIds(); } catch(e){}
+    try { if (typeof pycPullProgress === 'function') pycPullProgress(); } catch(e){}
+    try { if (typeof sqldPullProgress === 'function') sqldPullProgress(); } catch(e){}
+  } catch (e) { console.warn('[허브 로그인] 복원 실패:', e && e.message); }
+}
 
 // Supabase → localStorage 동기화 (페이지 로드 시)
 async function sbSync() {
@@ -2051,8 +2080,7 @@ async function sbSaveWikiContrib(contrib) {
   } catch (e) { console.warn('[Supabase] wiki_contrib 저장 실패:', e.message); }
 }
 
-// 페이지 로드 시 동기화 시작
-sbSync();
+// 페이지 로드 시 동기화는 허브 로그인 확인 뒤(academyHubBoot)에서 부른다
 
 // Supabase 세션 복원
 async function sbCheckAuth() {
@@ -2069,7 +2097,8 @@ async function sbCheckAuth() {
     }
   } catch (e) { console.warn('[Supabase] 세션 복원 실패:', e.message); }
 }
-sbCheckAuth().then(function() {
+academyHubBoot().then(function() {
+  sbSync();
   routePage();
 });
 
@@ -2432,33 +2461,22 @@ async function doLogin() {
   if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력하세요.'; return; }
 
   err.textContent = '로그인 중...';
-  var res = await sb.auth.signInWithPassword({ email: email, password: pw });
-
-  if (res.error) {
-    err.textContent = res.error.message === 'Invalid login credentials'
-      ? '이메일 또는 비밀번호가 올바르지 않습니다.' : res.error.message;
+  // 2026-10-14: 사교원 통합 계정(허브)으로 로그인한다.
+  var lr = await fetch('/api/auth/login', { method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: email, username: email, password: pw }) })
+    .then(function(r){ return r.json().then(function(j){ j._s=r.status; return j; }); }).catch(function(){ return {_s:0}; });
+  if (!lr.ok) {
+    err.textContent = lr._s===429 ? '로그인 시도가 너무 잦습니다. 잠시 뒤 다시 해주세요.'
+      : lr.error==='not_approved' ? '가입 승인 대기 중입니다.'
+      : '이메일 또는 비밀번호가 올바르지 않습니다.';
     return;
   }
-
-  var profile = await sb.from('profiles').select('role,name').eq('email', email).single();
-  var role = (profile.data && profile.data.role) || 'pending';
-  var name = (profile.data && profile.data.name) || email;
-
-  if (role === 'pending') {
-    // 관리자 승인 없이 이용: 프로필이 없거나 예전 신청(대기)이어도 교육생으로 들여보낸다
-    if (!profile.data) { try { await sb.rpc('create_user_profile', { p_email: email, p_name: name }); } catch (e) {} }
-    role = 'user';
-  }
-  if (role === 'suspended') {
-    err.textContent = '이용이 제한된 계정입니다. 관리자에게 문의하세요.';
-    await sb.auth.signOut();
+  await academyHubBoot();
+  if (!getSession()) {
+    err.textContent = '로그인은 됐지만 통합 계정에 이메일이 없습니다. sakyowon.co.kr 에서 이메일을 등록해 주세요.';
     return;
   }
-
-  setSession({ email: email, uid: (res.data && res.data.user ? res.data.user.id : undefined), name: name, role: role });
-  sbRefreshMyFeedbackIds();
-  if (typeof pycPullProgress === 'function') pycPullProgress();
-  if (typeof sqldPullProgress === 'function') sqldPullProgress();
+  sbSync();
   closeLoginModal();
   showApp();
 }
@@ -2466,7 +2484,8 @@ async function doLogin() {
 async function logout() {
   localStorage.setItem(MY_FB_KEY, '[]');
   try { sessionStorage.removeItem('academy_preview_role'); } catch(e) {}
-  await sb.auth.signOut();
+  try { await fetch('/api/auth/logout', { method:'POST', credentials:'same-origin' }); } catch(e) {}
+  initSbToken('');
   localStorage.removeItem(SESSION_KEY);
   showApp();
   go('home');
@@ -2482,9 +2501,12 @@ async function submitChangePassword() {
   if (!pw || pw.length < 6) { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
   if (pw !== confirmPw) { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
 
-  var res = await sb.auth.updateUser({ password: pw });
-  if (res.error) { errEl.textContent = '변경 실패: ' + res.error.message; return; }
-
+  // 2026-10-14: 비밀번호는 사교원 통합 계정에서 바꾼다.
+  var old = (document.getElementById('oldPwInput') && document.getElementById('oldPwInput').value) || '';
+  var res = await fetch('/api/auth/change-password', { method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({ old: old, "new": pw }) })
+    .then(function(r){ return r.json(); }).catch(function(){ return {ok:false}; });
+  if (!res.ok) { errEl.textContent = '변경 실패: 현재 비밀번호를 확인해 주세요. (sakyowon.co.kr 에서도 바꿀 수 있습니다)'; return; }
   okEl.textContent = '비밀번호가 변경되었습니다.';
   document.getElementById('newPwInput').value = '';
   document.getElementById('newPwConfirm').value = '';
@@ -4241,8 +4263,7 @@ function exportActivityReport() {
   html += '.summary-table td{padding:7px 12px;border-bottom:1px solid #d4dce2;font-size:10pt}';
   html += '.grade-box{background:#f0f7f5;border-left:4px solid #1a6b5a;padding:12px 16px;margin:12px 0;font-size:12pt;font-weight:bold}';
   html += '.footer{margin-top:30px;padding-top:12px;border-top:1px solid #d4dce2;font-size:9pt;color:#5a7282}';
-  html += '</style><script src="/ai-dock.js" defer></script>
-</head><body>';
+  html += '</style></head><body>';
 
   html += '<h1>연대지능활동가 활동보고서</h1>';
   html += '<p class="meta">활동가: ' + escHtml(name) + ' | GitHub: ' + (myGh ? '@' + escHtml(myGh) : '(미연결)') + ' | 생성일: ' + today + '</p>';
