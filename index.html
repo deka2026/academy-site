@@ -2540,79 +2540,11 @@ function savePwd() {
 }
 
 async function requestAccess() {
-  var name = document.getElementById('accessName').value.trim();
-  var region = document.getElementById('accessRegion').value.trim();
-  var phone = document.getElementById('accessPhone').value.trim();
-  var email = document.getElementById('accessEmail').value.trim().toLowerCase();
-  var pw = document.getElementById('accessPw').value;
-  var site = document.getElementById('accessSite').value.trim();
-
-  if (!name || !region || !phone || !email) {
-    alert('이름, 활동지역, 전화번호, 이메일은 필수 입력 항목입니다.');
-    return;
-  }
-  if (!pw || pw.length < 6) {
-    alert('비밀번호는 6자 이상 입력해주세요.');
-    return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert('올바른 이메일 형식을 입력해주세요.');
-    return;
-  }
-  if (!/^\d{2,4}-?\d{3,4}-?\d{4}$/.test(phone.replace(/\s/g,''))) {
-    alert('올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)');
-    return;
-  }
-
+  // 2026-10-14: 교육 신청 = 사교원 통합 계정 회원가입으로 일원화. 통합 가입 화면으로 보낸다.
+  // (가입 즉시 이용 가능 · 같은 이메일로 사교원 모든 사이트 로그인)
   var s = document.getElementById('accessStatus');
-  s.className = ''; s.innerHTML = '<p style="color:var(--sub)">계정 생성 중...</p>';
-
-  // 중복 확인 (RPC 사용)
-  var dupCheck = await sb.rpc('check_application_duplicate', { p_email: email });
-  if (dupCheck.error) {
-    s.className = 'access-status'; s.innerHTML = '<span style="color:var(--danger)">오류: ' + escHtml(dupCheck.error.message || '알 수 없는 오류') + '</span>';
-    return;
-  }
-  if (dupCheck.data === 'registered') {
-    s.className = 'access-status'; s.innerHTML = '<span style="color:var(--danger)">이미 등록된 이메일입니다. 로그인해주세요.</span>';
-    return;
-  }
-
-  // Supabase Auth 계정 생성 (이미 있으면 이어서 진행)
-  var signUpRes = await sb.auth.signUp({ email: email, password: pw });
-  var alreadyExists = false;
-  if (signUpRes.error) {
-    var m = signUpRes.error.message || '';
-    if (/already registered|already been registered|already exists|User already/i.test(m)) {
-      alreadyExists = true; // 이전 시도로 계정만 생긴 경우 → 프로필 생성 단계로 진행
-    } else {
-      s.className = 'access-status';
-      s.innerHTML = '<span style="color:var(--danger)">계정 생성 실패: ' + escHtml(m) + '</span>';
-      return;
-    }
-  }
-
-  // applications 테이블에 신청 기록 (관리자 이력 + 상세정보 보관 · anon 쓰기 허용됨)
-  var appRes = await sb.from('applications').insert({
-    email: email, name: name, region: region, phone: phone, site: site || null
-  });
-  // 재신청 등으로 실패해도 치명적이지 않으므로 계속 진행 (오류는 콘솔에만)
-  if (appRes && appRes.error) { console.warn('[applications] 기록 실패:', appRes.error.message); }
-
-  // profiles 테이블에 교육생 프로필 생성 — RLS 우회를 위해 RPC(SECURITY DEFINER) 사용
-  var profRes = await sb.rpc('create_user_profile', { p_email: email, p_name: name });
-  if (profRes.error) {
-    s.className = 'access-status';
-    s.innerHTML = '<span style="color:var(--danger)">프로필 저장 실패: ' + escHtml(profRes.error.message)
-      + '<br>관리자에게 문의하세요. (create_user_profile RPC 미설치 시 발생)</span>';
-    return;
-  }
-
-  // 자동 로그인 (로컬 세션)
-  setSession({ email: email, name: name, role: 'user' });
-  s.className = 'access-status';
-  s.innerHTML = '<strong style="color:var(--success)">가입 완료! 자동 로그인됩니다...</strong>';
-  setTimeout(function() { showApp(); }, 1000);
+  if (s) { s.className=''; s.innerHTML = '<p style="color:var(--sub)">사교원 통합 회원가입 화면으로 이동합니다…</p>'; }
+  location.href = 'https://sakyowon.co.kr/#signup';
 }
 
 var _pendingApps = [];
