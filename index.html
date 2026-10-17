@@ -85,6 +85,15 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 .pq-run-out{background:#1e1e1e;color:#e8e8e8;border-radius:8px;padding:12px 14px;margin-top:10px;font-size:13px;line-height:1.65;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;min-height:46px;max-height:360px;overflow:auto}
 .pq-run-out .e{color:#ff8a80}
 .pq-run-out .s{color:#9e9e9e}
+.pq-run-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;margin-top:6px}
+.pq-run-col{display:flex;flex-direction:column;min-width:0}
+.pq-run-lbl{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:5px;letter-spacing:.02em}
+.pq-run-lbl .k{font-weight:400;margin-left:6px}
+.pq-run-grid .pq-run-ta{min-height:220px;flex:1}
+.pq-run-grid #pq-run-stdin{min-height:60px;flex:0 0 auto}
+.pq-run-grid .pq-run-out{margin-top:0;flex:1;min-height:220px;max-height:560px}
+.pq-run-grid .pq-run-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+@media(max-width:768px){.pq-run-grid{grid-template-columns:1fr}.pq-run-grid .pq-run-ta{min-height:140px}.pq-run-grid .pq-run-out{min-height:120px;max-height:300px}}
 .pq-run-run{position:absolute;top:8px;right:68px;background:#2e7d32;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
 .pq-colab-step{display:flex;gap:10px;margin-bottom:10px}
 .pq-colab-no{flex:0 0 24px;height:24px;border-radius:12px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
@@ -1682,20 +1691,27 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 
     <div class="card" id="pq-run-card" style="border-left:4px solid #2e7d32">
       <h3 style="font-size:15px;margin-bottom:4px">&#9654; 여기서 바로 해보기</h3>
-      <p style="font-size:13px;color:var(--sub);margin-bottom:10px">설치할 것이 없습니다. 아래 칸에 코드를 쓰거나 붙여넣고 <strong>실행</strong>을 누르면 결과가 바로 아래에 나옵니다. 위 개념 카드의 코드 상자에 있는 <strong>[여기서 실행]</strong> 을 눌러도 이 칸으로 들어옵니다.</p>
-      <textarea id="pq-run-code" class="pq-run-ta" spellcheck="false" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();pycRun();}" placeholder="print('안녕하세요')"></textarea>
-      <div id="pq-run-stdin-wrap" style="display:none;margin-top:8px">
-        <p style="font-size:12.5px;color:var(--sub);margin-bottom:4px"><code>input()</code> 이 받을 값을 <strong>한 줄에 하나씩</strong> 미리 적어 두세요. 실행하면 위에서부터 차례로 들어갑니다.</p>
-        <textarea id="pq-run-stdin" class="pq-run-ta" style="min-height:60px" spellcheck="false" placeholder="홍길동&#10;7"></textarea>
+      <p style="font-size:13px;color:var(--sub);margin-bottom:10px">설치할 것이 없습니다. <strong>왼쪽</strong> 칸에 코드를 쓰거나 붙여넣고 <strong>실행</strong>을 누르면 <strong>오른쪽</strong> 칸에 결과가 나와 코드와 출력값을 나란히 견줘 볼 수 있습니다. 위 개념 카드의 코드 상자에 있는 <strong>[여기서 실행]</strong> 을 눌러도 이 칸으로 들어옵니다.</p>
+      <div class="pq-run-grid">
+        <div class="pq-run-col">
+          <div class="pq-run-lbl">&#128221; 코드<span class="k">(Ctrl+Enter 로도 실행)</span></div>
+          <textarea id="pq-run-code" class="pq-run-ta" spellcheck="false" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();pycRun();}" placeholder="print('안녕하세요')"></textarea>
+          <div id="pq-run-stdin-wrap" style="display:none;margin-top:8px">
+            <p style="font-size:12.5px;color:var(--sub);margin-bottom:4px"><code>input()</code> 이 받을 값을 <strong>한 줄에 하나씩</strong> 미리 적어 두세요. 실행하면 위에서부터 차례로 들어갑니다.</p>
+            <textarea id="pq-run-stdin" class="pq-run-ta" spellcheck="false" placeholder="홍길동&#10;7"></textarea>
+          </div>
+          <div class="pq-run-acts">
+            <button id="pq-run-go" class="pq-run-btn go" onclick="pycRun()">&#9654; 실행</button>
+            <button id="pq-run-stop" class="pq-run-btn stop" onclick="pycRunStop()" style="display:none">&#9632; 중지</button>
+            <button class="pq-run-btn sub" onclick="pycRunToggleStdin()" id="pq-run-stdin-btn">입력값 넣기</button>
+            <button class="pq-run-btn sub" onclick="pycRunClear()">비우기</button>
+          </div>
+        </div>
+        <div class="pq-run-col">
+          <div class="pq-run-lbl">&#128203; 출력값</div>
+          <div id="pq-run-out" class="pq-run-out"><span class="s">실행하면 여기에 결과가 나옵니다.</span></div>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
-        <button id="pq-run-go" class="pq-run-btn go" onclick="pycRun()">&#9654; 실행</button>
-        <button id="pq-run-stop" class="pq-run-btn stop" onclick="pycRunStop()" style="display:none">&#9632; 중지</button>
-        <button class="pq-run-btn sub" onclick="pycRunToggleStdin()" id="pq-run-stdin-btn">입력값 넣기</button>
-        <button class="pq-run-btn sub" onclick="pycRunClear()">비우기</button>
-        <span style="font-size:12px;color:var(--sub)">Ctrl+Enter 로도 실행됩니다</span>
-      </div>
-      <div id="pq-run-out" class="pq-run-out"><span class="s">실행하면 여기에 결과가 나옵니다.</span></div>
       <p style="font-size:12px;color:var(--sub);margin-top:8px">맨 처음 실행할 때만 파이썬을 내려받느라 <strong>10~20초</strong> 걸립니다(약 10MB). 그다음부터는 바로 돕니다. 이 칸은 연습용이라 파일 올리기·인터넷 접속은 안 됩니다 — 그런 작업은 과정 홈의 <strong>Colab 안내</strong>를 보세요.</p>
     </div>
 
