@@ -210,6 +210,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 .dm-field{display:grid;grid-template-columns:200px 1fr;gap:10px;align-items:start;font-size:13px;font-weight:700}
 .dm-field textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;font-weight:400;resize:vertical}
 @media(max-width:768px){.dm-field{grid-template-columns:1fr;gap:4px}.dm-flow b{display:block}}
+/* 팀러닝 끼움 화면 (2026-10-23) */
+.tl-frame{display:block;width:100%;min-height:640px;border:1px solid var(--border);border-radius:12px;background:#fff}
 /* 작업대·홈 화상회의 (2026-10-23) */
 .dm-field input,.dm-field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;font-weight:400}
 .wb-empty{padding:24px;text-align:center;color:var(--sub);background:var(--card);border:1px dashed var(--border);border-radius:12px}
@@ -514,20 +516,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">공지사항</h3>
   <div id="homeNotices" style="margin-bottom:20px"></div>
 
-  <h3 id="homeMeet" style="font-size:15px;font-weight:700;margin:20px 0 10px">화상회의</h3>
-  <div class="meet-box">
-    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육과 그룹 모임은 사교원 화상회의(meet.sakyowon.co.kr)에서 해요. 방을 고르고 이름을 적은 뒤 <b>여기서 들어가기</b>를 누르세요. 회의는 강사가 열면 시작되고, 나머지 분은 따로 가입하지 않아도 돼요. 카메라·마이크 허용을 물으면 <b>허용</b>을 누르세요.</p>
-    <div class="meet-ctl">
-      <select id="meetRoom" onchange="academyMeetRoomChange()"></select>
-      <input id="meetCustom" placeholder="방 이름(영문·숫자, 예: team-a)" style="display:none">
-      <input id="meetName" placeholder="화면에 보일 내 이름">
-      <button class="learn-btn next" onclick="academyMeetStart()">여기서 들어가기</button>
-      <button class="learn-btn prev" onclick="academyMeetOpenTab()">새 창으로 열기</button>
-      <button class="learn-btn prev" id="meetLeaveBtn" onclick="academyMeetLeave()" style="display:none">나가기</button>
-    </div>
-    <div id="meetMsg" class="wb-sub" style="margin-top:6px"></div>
-    <div id="meetFrame" style="display:none"></div>
-  </div>
+  <div class="highlight-box" style="margin:20px 0">&#127909; <b>화상회의</b>는 왼쪽 메뉴 <a href="javascript:void(0)" onclick="go('meeting',null)" style="color:var(--accent);font-weight:700">화상회의</a>에서 들어가요. 교육·그룹 모임·팀러닝 모임 모두 같은 곳이에요.</div>
 
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">AI 대화</h3>
   <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육 과정이나 연대지능 활동에 대해 질문하세요. 답이 오기까지 몇 초 걸립니다.</p>
@@ -941,7 +930,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <tr><td>내 AI 조수</td><td>내 PC의 하네스(가 과정에서 설치)</td><td>내가 말로 시키면 작업대의 코드를 고쳐요</td></tr>
       <tr><td>작업대</td><td>사교원 서버</td><td>자료 폴더&middot;자료 목록&middot;색인&middot;프롬프트 틀&middot;도구&middot;시험 창&middot;검수 기록&middot;공개 스위치&middot;변경 기록</td></tr>
     </table></div>
-    <div class="highlight-box"><b>&#128736; 작업대가 열렸어요.</b> 왼쪽 메뉴 <a href="javascript:void(0)" onclick="go('domain-bench',null)" style="color:var(--accent);font-weight:700">작업대</a>에서 그룹을 만들거나 참여 신청을 하고, 관리자가 승인하면 작업대가 생겨요. 내 하네스는 작업대의 <b>하네스 연결</b> 탭에서 받은 열쇠로 붙어요. 화상회의는 <a href="javascript:void(0)" onclick="academyMeetJoin('sakyowon-academy-class')" style="color:var(--accent);font-weight:700">홈 화면</a>에서 들어가요.</div>
+    <div class="highlight-box"><b>&#128736; 작업대가 열렸어요.</b> 왼쪽 메뉴 <a href="javascript:void(0)" onclick="go('domain-bench',null)" style="color:var(--accent);font-weight:700">작업대</a>에서 그룹을 만들거나 참여 신청을 하고, 관리자가 승인하면 작업대가 생겨요. 내 하네스는 작업대의 <b>하네스 연결</b> 탭에서 받은 열쇠로 붙어요. 화상회의는 왼쪽 메뉴 <a href="javascript:void(0)" onclick="academyMeetJoin('sakyowon-academy-class')" style="color:var(--accent);font-weight:700">화상회의</a>에서 들어가요.</div>
     <p style="font-size:13px;margin-top:6px"><b>화면 배치</b> &mdash; 왼쪽 화상회의, 오른쪽 위 하네스 대화창, 오른쪽 아래 이 사이트(회차 카드&middot;시험 창). 강사가 「이렇게 시켜 보세요」 하면 오른쪽 위에 한국어로 적고 오른쪽 아래에서 결과를 봐요.</p>
   </div>
 
@@ -1701,6 +1690,48 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 .sq-timer-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:16px;background:#ede7f6;color:#4527a0;font-size:13px;font-weight:800}
 .sq-phase-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;color:#fff;background:var(--accent)}
 </style>
+
+<!-- ===== 팀러닝 (2026-10-23 팀러닝 사이트 통합 — 본문은 teamlearning/*.html) ===== -->
+<div id="tl-home" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">팀러닝</h2>
+  <p style="font-size:13px;color:var(--sub);margin-bottom:12px">사회혁신교육원이 팀러닝 전 과정을 자문·컨설팅으로 동행합니다. 팀을 등록하면 우리 팀 전용 링크가 생겨요.</p>
+  <iframe class="tl-frame" id="tl-home-frame" title="팀러닝" allow="clipboard-write" loading="lazy"></iframe>
+</div>
+
+<div id="tl-team" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">팀러닝 · 우리 팀 공간</h2>
+  <p style="font-size:13px;color:var(--sub);margin-bottom:12px">질문·계획안·자료조사·최종 보고를 팀 전용 링크 하나로 주고받아요. 링크로 들어오면 이 브라우저가 기억합니다.</p>
+  <iframe class="tl-frame" id="tl-team-frame" title="팀러닝 · 우리 팀 공간" allow="clipboard-write" loading="lazy"></iframe>
+</div>
+
+<div id="tl-report" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">팀러닝 · 최종 보고</h2>
+  <p style="font-size:13px;color:var(--sub);margin-bottom:12px">팀러닝이 끝나면 전 과정을 종합요약한 보고페이지가 여기에 발행돼요.</p>
+  <iframe class="tl-frame" id="tl-report-frame" title="팀러닝 · 최종 보고" allow="clipboard-write" loading="lazy"></iframe>
+</div>
+
+<div id="tl-admin" class="page">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">팀러닝 관리</h2>
+  <p style="font-size:13px;color:var(--sub);margin-bottom:12px">팀·질문·계획안·자료조사·문자 알림·최종 보고를 관리합니다. 아카데미 관리자 계정으로 열려요.</p>
+  <iframe class="tl-frame" id="tl-admin-frame" title="팀러닝 관리" allow="clipboard-write" loading="lazy"></iframe>
+</div>
+
+<div id="meeting" class="page">
+  <h2 id="meetTop" style="font-size:20px;font-weight:800;margin-bottom:12px">화상회의</h2>
+  <div class="meet-box">
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육과 그룹 모임은 사교원 화상회의(meet.sakyowon.co.kr)에서 해요. 방을 고르고 이름을 적은 뒤 <b>여기서 들어가기</b>를 누르세요. 회의는 강사가 열면 시작되고, 나머지 분은 따로 가입하지 않아도 돼요. 카메라·마이크 허용을 물으면 <b>허용</b>을 누르세요.</p>
+    <div class="meet-ctl">
+      <select id="meetRoom" onchange="academyMeetRoomChange()"></select>
+      <input id="meetCustom" placeholder="방 이름(영문·숫자, 예: team-a)" style="display:none">
+      <input id="meetName" placeholder="화면에 보일 내 이름">
+      <button class="learn-btn next" onclick="academyMeetStart()">여기서 들어가기</button>
+      <button class="learn-btn prev" onclick="academyMeetOpenTab()">새 창으로 열기</button>
+      <button class="learn-btn prev" id="meetLeaveBtn" onclick="academyMeetLeave()" style="display:none">나가기</button>
+    </div>
+    <div id="meetMsg" class="wb-sub" style="margin-top:6px"></div>
+    <div id="meetFrame" style="display:none"></div>
+  </div>
+</div>
 
 <div id="cert-sqld" class="page">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">SQLD (SQL 개발자) 자격증 과정</h2>
@@ -2468,7 +2499,9 @@ function showInvite() {
 // 2026-07-03 이사장 요청 "이용자들의 의견이나 활동내용을 한눈에 볼 수 있는 게시판" —
 // 로그인해야만 볼 수 있으면 밖에서는 아무것도 안 보였다.
 // 쓰기(등록·공감·댓글·삭제)는 전부 기존 로그인 확인이 그대로 막는다.
-var GUEST_PAGES = ['home', 'feedback-board'];
+var GUEST_PAGES = ['home', 'feedback-board', 'tl-home', 'tl-team', 'tl-report', 'meeting'];
+// 2026-10-23 자격증 메뉴 삭제 — 화면 코드는 남아 있지만 열지도 찾지도 않는다(되살리려면 이 줄과 SIDEBAR_MENUS 를 되돌린다)
+var RETIRED_PAGES = ['cert-sqld', 'cert-sqld-learn', 'cert-python', 'cert-python-learn'];
 
 // ===== 사이드 메뉴 (역할별) =====
 // roles: 그 역할에게 보이는 섹션 / lockedFor: 잠금 표시로 보여줄 역할(클릭하면 로그인 안내)
@@ -2476,7 +2509,8 @@ var SIDEBAR_MENUS = [
   {title:'관리자', admin:true, roles:['admin'], items:[
     ['admin-dashboard','품질 리뷰 대시보드'],
     ['access-admin','교육생 관리'],
-    ['schedule-notice','교육일정 · 공지사항']
+    ['schedule-notice','교육일정 · 공지사항'],
+    ['tl-admin','팀러닝 관리']
   ]},
   {title:'홈', roles:['guest','user','admin'], items:[
     ['home','홈',true],
@@ -2494,9 +2528,14 @@ var SIDEBAR_MENUS = [
     ['domain-bench','작업대',true],
     ['domain-design','설계서 쓰기']
   ]},
-  {title:'자격증아카데미', roles:['guest','user','admin'], items:[
-    ['cert-sqld','SQLD (SQL 개발자)',true],
-    ['cert-python','파이썬 기초 (10일)',true]
+  // 2026-10-23: 팀러닝 사이트를 아카데미 안으로 통합(teamlearning/ 폴더, 팀 전용 링크 ?t= 그대로). 손님도 연다.
+  {title:'팀러닝', roles:['guest','user','admin'], items:[
+    ['tl-home','팀러닝 소개 · 팀 등록',true],
+    ['tl-team','우리 팀 공간',true],
+    ['tl-report','최종 보고']
+  ]},
+  {title:'화상회의', roles:['guest','user','admin'], items:[
+    ['meeting','화상회의',true]
   ]},
   {title:'연대지능', roles:['guest','user','admin'], items:[
     ['solidarity-unified','연대지능 학습 가이드',true],
@@ -2583,6 +2622,7 @@ function buildSearchIndex() {
   var pages = document.querySelectorAll('.page');
   for (var i = 0; i < pages.length; i++) {
     var el = pages[i];
+    if (RETIRED_PAGES.indexOf(el.id) !== -1) continue;
     var h2 = el.querySelector('h2');
     var 제목 = h2 ? h2.textContent.trim() : el.id;
     var 본문 = (el.textContent || '').replace(/\s+/g, ' ').trim();
@@ -2612,7 +2652,8 @@ function buildSearchIndex() {
 // go() 와 같은 기준으로 열 수 있는 화면인지 본다
 function canOpenPage(id) {
   var role = currentRole();
-  if (['access-admin', 'schedule-notice', 'admin-dashboard'].indexOf(id) !== -1) return role === 'admin';
+  if (RETIRED_PAGES.indexOf(id) !== -1) return false;
+  if (['access-admin', 'schedule-notice', 'admin-dashboard', 'tl-admin'].indexOf(id) !== -1) return role === 'admin';
   if (role === 'guest') return GUEST_PAGES.indexOf(id) !== -1;
   return true;
 }
@@ -4285,7 +4326,7 @@ function academyMeetOpenTab() {
   window.open(MEET_BASE + '/' + encodeURIComponent(room), '_blank', 'noopener');
 }
 function academyMeetJoin(room) {
-  go('home', null);
+  go('meeting', null);
   academyMeetRender();
   var sel = document.getElementById('meetRoom');
   if (sel) {
@@ -4293,14 +4334,43 @@ function academyMeetJoin(room) {
     sel.value = room;
   }
   academyMeetRoomChange();
-  var sec = document.getElementById('homeMeet');
+  var sec = document.getElementById('meetTop');
   if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: 'start' });
 }
 
+// ===== 팀러닝 끼움 화면 (2026-10-23) =====
+// 팀 전용 링크는 /academy-site/?t=<코드>#tl-team. 들어오면 이 브라우저에 기억해 두고 메뉴로 다시 열 때 쓴다.
+var TL_PAGES = { 'tl-home': 'index.html', 'tl-team': 'team.html', 'tl-report': 'report.html', 'tl-admin': 'admin.html' };
+function tlToken() {
+  var t = '';
+  try { t = new URLSearchParams(location.search).get('t') || ''; } catch (e) {}
+  if (t) { try { localStorage.setItem('tl_token', t); } catch (e) {} return t; }
+  try { return localStorage.getItem('tl_token') || ''; } catch (e) { return ''; }
+}
+function tlSetToken(t) {
+  try { localStorage.setItem('tl_token', t); } catch (e) {}
+  ['tl-team', 'tl-report'].forEach(function(id) { var f = document.getElementById(id + '-frame'); if (f) f.removeAttribute('data-k'); });
+  tlOnShow('tl-team');
+}
+function tlOnShow(id) {
+  var f = document.getElementById(id + '-frame');
+  if (!f || !TL_PAGES[id]) return;
+  var tok = (id === 'tl-team' || id === 'tl-report') ? tlToken() : '';
+  var src = 'teamlearning/' + TL_PAGES[id] + (tok ? '?t=' + encodeURIComponent(tok) : '');
+  // 관리 화면은 열 때마다 새로(관리자 판정·최신 자료), 나머지는 주소가 바뀔 때만
+  if (id === 'tl-admin' || f.getAttribute('data-k') !== src) { f.setAttribute('data-k', src); f.src = src; }
+}
+window.addEventListener('message', function(e) {
+  if (e.origin !== location.origin || !e.data || !e.data.tlFrame) return;
+  var f = document.getElementById(e.data.tlFrame + '-frame');
+  if (f && e.data.h) f.style.height = Math.max(640, Math.ceil(e.data.h) + 24) + 'px';
+});
+
 function go(id, link) {
   closeSidebar();
-  var adminPages = ['access-admin','schedule-notice','admin-dashboard'];
+  var adminPages = ['access-admin','schedule-notice','admin-dashboard','tl-admin'];
   var role = currentRole();
+  if (RETIRED_PAGES.indexOf(id) !== -1) id = 'home';
   if (adminPages.indexOf(id) !== -1 && role !== 'admin') {
     alert('관리자만 접근할 수 있는 페이지입니다.');
     return;
@@ -4346,7 +4416,8 @@ function go(id, link) {
   if (id === 'domain-practice') renderDomainPractice();
   if (id === 'domain-design') loadDomainDesign();
   if (id === 'domain-bench') renderWorkbench();
-  if (id === 'home') academyMeetRender();
+  if (id === 'meeting') academyMeetRender();
+  if (id.indexOf('tl-') === 0) tlOnShow(id);
   if (id === 'cert-sqld' && window.renderSqldHome) renderSqldHome();
   if (id !== 'cert-sqld-learn' && window.sqldClearTimer) sqldClearTimer();
   if (id === 'cert-python' && window.renderPycHome) renderPycHome();
@@ -5191,7 +5262,7 @@ function sendSolidChat() {
 // CHAT
 var KB = [
   {k:['안녕','반가','하이','hello','hi'], r:[
-    '안녕하세요! 무엇이 궁금하신가요? 실습 과정, 연대지능 학습, 위키 기여, SQLD·파이썬 자격증아카데미 과정 등 편하게 질문해주세요.',
+    '안녕하세요! 무엇이 궁금하신가요? 실습 과정, 도메인AI구축하기, 팀러닝, 화상회의, 연대지능 학습, 위키 기여 등 편하게 질문해주세요.',
     '반갑습니다! 아카데미에서 도움이 필요한 부분이 있으면 말씀해주세요.',
     '안녕하세요! 바이브 코딩, 위키 작성, 데이터 주권, 자격증 공부 등 어떤 주제든 물어보세요.'
   ]},
@@ -5209,11 +5280,11 @@ var KB = [
   {k:['유료','요금','구독','pro 요금','무료 계정','결제','계정이 필요'], r:[
     '이 과정은 클로드 유료 계정(Pro 이상)이 필요합니다. 5단계부터 쓰는 Claude Code는 무료 계정으로는 쓸 수 없고, 무료 계정은 대화 한도도 금방 찹니다.\n\nclaude.ai에서 가입한 뒤 Pro 요금제로 시작하고, 필요해지면 Max로 올리면 됩니다. 결제 정보는 본인이 직접 입력하세요. 자세한 안내는 "학습개요" 맨 위에 있습니다.'
   ]},
-  {k:['파이썬','파이선','파이션','python','코딩','프로그래밍'], r:[
-    '자격증아카데미의 「파이썬 기초 (10일)」 과정은 프로그래밍을 처음 하는 분을 위한 과정입니다.\n\n• 하루 30분 × 10일: 개념 카드 15분 → 실습 10분(구글 Colab 에서 직접 실행) → 확인 문제 10문항 5분\n• 1~3일 기초 문법, 4~5일 조건·반복, 6~7일 리스트·딕셔너리, 8~10일 함수·모듈·파일·클래스\n• 틀린 주제는 약점으로 기록되어 다음 날 5분 보완 학습으로 다시 나옵니다\n\n왼쪽 메뉴 자격증아카데미 → "파이썬 기초 (10일)"에서 시작하세요.'
+  {k:['팀러닝','팀 러닝','팀 등록','팀 공간','전용 링크','팀링크'], r:[
+    '팀러닝은 왼쪽 메뉴 「팀러닝」에서 해요.\n\n• 팀러닝 소개 · 팀 등록: 팀명과 주제를 적으면 우리 팀 전용 링크가 생겨요\n• 우리 팀 공간: 그 링크 하나로 질문·계획안·자료조사를 보내고 답변을 봐요\n• 최종 보고: 팀러닝이 끝나면 종합요약 보고페이지가 발행돼요\n\n링크를 잃어버렸으면 사회혁신교육원에 문의해 주세요.'
   ]},
-  {k:['sqld','자격증','sql','데이터베이스 자격','시험'], r:[
-    '자격증아카데미의 첫 과정은 SQLD(SQL 개발자)입니다.\n\n• 20회차 × 하루 10분: 1~6회차 1과목(데이터 모델링의 이해), 7~20회차 2과목(SQL 기본 및 활용)\n• 한 회차 = 개념 카드 4장 + 확인 문제 6~8문항. 틀린 주제는 약점으로 기록되고 다음 회차 시작 때 5분 보완 학습이 먼저 나옵니다\n• 시험은 객관식 50문항 90분, 60점 합격, 과목별 40% 미만 과락\n\n왼쪽 메뉴 "SQLD (SQL 개발자)"에서 시작하세요. 접수·일정은 데이터자격검정(dataq.or.kr)에서 확인합니다.'
+  {k:['화상회의','회의','줌','zoom','영상회의','meet'], r:[
+    '화상회의는 왼쪽 메뉴 「화상회의」에서 들어가요. 방을 고르고 이름을 적은 뒤 「여기서 들어가기」를 누르면 돼요. 따로 가입하지 않아도 되고, 카메라·마이크 허용을 물으면 허용을 누르세요.'
   ]},
   {k:['연대지능','학습 가이드','7단계'], r:[
     '연대지능 학습 가이드는 7단계입니다. 1~5단계는 개념(연대지능이란, 활동가의 4가지 역할, 데이터 주권, 우리 분야 전문 AI, 위키 작성법과 지식 분류), 6~7단계는 실습(첫 위키 문서 작성, 연대지능 위키에 PR로 기여).\n\n단계마다 프롬프트를 복사해 내 클로드에 붙여넣으면 클로드가 쉽게 설명하고 확인 질문을 해줍니다. 왼쪽 메뉴 "연대지능 학습 가이드"에서 시작하세요.'
@@ -5297,7 +5368,7 @@ var KB = [
 var fallbacks = [
   '죄송합니다, 해당 내용은 아직 준비 중입니다. 교육 과정, 위키 기여, 도구 설치, 데이터 주권 등에 대해 질문해보세요.',
   '조금 더 구체적으로 질문해주시면 도움드릴 수 있습니다. 예를 들어 "Git이 뭐야?", "위키에 어떻게 기여해?", "처음에 뭐부터 하면 돼?" 등으로 물어보세요.',
-  '다음 주제에 대해 답변할 수 있습니다:\n• 실습시작 15단계 · 연대지능 학습 가이드 7단계 · SQLD 자격증 20회차\n• 도구 설치 (Node.js, Git, VSCode, Obsidian, Claude Code)\n• 위키 기여 (내 공간에 복사, 반영 요청, 검토)\n• 데이터 주권, 지식 분류, 우리 분야 전문 AI\n• 기여도 평가\n\n궁금한 주제를 말씀해주세요!'
+  '다음 주제에 대해 답변할 수 있습니다:\n• 실습시작 15단계 · 도메인AI구축하기 10회차 · 연대지능 학습 가이드 7단계 · 팀러닝 · 화상회의\n• 도구 설치 (Node.js, Git, VSCode, Obsidian, Claude Code)\n• 위키 기여 (내 공간에 복사, 반영 요청, 검토)\n• 데이터 주권, 지식 분류, 우리 분야 전문 AI\n• 기여도 평가\n\n궁금한 주제를 말씀해주세요!'
 ];
 var fbIdx = 0;
 
