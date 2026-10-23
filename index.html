@@ -210,6 +210,45 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 .dm-field{display:grid;grid-template-columns:200px 1fr;gap:10px;align-items:start;font-size:13px;font-weight:700}
 .dm-field textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;font-weight:400;resize:vertical}
 @media(max-width:768px){.dm-field{grid-template-columns:1fr;gap:4px}.dm-flow b{display:block}}
+/* 작업대·홈 화상회의 (2026-10-23) */
+.dm-field input,.dm-field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;font-weight:400}
+.wb-empty{padding:24px;text-align:center;color:var(--sub);background:var(--card);border:1px dashed var(--border);border-radius:12px}
+.wb-sub{font-size:12.5px;color:var(--sub)}
+.wb-msg{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;font-size:13px;margin:8px 0}
+.wb-msg.bad{background:#fef2f2;border-color:#fecaca}
+.wb-tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:var(--border);color:var(--sub);margin-left:2px}
+.wb-tag.warn{background:#fff7e6;color:#b45309}
+.wb-tag.ok{background:#dcfce7;color:#15803d}
+.wb-gcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:8px 0}
+.wb-ghead{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.wb-blist{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wb-blist small{font-weight:400;opacity:.85}
+.wb-pend{margin-top:8px;font-size:13px}
+.wb-chip{display:inline-block;background:#fff7e6;border-radius:8px;padding:2px 8px;margin:2px}
+.wb-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.wb-row select{padding:6px;border:1px solid var(--border);border-radius:6px;font-family:inherit}
+.wb-admin{background:#fff7e6;border-radius:10px;padding:4px 12px}
+.wb-bhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:14px}
+.wb-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.wb-tabs button{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:6px 11px;font-family:inherit;font-size:13px;cursor:pointer;color:var(--text)}
+.wb-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.wb-ask{display:flex;gap:6px;margin:8px 0}
+.wb-ask input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
+.wb-answer{white-space:pre-wrap;background:var(--accent-light);border-radius:8px;padding:10px 12px;font-size:13.5px;margin:6px 0}
+.wb-answer.none{background:#f3f4f6}
+.wb-chunk{border-left:3px solid var(--border);padding:4px 10px;margin:6px 0;font-size:13px}
+.wb-pre{white-space:pre-wrap;word-break:break-word;background:#f8fafa;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:12px;max-height:320px;overflow:auto;margin:4px 0}
+.wb-route{border:1px solid var(--border);border-radius:10px;padding:10px;margin:8px 0}
+.wb-checks{display:flex;flex-wrap:wrap;gap:4px 12px;font-weight:400}
+.wb-pub{display:flex;gap:24px;flex-wrap:wrap;font-size:13px}
+.wb-pub button{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:7px 12px;margin:6px 6px 0 0;font-family:inherit;cursor:pointer}
+.wb-pub button.on{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.wb-pub button:disabled{opacity:.5;cursor:not-allowed}
+.meet-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:20px}
+.meet-ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.meet-ctl select,.meet-ctl input{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+#meetFrame{margin-top:10px;border-radius:10px;overflow:hidden;background:#111}
+#meetFrame iframe{display:block;border:0}
 
 
 /* STATS */
@@ -474,6 +513,21 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
 
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">공지사항</h3>
   <div id="homeNotices" style="margin-bottom:20px"></div>
+
+  <h3 id="homeMeet" style="font-size:15px;font-weight:700;margin:20px 0 10px">화상회의</h3>
+  <div class="meet-box">
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육과 그룹 모임은 사교원 화상회의(meet.sakyowon.co.kr)에서 해요. 방을 고르고 이름을 적은 뒤 <b>여기서 들어가기</b>를 누르세요. 회의는 강사가 열면 시작되고, 나머지 분은 따로 가입하지 않아도 돼요. 카메라·마이크 허용을 물으면 <b>허용</b>을 누르세요.</p>
+    <div class="meet-ctl">
+      <select id="meetRoom" onchange="academyMeetRoomChange()"></select>
+      <input id="meetCustom" placeholder="방 이름(영문·숫자, 예: team-a)" style="display:none">
+      <input id="meetName" placeholder="화면에 보일 내 이름">
+      <button class="learn-btn next" onclick="academyMeetStart()">여기서 들어가기</button>
+      <button class="learn-btn prev" onclick="academyMeetOpenTab()">새 창으로 열기</button>
+      <button class="learn-btn prev" id="meetLeaveBtn" onclick="academyMeetLeave()" style="display:none">나가기</button>
+    </div>
+    <div id="meetMsg" class="wb-sub" style="margin-top:6px"></div>
+    <div id="meetFrame" style="display:none"></div>
+  </div>
 
   <h3 style="font-size:15px;font-weight:700;margin:20px 0 10px">AI 대화</h3>
   <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육 과정이나 연대지능 활동에 대해 질문하세요. 답이 오기까지 몇 초 걸립니다.</p>
@@ -887,7 +941,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <tr><td>내 AI 조수</td><td>내 PC의 하네스(가 과정에서 설치)</td><td>내가 말로 시키면 작업대의 코드를 고쳐요</td></tr>
       <tr><td>작업대</td><td>사교원 서버</td><td>자료 폴더&middot;자료 목록&middot;색인&middot;프롬프트 틀&middot;도구&middot;시험 창&middot;검수 기록&middot;공개 스위치&middot;변경 기록</td></tr>
     </table></div>
-    <div class="highlight-box"><b>&#128679; 그룹 작업대는 사교원 서버에 준비 중이에요.</b> 열리기 전까지는 내 PC의 <code>Documents\domain-ai</code> 폴더를 작업대로 삼아 같은 순서로 연습할 수 있어요. 회차 실습의 프롬프트에 이 안내가 들어 있어, 내 AI 조수가 알아서 맞춰 줘요.</div>
+    <div class="highlight-box"><b>&#128736; 작업대가 열렸어요.</b> 왼쪽 메뉴 <a href="javascript:void(0)" onclick="go('domain-bench',null)" style="color:var(--accent);font-weight:700">작업대</a>에서 그룹을 만들거나 참여 신청을 하고, 관리자가 승인하면 작업대가 생겨요. 내 하네스는 작업대의 <b>하네스 연결</b> 탭에서 받은 열쇠로 붙어요. 화상회의는 <a href="javascript:void(0)" onclick="academyMeetJoin('sakyowon-academy-class')" style="color:var(--accent);font-weight:700">홈 화면</a>에서 들어가요.</div>
     <p style="font-size:13px;margin-top:6px"><b>화면 배치</b> &mdash; 왼쪽 화상회의, 오른쪽 위 하네스 대화창, 오른쪽 아래 이 사이트(회차 카드&middot;시험 창). 강사가 「이렇게 시켜 보세요」 하면 오른쪽 위에 한국어로 적고 오른쪽 아래에서 결과를 봐요.</p>
   </div>
 
@@ -1010,6 +1064,20 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var
       <button class="learn-btn copy" onclick="domainFiveCopy(this)">다섯 줄 프롬프트 복사</button>
     </div>
   </div>
+
+<div class="fb-inline">
+  <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
+  <textarea class="fb-inline-ta" placeholder="개선 의견, 오류, 제안 등 자유롭게 적어주세요..."></textarea></div>
+  <button onclick="submitInlineFeedback(this)">등록</button>
+</div>
+<div class="back-btn-wrap"><button class="back-btn" onclick="goBack()">&#8592; 이전 페이지</button></div>
+</div>
+
+<div id="domain-bench" class="page">
+  <div class="dm-crumb">교육과정 &rsaquo; 나. 도메인AI구축하기</div>
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">작업대</h2>
+  <p style="color:var(--sub);margin-bottom:12px">분야 그룹의 AI 에이전트를 세우는 사교원 서버 자리예요. 자료&middot;색인&middot;틀&middot;담당&middot;시험 창&middot;검수 기록&middot;공개 스위치가 여기 있고, 내 하네스(Claude Code)도 <b>하네스 연결</b> 탭의 열쇠로 같은 작업대에 붙어요. 엔진 열쇠는 작업대만 갖고 있어요.</p>
+  <div id="wbRoot"><div class="wb-empty">불러오는 중…</div></div>
 
 <div class="fb-inline">
   <div style="flex:1"><div class="fb-inline-label">이 페이지에 대한 의견이 있으신가요?</div>
@@ -2148,6 +2216,7 @@ function initSbToken(tok) {
 async function academyEnsureProfile(email, name) {
   try { await sb.rpc('create_user_profile', { p_email: email, p_name: name || email }); } catch (e) {}
 }
+window.addEventListener('load', function() { try { academyMeetRender(); } catch (e) {} });
 // 허브 세션이 있으면 그 계정으로 아카데미 로그인시킨다. 없으면 로컬 세션 정리.
 async function academyHubBoot() {
   try {
@@ -2422,6 +2491,7 @@ var SIDEBAR_MENUS = [
     ['#','나. 도메인AI구축하기'],
     ['domain-overview','과정 안내',true],
     ['domain-practice','회차 실습 (10회차)',true],
+    ['domain-bench','작업대',true],
     ['domain-design','설계서 쓰기']
   ]},
   {title:'자격증아카데미', roles:['guest','user','admin'], items:[
@@ -3316,7 +3386,7 @@ function domainSave(p) {
 
 function domainPromptText(s, mode, body) {
   return '나는 연대지능활동가 아카데미 「나. 도메인AI구축하기」 ' + s.no + '회차 「' + s.title + '」 실습 중이야(' + (mode === 'solo' ? '개인판' : '공동판') + ').\n' +
-    '작업대는 사교원 서버의 그룹 작업대야. 아직 연결 전이면 내 PC의 Documents\\domain-ai 폴더를 작업대로 써 줘(없으면 만들어 줘).\n' +
+    '작업대는 사교원 서버의 작업대야(아카데미 「작업대」 메뉴 → 하네스 연결 탭에서 받은 열쇠로 이미 붙여 두었어). 아직 열쇠로 붙이지 않았으면 내 PC의 Documents\\domain-ai 폴더를 작업대로 써 줘.\n' +
     '나는 코드를 모르니 한 번에 한 가지씩 하고, 끝날 때마다 무엇을 했는지 짧게 말해 줘.\n\n' + body;
 }
 
@@ -3574,6 +3644,659 @@ function domainFiveCopy(btn) {
   domainCopyText(t, btn);
 }
 
+/* ===== 작업대 (나. 도메인AI구축하기, 2026-10-23) =====
+   서버: /opt/sakyowon/server/workbench.py — /api/workbench/*. 세션 쿠키(허브 로그인)로 부른다.
+   하네스는 「하네스 연결」 탭에서 받은 wb_ 열쇠로 같은 API 를 부른다(wbHarnessPrompt). */
+var WB_API = '/api/workbench';
+var wbState = { me: null, bench: null, bid: null, tab: 'files', msg: '', asking: false, newToken: null };
+var WB_TABS = [
+  ['files', '자료'], ['index', '색인·찾기'], ['prompt', '틀·울타리'], ['routes', '담당 나누기'], ['test', '시험 창'],
+  ['review', '검수 기록'], ['publish', '공개·운영'], ['changes', '변경 기록'], ['harness', '하네스 연결']
+];
+
+async function wbApi(method, path, body, isForm) {
+  var opt = { method: method, credentials: 'same-origin', headers: {} };
+  if (body !== undefined && body !== null) {
+    if (isForm) opt.body = body;
+    else { opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+  }
+  try {
+    var r = await fetch(WB_API + path, opt);
+    var d = null;
+    try { d = await r.json(); } catch (e) { d = {}; }
+    return { status: r.status, data: d || {} };
+  } catch (e) {
+    return { status: 0, data: { ok: false, error: 'network', answer: '서버에 닿지 않았습니다. 잠시 뒤 다시 해 주세요.' } };
+  }
+}
+function wbErr(res) {
+  var d = res.data || {};
+  return d.answer || (d.error && d.error.length > 12 ? d.error : '') || ({401: '로그인이 필요합니다.', 403: '권한이 없습니다.', 404: '찾을 수 없습니다.', 409: '그 사이 다른 사람이 고쳤습니다. 새로 불러온 뒤 다시 해 주세요.', 429: '너무 잦습니다. 잠시 뒤 다시 해 주세요.'}[res.status]) || ('오류 ' + res.status + (d.error ? ' · ' + d.error : ''));
+}
+function wbSay(msg, bad) {
+  wbState.msg = msg ? '<div class="wb-msg' + (bad ? ' bad' : '') + '">' + escHtml(msg) + '</div>' : '';
+  var el = document.getElementById('wbMsg');
+  if (el) el.innerHTML = wbState.msg;
+}
+function wbModeKo(m) { return m === 'solo' ? '개인판' : '공동판'; }
+
+async function renderWorkbench() {
+  var root = document.getElementById('wbRoot');
+  if (!root) return;
+  var res = await wbApi('GET', '/me');
+  if (res.status === 401) {
+    root.innerHTML = '<div class="wb-empty">작업대는 로그인한 교육생이 씁니다. 오른쪽 위에서 로그인해 주세요.</div>';
+    return;
+  }
+  if (!res.data.ok) { root.innerHTML = '<div class="wb-empty">' + escHtml(wbErr(res)) + '</div>'; return; }
+  wbState.me = res.data;
+  if (wbState.bid) return wbOpenBench(wbState.bid, wbState.tab);
+  wbRenderHome();
+}
+
+function wbRenderHome() {
+  var me = wbState.me, root = document.getElementById('wbRoot');
+  var h = '<div id="wbMsg">' + wbState.msg + '</div>';
+  h += '<div class="section-block"><h3>내 그룹</h3>';
+  if (!me.my_groups.length) h += '<p class="wb-sub">아직 그룹이 없어요. 아래에서 새 그룹을 만들거나 있는 그룹에 참여 신청을 하세요.</p>';
+  me.my_groups.forEach(function(g) {
+    var my = g.my || {};
+    h += '<div class="wb-gcard"><div class="wb-ghead"><b>' + escHtml(g.name) + '</b> <span class="wb-tag">' + escHtml(g.field || '') + '</span> <span class="wb-tag">' + wbModeKo(g.mode) + '</span>';
+    if (g.status !== 'approved') h += ' <span class="wb-tag warn">관리자 승인 대기</span>';
+    else if (my.status !== 'approved') h += ' <span class="wb-tag warn">그룹장 승인 대기</span>';
+    h += '<span style="flex:1"></span><span class="wb-sub">내 역할: ' + escHtml(my.role || '') + ' · 그룹원 ' + g.member_count + '명</span></div>';
+    if (g.benches && g.benches.length) {
+      h += '<div class="wb-blist">';
+      g.benches.forEach(function(b) {
+        h += '<button class="learn-btn ' + (b.mine || (!b.owner && g.mode === 'co') ? 'next' : 'prev') + '" onclick="wbOpenBench(' + b.id + ')">' + escHtml(b.title) + (b.shelf ? ' 📚' : '') + ' <small>자료 ' + b.files + (b.visibility === 'members' ? ' · 회원 공개' : '') + (b.running ? '' : ' · 멈춤') + '</small></button>';
+      });
+      h += '<button class="learn-btn prev" onclick="academyMeetJoin(\'sakyowon-academy-group-' + g.id + '\')">🎥 그룹 회의방</button>';
+      h += '</div>';
+    }
+    if (my.role === '그룹장' || me.user.admin) {
+      var 대기 = (g.members || []).filter(function(m) { return m.status === 'pending'; });
+      if (대기.length) {
+        h += '<div class="wb-pend"><b>참여 신청</b> ';
+        대기.forEach(function(m) {
+          h += '<span class="wb-chip">' + escHtml(m.name || m.username) + ' (' + escHtml(m.role) + ') <a href="javascript:void(0)" onclick="wbMember(' + g.id + ',\'' + escHtml(m.username) + '\',\'approve\')">승인</a> · <a href="javascript:void(0)" onclick="wbMember(' + g.id + ',\'' + escHtml(m.username) + '\',\'remove\')">거절</a></span>';
+        });
+        h += '</div>';
+      }
+    }
+    if (g.status === 'approved' && my.status === 'approved' && g.members && g.members.length) {
+      h += '<div class="wb-sub" style="margin-top:6px">역할표: ' + g.members.filter(function(m) { return m.status === 'approved'; }).map(function(m) { return escHtml((m.name || m.username) + ' — ' + m.role); }).join(' · ') + '</div>';
+    }
+    h += '</div>';
+  });
+  h += '</div>';
+
+  var mine = {};
+  me.my_groups.forEach(function(g) { mine[g.id] = 1; });
+  var others = me.groups.filter(function(g) { return !mine[g.id]; });
+  h += '<div class="section-block"><h3>그룹 참여 신청</h3>';
+  if (!others.length) h += '<p class="wb-sub">참여할 수 있는 다른 그룹이 아직 없어요.</p>';
+  others.forEach(function(g) {
+    h += '<div class="wb-row"><span><b>' + escHtml(g.name) + '</b> <span class="wb-tag">' + escHtml(g.field || '') + '</span> <span class="wb-tag">' + wbModeKo(g.mode) + '</span> <span class="wb-sub">그룹원 ' + g.member_count + '명' + (g.intro ? ' · ' + escHtml(g.intro) : '') + '</span></span>';
+    h += '<span><select id="wbJoinRole' + g.id + '">' + me.roles.map(function(r) { return '<option' + (r === '그룹원' ? ' selected' : '') + '>' + escHtml(r) + '</option>'; }).join('') + '</select> <button class="learn-btn prev" onclick="wbJoin(' + g.id + ')">참여 신청</button></span></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="section-block"><h3>새 그룹 만들기</h3><p class="wb-sub">같은 분야 활동가 4~6명이 한 그룹이에요. 만든 사람이 그룹장이 되고, 관리자가 승인하면 작업대가 열려요.</p>';
+  h += '<div class="dm-form">';
+  h += '<label class="dm-field"><span>그룹 이름</span><input id="wbNewName" placeholder="예) 완도 고향사랑 유통 그룹"></label>';
+  h += '<label class="dm-field"><span>분야</span><select id="wbNewField">' + me.fields.map(function(f) { return '<option>' + escHtml(f) + '</option>'; }).join('') + '</select></label>';
+  h += '<label class="dm-field"><span>운영 판</span><select id="wbNewMode"><option value="co">공동판 — 그룹이 에이전트 하나</option><option value="solo">개인판 — 각자 에이전트 + 공유 선반</option></select></label>';
+  h += '<label class="dm-field"><span>소개</span><textarea id="wbNewIntro" rows="2" placeholder="무엇을 하는 AI 를 만들려는지 한두 줄"></textarea></label>';
+  h += '</div><div class="dm-acts" style="margin-top:8px"><button class="learn-btn next" onclick="wbCreateGroup()">그룹 만들기 신청</button></div></div>';
+
+  h += '<div class="section-block"><h3>아카데미 회원 공개 에이전트</h3><div id="wbAgents" class="wb-sub">불러오는 중…</div></div>';
+
+  if (me.user.admin && me.admin_groups) {
+    h += '<div class="section-block wb-admin"><h3>관리자 · 그룹 승인</h3>';
+    me.admin_groups.forEach(function(g) {
+      h += '<div class="wb-row"><span><b>' + escHtml(g.name) + '</b> <span class="wb-tag">' + wbModeKo(g.mode) + '</span> <span class="wb-tag' + (g.status === 'pending' ? ' warn' : '') + '">' + ({pending: '승인 대기', approved: '운영 중', closed: '닫힘'}[g.status] || g.status) + '</span> <span class="wb-sub">' + escHtml(g.created_by) + ' · ' + escHtml((g.created_at || '').slice(0, 10)) + ' · 그룹원 ' + g.member_count + '명</span></span><span>';
+      if (g.status !== 'approved') h += '<button class="learn-btn next" onclick="wbAdminGroup(' + g.id + ',\'approved\')">승인</button> ';
+      if (g.status !== 'closed') h += '<button class="learn-btn prev" onclick="wbAdminGroup(' + g.id + ',\'closed\')">닫기</button>';
+      h += '</span></div>';
+    });
+    h += '<div class="dm-acts" style="justify-content:flex-start;margin-top:6px"><button class="learn-btn prev" onclick="wbAdminUsage()">작업대별 사용량 보기</button></div><div id="wbUsage"></div></div>';
+  }
+  root.innerHTML = h;
+  wbLoadAgents();
+}
+
+async function wbLoadAgents() {
+  var el = document.getElementById('wbAgents');
+  if (!el) return;
+  var res = await wbApi('GET', '/agents');
+  if (!res.data.ok) { el.textContent = wbErr(res); return; }
+  if (!res.data.agents.length) { el.textContent = '아직 공개된 에이전트가 없어요. 10회차에 그룹이 공개하면 여기 나타나요.'; return; }
+  var h = '';
+  res.data.agents.forEach(function(a) {
+    h += '<div class="wb-gcard"><div class="wb-ghead"><b>' + escHtml(a.group) + (a.owner ? ' · ' + escHtml(a.owner.split('@')[0]) : '') + '</b> <span class="wb-tag">' + escHtml(a.field || '') + '</span></div>';
+    if (a.role) h += '<div class="wb-sub">' + escHtml(a.role) + '</div>';
+    if (a.routes.length) h += '<div class="wb-sub">담당: ' + a.routes.map(escHtml).join(' · ') + '</div>';
+    h += '<div class="wb-ask"><input id="wbAgentQ' + a.id + '" placeholder="이 에이전트에게 물어보기" onkeydown="if(event.key===\'Enter\')wbAgentAsk(' + a.id + ')"><button class="learn-btn copy" onclick="wbAgentAsk(' + a.id + ')">묻기</button></div><div id="wbAgentA' + a.id + '"></div></div>';
+  });
+  el.innerHTML = h;
+}
+
+async function wbAgentAsk(id) {
+  var q = document.getElementById('wbAgentQ' + id), out = document.getElementById('wbAgentA' + id);
+  if (!q || !q.value.trim()) return;
+  out.innerHTML = '<div class="wb-sub">생각하는 중… (10~60초)</div>';
+  var res = await wbApi('POST', '/benches/' + id + '/ask', { question: q.value.trim() });
+  out.innerHTML = '<div class="wb-answer">' + escHtml(res.data.answer || wbErr(res)) + '</div>';
+}
+
+async function wbCreateGroup() {
+  var name = (document.getElementById('wbNewName').value || '').trim();
+  if (!name) { wbSay('그룹 이름을 적어 주세요.', true); return; }
+  var res = await wbApi('POST', '/groups', { name: name, field: document.getElementById('wbNewField').value, mode: document.getElementById('wbNewMode').value,
+    intro: document.getElementById('wbNewIntro').value, role: '그룹장' });
+  wbSay(res.data.ok ? (res.data.status === 'approved' ? '그룹을 만들었어요. 작업대가 열렸습니다.' : '그룹 만들기를 신청했어요. 관리자가 승인하면 작업대가 열립니다.') : wbErr(res), !res.data.ok);
+  renderWorkbench();
+}
+async function wbJoin(gid) {
+  var sel = document.getElementById('wbJoinRole' + gid);
+  var res = await wbApi('POST', '/groups/' + gid + '/join', { role: sel ? sel.value : '그룹원' });
+  wbSay(res.data.ok ? '참여를 신청했어요. 그룹장이 승인하면 작업대가 보입니다.' : wbErr(res), !res.data.ok);
+  renderWorkbench();
+}
+async function wbMember(gid, username, action) {
+  if (action === 'remove' && !confirm('이 신청을 거절할까요?')) return;
+  var res = await wbApi('POST', '/groups/' + gid + '/members', { username: username, action: action });
+  wbSay(res.data.ok ? '처리했어요.' : wbErr(res), !res.data.ok);
+  renderWorkbench();
+}
+async function wbAdminGroup(gid, status) {
+  if (status === 'closed' && !confirm('이 그룹을 닫을까요? 에이전트가 멈춥니다.')) return;
+  var res = await wbApi('POST', '/admin/groups/' + gid, { status: status });
+  wbSay(res.data.ok ? '처리했어요.' : wbErr(res), !res.data.ok);
+  renderWorkbench();
+}
+async function wbAdminUsage() {
+  var res = await wbApi('GET', '/admin/usage'), el = document.getElementById('wbUsage');
+  if (!res.data.ok) { el.textContent = wbErr(res); return; }
+  var h = '<div class="dm-tw"><table class="contrib-table dm-table"><tr><th>작업대</th><th>그룹</th><th>질문</th><th>엔진</th><th>회원 질문</th><th>평균 ms</th><th>마지막</th></tr>';
+  res.data.benches.forEach(function(r) {
+    h += '<tr><td>' + r.id + '</td><td>' + escHtml(r.name + (r.owner ? ' · ' + r.owner.split('@')[0] : '')) + '</td><td>' + (r.n || 0) + '</td><td>' + (r.hpc || 0) + '</td><td>' + (r.pub || 0) + '</td><td>' + (r.ms || '') + '</td><td>' + escHtml((r.last || '').replace('T', ' ')) + '</td></tr>';
+  });
+  el.innerHTML = h + '</table></div>';
+}
+
+/* ---- 작업대 하나 ---- */
+async function wbOpenBench(bid, tab) {
+  wbState.bid = bid;
+  if (tab) wbState.tab = tab;
+  var res = await wbApi('GET', '/benches/' + bid);
+  if (!res.data.ok) { wbState.bid = null; wbSay(wbErr(res), true); if (wbState.me) wbRenderHome(); return; }
+  wbState.bench = res.data;
+  wbRenderBench();
+}
+function wbBack() { wbState.bid = null; wbState.bench = null; wbState.newToken = null; wbSay(''); renderWorkbench(); }
+function wbTab(t) { wbState.tab = t; wbState.newToken = null; wbSay(''); wbRenderBench(); }
+
+function wbRenderBench() {
+  var b = wbState.bench, root = document.getElementById('wbRoot');
+  var h = '<div class="wb-bhead"><button class="learn-btn prev" onclick="wbBack()">&larr; 그룹 목록</button><div><b>' + escHtml(b.group) + '</b> &rsaquo; ' + escHtml(b.title) + ' <span class="wb-tag">' + wbModeKo(b.mode) + '</span>' +
+    (b.shelf ? ' <span class="wb-tag">공유 선반</span>' : '') + ' <span class="wb-tag' + (b.visibility === 'members' ? ' ok' : '') + '">' + (b.visibility === 'members' ? '아카데미 회원 공개' : '그룹원 공개') + '</span>' +
+    (b.running ? '' : ' <span class="wb-tag warn">멈춤</span>') + (b.can_write ? '' : ' <span class="wb-tag">읽기 전용</span>') + '</div>' +
+    '<span style="flex:1"></span><button class="learn-btn prev" onclick="academyMeetJoin(\'sakyowon-academy-group-' + b.group_id + '\')">🎥 그룹 회의방</button></div>';
+  var tabs = WB_TABS.slice();
+  if (b.mode === 'solo') tabs.splice(1, 0, ['shelf', '공유 선반']);
+  h += '<div class="wb-tabs">' + tabs.map(function(t) { return '<button class="' + (wbState.tab === t[0] ? 'on' : '') + '" onclick="wbTab(\'' + t[0] + '\')">' + t[1] + '</button>'; }).join('') + '</div>';
+  h += '<div id="wbMsg">' + wbState.msg + '</div><div id="wbPane" class="dm-card"></div>';
+  root.innerHTML = h;
+  var fn = { files: wbPaneFiles, shelf: wbPaneShelf, index: wbPaneIndex, prompt: wbPanePrompt, routes: wbPaneRoutes, test: wbPaneTest,
+             review: wbPaneReview, publish: wbPanePublish, changes: wbPaneChanges, harness: wbPaneHarness }[wbState.tab] || wbPaneFiles;
+  fn(document.getElementById('wbPane'));
+}
+function wbRO(b) { return b.can_write ? '' : ' disabled'; }
+
+function wbPaneFiles(el) {
+  var b = wbState.bench;
+  var h = '<h4>자료 올리기</h4><p class="wb-sub">CSV·엑셀(xlsx)·한글(hwpx)·PDF·텍스트(txt·md), 10MB 이하. <b>원본은 저장하지 않아요</b> — 글로 뽑아 개인정보(전화·계좌·주민번호, 성명·연락처 같은 열)를 가린 사본만 작업대에 남아요. 「무엇·출처·기준일」은 답에 그대로 붙으니 꼭 적어 주세요.</p>';
+  if (b.can_write) {
+    h += '<div class="dm-form"><label class="dm-field"><span>파일</span><input type="file" id="wbFile" accept=".csv,.tsv,.xlsx,.xlsm,.txt,.md,.pdf,.hwpx,.html,.htm"></label>' +
+      '<label class="dm-field"><span>무엇</span><input id="wbFWhat" placeholder="예) 답례품 목록"></label>' +
+      '<label class="dm-field"><span>출처</span><input id="wbFSource" placeholder="예) 완도군 고향사랑 답례품 공고"></label>' +
+      '<label class="dm-field"><span>기준일</span><input id="wbFAsOf" placeholder="예) 2026-09-30 (자료가 말하는 날짜)"></label>' +
+      '<label class="dm-field"><span>메모</span><input id="wbFNote" placeholder="예) 시트는 첫 장만, 금액 단위 원"></label></div>' +
+      '<div class="dm-acts" style="margin-top:8px"><button class="learn-btn next" onclick="wbUpload()">올리기</button></div>';
+  }
+  h += '<h4>자료 목록표 (' + b.file_list.length + ')</h4>';
+  if (!b.file_list.length) h += '<p class="wb-sub">아직 자료가 없어요.</p>';
+  else {
+    h += '<div class="dm-tw"><table class="contrib-table dm-table"><tr><th>번호</th><th>무엇</th><th>출처</th><th>기준일</th><th>모양</th><th>가린 것</th><th></th></tr>';
+    b.file_list.forEach(function(f) {
+      h += '<tr><td>' + f.id + '</td><td>' + escHtml(f.what || f.name) + '<div class="wb-sub">' + escHtml(f.name) + (f.from_file ? ' · 가져온 자료' : '') + '</div></td><td>' + escHtml(f.source || '') + '</td><td>' + (f.as_of ? escHtml(f.as_of) : '<span class="wb-tag warn">미기재</span>') + '</td>' +
+        '<td>' + (f.kind === 'table' ? '표 ' + (f.rows || 0) + '행 · ' + (f.cols || []).length + '열' : '글') + '</td><td>' + escHtml((f.masked || []).join(', ') || '없음') + '</td>' +
+        '<td style="white-space:nowrap"><a href="javascript:void(0)" onclick="wbViewFile(' + f.id + ')">보기</a>' + (b.can_write ? ' · <a href="javascript:void(0)" onclick="wbEditFile(' + f.id + ')">메모</a> · <a href="javascript:void(0)" onclick="wbDelFile(' + f.id + ')">지우기</a>' : '') + '</td></tr>';
+    });
+    h += '</table></div><div id="wbFileView"></div>';
+  }
+  el.innerHTML = h;
+}
+async function wbUpload() {
+  var f = document.getElementById('wbFile');
+  if (!f || !f.files || !f.files[0]) { wbSay('파일을 골라 주세요.', true); return; }
+  var fd = new FormData();
+  fd.append('file', f.files[0]);
+  fd.append('what', document.getElementById('wbFWhat').value);
+  fd.append('source', document.getElementById('wbFSource').value);
+  fd.append('as_of', document.getElementById('wbFAsOf').value);
+  fd.append('note', document.getElementById('wbFNote').value);
+  wbSay('올리는 중… (글을 뽑고 개인정보를 가립니다)');
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/files', fd, true);
+  if (!res.data.ok) { wbSay(wbErr(res), true); return; }
+  var d = res.data;
+  wbState.msg = '<div class="wb-msg">올렸어요 — ' + (d.kind === 'table' ? '표 ' + d.rows + '행 · ' + (d.cols || []).length + '열' : '글 ' + d.chars + '자') + ' · 가린 것: ' + escHtml((d.masked || []).join(', ') || '없음') + '<br>' + escHtml(d['검산'] || '') + '<br>' + escHtml(d.note || '') + '<br><b>색인·찾기</b> 탭에서 색인을 다시 만들어야 답에 쓰여요.</div>';
+  await wbOpenBench(wbState.bid);
+}
+async function wbViewFile(fid) {
+  var res = await wbApi('GET', '/benches/' + wbState.bid + '/files/' + fid + '?limit=3000');
+  var el = document.getElementById('wbFileView');
+  if (el) el.innerHTML = res.data.ok ? '<h4>' + escHtml(res.data.name) + ' — 저장된 사본(앞 3천 자, 전체 ' + res.data.chars + '자)</h4><pre class="wb-pre">' + escHtml(res.data.text) + '</pre>' : '<div class="wb-msg bad">' + escHtml(wbErr(res)) + '</div>';
+}
+async function wbEditFile(fid) {
+  var f = wbState.bench.file_list.filter(function(x) { return x.id === fid; })[0];
+  if (!f) return;
+  var what = prompt('무엇', f.what || ''); if (what === null) return;
+  var source = prompt('출처', f.source || ''); if (source === null) return;
+  var as_of = prompt('기준일(자료가 말하는 날짜)', f.as_of || ''); if (as_of === null) return;
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/files/' + fid, { what: what, source: source, as_of: as_of, note: f.note || '' });
+  wbSay(res.data.ok ? '메모를 고쳤어요. 색인을 다시 만들면 답에 반영돼요.' : wbErr(res), !res.data.ok);
+  await wbOpenBench(wbState.bid);
+}
+async function wbDelFile(fid) {
+  if (!confirm('이 자료를 지울까요? (변경 기록에서 되돌릴 수 있어요)')) return;
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/files/' + fid, { action: 'delete' });
+  wbSay(res.data.ok ? res.data.note : wbErr(res), !res.data.ok);
+  await wbOpenBench(wbState.bid);
+}
+
+function wbPaneShelf(el) {
+  var b = wbState.bench, sib = b.siblings || [];
+  var h = '<p class="wb-sub">개인판은 그룹원마다 작업대가 있고, <b>공유 선반</b>에 법령·공고 같은 공통 자료를 올려 서로 가져다 써요. 다른 그룹원 작업대의 좋은 틀(역할·울타리·답 모양·담당)도 가져올 수 있어요.</p>';
+  if (!sib.length) h += '<p class="wb-sub">같은 그룹의 다른 작업대가 아직 없어요.</p>';
+  sib.forEach(function(s) {
+    h += '<div class="wb-gcard"><div class="wb-ghead"><b>' + escHtml(s.title) + '</b>' + (s.shelf ? ' <span class="wb-tag">공유 선반</span>' : '') + '<span style="flex:1"></span>' +
+      (b.can_write ? '<button class="learn-btn prev" onclick="wbCopySettings(' + s.id + ')">이 작업대의 틀 가져오기</button> ' : '') +
+      '<button class="learn-btn prev" onclick="wbShowSibling(' + s.id + ')">자료 보기</button></div><div id="wbSib' + s.id + '"></div></div>';
+  });
+  el.innerHTML = h;
+}
+async function wbShowSibling(sid) {
+  var res = await wbApi('GET', '/benches/' + sid), el = document.getElementById('wbSib' + sid);
+  if (!res.data.ok) { el.innerHTML = '<div class="wb-msg bad">' + escHtml(wbErr(res)) + '</div>'; return; }
+  var fs = res.data.file_list;
+  if (!fs.length) { el.innerHTML = '<div class="wb-sub">자료가 없어요.</div>'; return; }
+  el.innerHTML = fs.map(function(f) {
+    return '<div class="wb-row"><span>' + escHtml(f.what || f.name) + ' <span class="wb-sub">' + escHtml(f.source || '') + ' · 기준일 ' + escHtml(f.as_of || '미기재') + '</span></span>' +
+      (wbState.bench.can_write ? '<button class="learn-btn prev" onclick="wbTake(' + f.id + ')">내 작업대로 가져오기</button>' : '') + '</div>';
+  }).join('');
+}
+async function wbTake(fid) {
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/take', { file_id: fid });
+  wbSay(res.data.ok ? '가져왔어요. 자료 탭에서 보이고, 색인을 다시 만들면 답에 쓰여요.' : wbErr(res), !res.data.ok);
+}
+async function wbCopySettings(sid) {
+  if (!confirm('그 작업대의 역할 문장·울타리·답 모양을 내 작업대로 가져올까요? (담당 나누기는 가져오지 않아요. 변경 기록에서 되돌릴 수 있어요)')) return;
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/copy-settings', { from_bench: sid, parts: ['role', 'fence', 'shape'] });
+  wbSay(res.data.ok ? '틀을 가져왔어요. 틀·울타리 탭에서 내 기관에 맞게 역할 문장만 고치세요.' : wbErr(res), !res.data.ok);
+  if (res.data.ok) await wbOpenBench(wbState.bid);
+}
+
+function wbPaneIndex(el) {
+  var b = wbState.bench, ix = b.index;
+  var h = '<p class="wb-sub">색인은 자료를 작은 조각으로 나눠 「의미가 닮은 것」을 찾게 저장하는 일이에요. 표는 공용 손질 규칙(합계 행 빼기·「-」는 빈칸·시도 이름 통일)을 거치고, 파일마다 <b>검산 한 줄</b>이 나와요. 자료를 올리거나 고친 뒤에는 다시 만드세요.</p>';
+  if (b.can_write) h += '<div class="dm-acts" style="justify-content:flex-start"><button class="learn-btn next" onclick="wbBuildIndex(this)">색인 다시 만들기</button></div>';
+  if (ix) {
+    h += '<h4>지금 색인 — 조각 ' + ix.chunks + '개 · ' + escHtml((ix.built_at || '').replace('T', ' ')) + ' · ' + (ix.mode === 'embed' ? '의미 검색' : '낱말 검색') + '</h4>';
+    h += '<div class="dm-tw"><table class="contrib-table dm-table"><tr><th>파일</th><th>조각</th><th>검산</th></tr>' + (ix.files || []).map(function(f) {
+      return '<tr><td>' + escHtml(f.file) + '</td><td>' + f['조각'] + '</td><td>' + escHtml(f['검산'] || f['오류'] || '') + '</td></tr>';
+    }).join('') + '</table></div>';
+  } else h += '<p class="wb-sub">아직 색인이 없어요.</p>';
+  h += '<h4>찾아보기 (엔진 안 씀)</h4><p class="wb-sub">질문을 넣으면 색인에서 닮은 조각 세 개를 보여 줘요. 조각이 질문과 안 닮으면 자료 메모를 더하거나 자료를 쪼개 보세요.</p>';
+  h += '<div class="wb-ask"><input id="wbSearchQ" placeholder="예) 완도 답례품 중 2만 원대는?" onkeydown="if(event.key===\'Enter\')wbSearch()"><button class="learn-btn copy" onclick="wbSearch()">찾기</button></div><div id="wbSearchOut"></div>';
+  el.innerHTML = h;
+}
+async function wbBuildIndex(btn) {
+  btn.disabled = true; btn.textContent = '만드는 중… (자료가 많으면 1분 안팎)';
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/index');
+  wbSay(res.data.ok ? '색인을 만들었어요 — 조각 ' + res.data.chunks + '개.' : wbErr(res), !res.data.ok);
+  await wbOpenBench(wbState.bid);
+}
+async function wbSearch() {
+  var q = document.getElementById('wbSearchQ').value.trim(), out = document.getElementById('wbSearchOut');
+  if (!q) return;
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/search', { q: q, k: 3 });
+  if (!res.data.ok) { out.innerHTML = '<div class="wb-msg bad">' + escHtml(wbErr(res)) + '</div>'; return; }
+  if (!res.data.results.length) { out.innerHTML = '<div class="wb-sub">찾은 조각이 없어요. 색인을 만들었는지 보세요.</div>'; return; }
+  out.innerHTML = res.data.results.map(function(r, i) {
+    return '<div class="wb-chunk"><b>(' + (i + 1) + ') ' + escHtml(r['자료']) + ' › ' + escHtml(r['제목']) + '</b> <span class="wb-sub">닮음 ' + r['점수'] + ' · 기준일 ' + escHtml(r['기준일']) + '</span><pre class="wb-pre">' + escHtml(r['글']) + '</pre></div>';
+  }).join('');
+}
+
+function wbPanePrompt(el) {
+  var b = wbState.bench, s = b.settings, ro = wbRO(b);
+  var h = '<p class="wb-sub">틀은 지시문의 빈칸 양식이에요. 작업대가 이 넷을 엮어 엔진에 보내고, 답 끝에 출처·기준일은 <b>코드가</b> 붙여요(엔진에게 묻지 않아요).</p><div class="dm-form">';
+  h += '<label class="dm-field"><span>역할 문장</span><textarea id="wbSRole" rows="2"' + ro + ' placeholder="예) 너는 고향사랑 답례품 유통 담당이다.">' + escHtml(s.role) + '</textarea></label>';
+  h += '<label class="dm-field"><span>울타리</span><textarea id="wbSFence" rows="3"' + ro + '>' + escHtml(s.fence) + '</textarea></label>';
+  h += '<label class="dm-field"><span>답 모양</span><textarea id="wbSShape" rows="2"' + ro + ' placeholder="예) 세 문장 이내. 상품은 이름·가격·생산자·배송 소요 표로.">' + escHtml(s.shape) + '</textarea></label>';
+  h += '<label class="dm-field"><span>설계서</span><textarea id="wbSDesign" rows="6"' + ro + ' placeholder="설계서 아홉 칸 — 「설계서 쓰기」 화면에서 만든 것을 붙여 두세요">' + escHtml(s.design) + '</textarea></label>';
+  h += '<label class="dm-field"><span>운영 규칙</span><textarea id="wbSOps" rows="4"' + ro + ' placeholder="10회차 — 자료 갱신 주기와 담당, 틀린 답 신고 창구, 되돌리기, 엔진 사용량 보기, 개인정보 점검 주기">' + escHtml(s.ops) + '</textarea></label>';
+  h += '</div>';
+  if (b.can_write) {
+    h += '<div class="dm-acts" style="margin-top:8px"><button class="learn-btn prev" onclick="wbDesignPull()">「설계서 쓰기」 내용 가져오기</button><button class="learn-btn next" onclick="wbSaveSettings({role:document.getElementById(\'wbSRole\').value,fence:document.getElementById(\'wbSFence\').value,shape:document.getElementById(\'wbSShape\').value,design:document.getElementById(\'wbSDesign\').value,ops:document.getElementById(\'wbSOps\').value})">저장</button></div>';
+  }
+  el.innerHTML = h;
+}
+function wbDesignPull() {
+  var d = domainDesignLoad();
+  var t = domainDesignText(d.design || {});
+  document.getElementById('wbSDesign').value = t;
+  wbSay('「설계서 쓰기」 내용을 넣었어요. 저장을 눌러야 작업대에 남아요.');
+}
+async function wbSaveSettings(part) {
+  part.version = wbState.bench.version;
+  var res = await wbApi('PUT', '/benches/' + wbState.bid + '/settings', part);
+  if (res.status === 409) {
+    var last = res.data.last;
+    wbSay('그 사이 ' + (last ? last.username.split('@')[0] + ' 님이 「' + last.summary + '」을(를) 고쳤어요(' + (last.at || '').replace('T', ' ') + '). 새로 불러왔으니 다시 고쳐 주세요.' : '다른 사람이 고쳤어요. 새로 불러왔으니 다시 고쳐 주세요.'), true);
+    return wbOpenBench(wbState.bid);
+  }
+  wbSay(res.data.ok ? (res.data.changed && res.data.changed.length ? '저장했어요.' : '바뀐 것이 없어요.') : wbErr(res), !res.data.ok);
+  if (res.data.ok) await wbOpenBench(wbState.bid);
+}
+
+function wbPaneRoutes(el) {
+  var b = wbState.bench, rs = b.settings.routes || [], ro = wbRO(b);
+  var h = '<p class="wb-sub">질문을 보고 맞는 담당으로 보내요. 담당마다 <b>낱말</b>(쉼표로)·볼 <b>자료</b>·쓸 <b>공용 도구</b>를 정해요. 낱말로 못 가르면 엔진에 한 단어로 묻고, 그래도 안 되면 이름에 「일반」이 든 담당으로 가요. 숫자 도구는 엔진 없이 코드가 계산해요.</p>';
+  h += '<div id="wbRoutes">';
+  rs.forEach(function(r, i) { h += wbRouteRow(r, i, ro); });
+  h += '</div>';
+  if (b.can_write) h += '<div class="dm-acts" style="margin-top:8px"><button class="learn-btn prev" onclick="wbAddRoute()">담당 더하기</button><button class="learn-btn next" onclick="wbSaveRoutes()">저장</button></div>';
+  h += '<h4>공용 도구</h4><ul class="dm-ol">' + Object.keys(b.tools).map(function(k) { return '<li><b>' + escHtml(k) + '</b> — ' + escHtml(b.tools[k]) + '</li>'; }).join('') + '</ul>';
+  el.innerHTML = h;
+}
+function wbRouteRow(r, i, ro) {
+  var b = wbState.bench;
+  var h = '<div class="wb-route" data-i="' + i + '"><div class="dm-form">';
+  h += '<label class="dm-field"><span>담당 이름</span><input class="wbRName" value="' + escHtml(r.name || '') + '"' + ro + ' placeholder="예) 상품 추천"></label>';
+  h += '<label class="dm-field"><span>낱말</span><input class="wbRWords" value="' + escHtml((r.words || []).join(', ')) + '"' + ro + ' placeholder="예) 답례품, 추천, 상품"></label>';
+  h += '<div class="dm-field"><span>볼 자료</span><div class="wb-checks">' + (b.file_list.length ? b.file_list.map(function(f) {
+    return '<label><input type="checkbox" class="wbRFile" value="' + f.id + '"' + ((r.files || []).indexOf(f.id) !== -1 ? ' checked' : '') + ro + '> ' + escHtml(f.what || f.name) + '</label>';
+  }).join('') : '<span class="wb-sub">자료가 없어요</span>') + '<div class="wb-sub">하나도 안 고르면 전체 자료를 봐요</div></div></div>';
+  h += '<label class="dm-field"><span>공용 도구</span><select class="wbRTool"' + ro + '><option value="">(없음 — 우리 자료로 답)</option>' + Object.keys(b.tools).map(function(k) { return '<option' + (r.tool === k ? ' selected' : '') + '>' + escHtml(k) + '</option>'; }).join('') + '</select></label>';
+  h += '</div>' + (b.can_write ? '<div class="dm-acts"><a href="javascript:void(0)" onclick="this.closest(\'.wb-route\').remove()">이 담당 빼기</a></div>' : '') + '</div>';
+  return h;
+}
+function wbAddRoute() {
+  var box = document.getElementById('wbRoutes');
+  box.insertAdjacentHTML('beforeend', wbRouteRow({ name: '', words: [], files: [], tool: '' }, box.children.length, ''));
+}
+function wbSaveRoutes() {
+  var rows = document.querySelectorAll('#wbRoutes .wb-route'), rs = [];
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i], name = r.querySelector('.wbRName').value.trim();
+    if (!name) continue;
+    var files = [];
+    r.querySelectorAll('.wbRFile').forEach(function(c) { if (c.checked) files.push(parseInt(c.value, 10)); });
+    rs.push({ name: name, words: r.querySelector('.wbRWords').value.split(/[,，]/).map(function(w) { return w.trim(); }).filter(Boolean), files: files, tool: r.querySelector('.wbRTool').value });
+  }
+  wbSaveSettings({ routes: rs });
+}
+
+function wbPaneTest(el) {
+  var h = '<p class="wb-sub">설계서의 질문을 넣어 보세요. 답에는 어느 담당이 받았는지, 엔진을 썼는지, 출처·기준일이 붙어요. 자료에 없으면 「없음」이 정답이에요. 엔진은 여러 그룹이 나눠 써서 1분에 여섯 번까지 물을 수 있어요.</p>';
+  h += '<div class="wb-ask"><input id="wbAskQ" placeholder="예) 10만 원이면 완도에서 어떤 답례품?" onkeydown="if(event.key===\'Enter\')wbAsk()"><button class="learn-btn copy" id="wbAskBtn" onclick="wbAsk()">묻기</button></div><div id="wbAskOut"></div>';
+  h += '<h4>최근 질문 기록</h4><div id="wbTests" class="wb-sub">불러오는 중…</div>';
+  el.innerHTML = h;
+  wbLoadLog('tests', 'wbTests');
+}
+async function wbAsk() {
+  var q = document.getElementById('wbAskQ').value.trim(), out = document.getElementById('wbAskOut'), btn = document.getElementById('wbAskBtn');
+  if (!q || wbState.asking) return;
+  wbState.asking = true; btn.disabled = true; btn.textContent = '생각하는 중…';
+  out.innerHTML = '<div class="wb-sub">담당을 고르고 자료를 찾아 답을 쓰는 중이에요(10~60초).</div>';
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/ask', { question: q });
+  wbState.asking = false; btn.disabled = false; btn.textContent = '묻기';
+  var d = res.data;
+  if (!d.ok && !d.answer) { out.innerHTML = '<div class="wb-msg bad">' + escHtml(wbErr(res)) + '</div>'; return; }
+  var meta = [];
+  if (d['담당']) meta.push('담당 ' + d['담당'] + (d['담당방식'] ? '(' + d['담당방식'] + ')' : ''));
+  if (d['도구']) meta.push('도구 ' + d['도구']);
+  if (d['경로']) meta.push({ hpc: '엔진', template: '코드 계산(엔진 0회)', fallback: '엔진 실패→대체', 'no-evidence': '근거 없음(엔진 안 부름)', refused: '개인정보 거절', fail: '엔진 실패' }[d['경로']] || d['경로']);
+  if (d['전체ms']) meta.push((d['전체ms'] / 1000).toFixed(1) + '초');
+  if (d['가린개인정보'] && d['가린개인정보'].length) meta.push('질문에서 가린 것: ' + d['가린개인정보'].join(', '));
+  out.innerHTML = '<div class="wb-answer' + (d.insufficient ? ' none' : '') + '">' + escHtml(d.answer || wbErr(res)) + '</div><div class="wb-sub">' + escHtml(meta.join(' · ')) + '</div>' +
+    ((d.sources || []).length ? '<details><summary class="wb-sub">근거 조각 ' + d.sources.length + '개</summary>' + d.sources.map(function(s) { return '<div class="wb-chunk"><b>' + escHtml(s.title) + '</b> <span class="wb-sub">기준일 ' + escHtml(s.date || '') + '</span><div class="wb-sub">' + escHtml(s.excerpt || '') + '</div></div>'; }).join('') + '</details>' : '');
+  wbLoadLog('tests', 'wbTests');
+}
+async function wbLoadLog(kind, elId) {
+  var res = await wbApi('GET', '/benches/' + wbState.bid + '/log?kind=' + kind + '&limit=30'), el = document.getElementById(elId);
+  if (!el) return;
+  if (!res.data.ok) { el.textContent = wbErr(res); return; }
+  var rows = res.data.rows;
+  if (!rows.length) { el.textContent = '아직 기록이 없어요.'; return; }
+  var who = function(u) { return escHtml((u || '').split('@')[0]); }, at = function(t) { return escHtml((t || '').replace('T', ' ').slice(5, 16)); };
+  var h = '<div class="dm-tw"><table class="contrib-table dm-table">';
+  if (kind === 'tests') {
+    h += '<tr><th>때</th><th>누가</th><th>질문</th><th>담당·경로</th><th>답</th></tr>';
+    rows.forEach(function(r) { h += '<tr><td>' + at(r.at) + '</td><td>' + who(r.username) + (r.public ? ' (회원)' : '') + (r.via === 'harness' ? ' 🤖' : '') + '</td><td>' + escHtml(r.question) + '</td><td>' + escHtml((r.route || '') + ' · ' + (r.path || '')) + '</td><td>' + (r.insufficient ? '<span class="wb-tag">없음</span> ' : '') + escHtml((r.answer || '').slice(0, 140)) + '</td></tr>'; });
+  } else if (kind === 'reviews') {
+    h += '<tr><th>회차</th><th>누가</th><th>된 것</th><th>틀린 것</th><th>다음에 시킬 것</th><th>점수</th></tr>';
+    rows.forEach(function(r) { h += '<tr><td>' + (r.session_no || '') + '</td><td>' + who(r.username) + '<div class="wb-sub">' + at(r.at) + '</div></td><td>' + escHtml(r.ok_text || '') + '</td><td>' + escHtml(r.wrong_text || '') + '</td><td>' + escHtml(r.next_text || '') + '</td><td>' + escHtml(r.score || '') + '</td></tr>'; });
+  } else {
+    var 되돌림 = { '설정': 1, '자료 지움': 1, '자료 메모': 1 }, can = wbState.bench.can_manage && wbState.bench.can_write;
+    h += '<tr><th>때</th><th>누가</th><th>무엇을</th><th></th></tr>';
+    rows.forEach(function(r) { h += '<tr><td>' + at(r.at) + '</td><td>' + who(r.username) + (r.via === 'harness' ? ' 🤖 하네스' : '') + '</td><td><b>' + escHtml(r.action) + '</b> ' + escHtml(r.summary || '') + '</td><td>' + (can && r.before && 되돌림[r.action] ? '<a href="javascript:void(0)" onclick="wbRevert(' + r.id + ')">되돌리기</a>' : '') + '</td></tr>'; });
+  }
+  el.innerHTML = h + '</table></div>';
+}
+
+function wbPaneReview(el) {
+  var h = '<p class="wb-sub">회차마다 검수 담당이 시험 창에서 설계서 질문을 던지고 세 줄을 남겨요. 9회차에는 검수표 10문항(출처·기준일, 「없다」, 검산 줄, 개인정보)의 ○ 개수를 점수 칸에 적어요.</p>';
+  h += '<div class="dm-form"><label class="dm-field"><span>회차</span><select id="wbRvNo">' + [1,2,3,4,5,6,7,8,9,10].map(function(n) { return '<option>' + n + '</option>'; }).join('') + '</select></label>' +
+    '<label class="dm-field"><span>된 것</span><textarea id="wbRvOk" rows="2"></textarea></label><label class="dm-field"><span>틀린 것</span><textarea id="wbRvWrong" rows="2"></textarea></label>' +
+    '<label class="dm-field"><span>다음에 시킬 것</span><textarea id="wbRvNext" rows="2"></textarea></label><label class="dm-field"><span>점수(선택)</span><input id="wbRvScore" placeholder="예) 8/10"></label></div>' +
+    '<div class="dm-acts" style="margin-top:8px"><button class="learn-btn next" onclick="wbSaveReview()">검수 기록 남기기</button></div><h4>검수 기록</h4><div id="wbReviews" class="wb-sub">불러오는 중…</div>';
+  el.innerHTML = h;
+  try { var p = domainGet(); document.getElementById('wbRvNo').value = String(DOMAIN_SESSIONS[p.cur].no); } catch (e) {}
+  wbLoadLog('reviews', 'wbReviews');
+}
+async function wbSaveReview() {
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/reviews', { session_no: parseInt(document.getElementById('wbRvNo').value, 10),
+    ok: document.getElementById('wbRvOk').value, wrong: document.getElementById('wbRvWrong').value, next: document.getElementById('wbRvNext').value, score: document.getElementById('wbRvScore').value });
+  wbSay(res.data.ok ? '검수 기록을 남겼어요.' : wbErr(res), !res.data.ok);
+  if (res.data.ok) wbPaneReview(document.getElementById('wbPane'));
+}
+
+function wbPanePublish(el) {
+  var b = wbState.bench, can = b.can_manage && b.can_write;
+  var h = '<p class="wb-sub">공개는 단계적으로 넓혀요: 그룹원 → 아카데미 회원. 회원 공개를 켜면 다른 교육생이 「작업대」 첫 화면의 공개 에이전트 목록에서 물어볼 수 있어요(자료·근거 원문은 못 봐요). 켜기 전에 작업대가 자료를 한 번 더 검사해 개인정보가 남아 있으면 막아요.</p>';
+  if (b.shelf) h += '<div class="wb-msg">공유 선반은 그룹원끼리 나누는 자리라 공개하지 않아요.</div>';
+  h += '<div class="wb-pub"><div><b>공개 범위</b><br><button class="' + (b.visibility === 'group' ? 'on' : '') + '"' + (can ? '' : ' disabled') + ' onclick="wbPublish({visibility:\'group\'})">그룹원 공개</button><button class="' + (b.visibility === 'members' ? 'on' : '') + '"' + (can && !b.shelf ? '' : ' disabled') + ' onclick="wbPublish({visibility:\'members\'})">아카데미 회원 공개</button></div>';
+  h += '<div><b>운영</b><br><button class="' + (b.running ? 'on' : '') + '"' + (can ? '' : ' disabled') + ' onclick="wbPublish({running:true})">▶ 시작</button><button class="' + (!b.running ? 'on' : '') + '"' + (can ? '' : ' disabled') + ' onclick="wbPublish({running:false})">■ 멈춤</button></div></div>';
+  if (!can) h += '<p class="wb-sub">공개·운영 단추는 그룹장·운영 담당(개인판은 작업대 주인)이 눌러요.</p>';
+  el.innerHTML = h;
+}
+async function wbPublish(body) {
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/publish', body);
+  wbSay(res.data.ok ? '바꿨어요.' : wbErr(res), !res.data.ok);
+  await wbOpenBench(wbState.bid);
+}
+
+function wbPaneChanges(el) {
+  el.innerHTML = '<p class="wb-sub">작업대가 「누가 언제 무엇을」 바꿨는지 남겨요. 🤖 는 하네스가 열쇠로 바꾼 것이에요. 설정·자료 지움·자료 메모는 그룹장·운영 담당이 되돌릴 수 있어요.</p><div id="wbChanges" class="wb-sub">불러오는 중…</div>';
+  wbLoadLog('changes', 'wbChanges');
+}
+async function wbRevert(cid) {
+  if (!confirm('이 변경을 되돌릴까요?')) return;
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/revert', { change_id: cid });
+  wbSay(res.data.ok ? '되돌렸어요.' : wbErr(res), !res.data.ok);
+  await wbOpenBench(wbState.bid);
+}
+
+function wbHarnessPrompt(tok) {
+  var b = wbState.bench, base = location.origin + WB_API, n = b.id;
+  return '나는 연대지능활동가 아카데미 「나. 도메인AI구축하기」 수강생이야. 사교원 서버의 내 작업대(번호 ' + n + ', ' + b.group + ' › ' + b.title + ')에 너를 붙이려고 해.\n' +
+    '주소: ' + base + '\n' +
+    '열쇠: ' + tok + '\n' +
+    '이 열쇠는 이 작업대 하나 전용이야. 파일·메모리·CLAUDE.md·깃에 적지 말고, 이 대화 안에서 환경변수 WB_KEY 로만 써 줘. 모든 요청에 머리말 Authorization: Bearer $WB_KEY 를 붙여.\n\n' +
+    '쓸 수 있는 API (주소 뒤에 붙인다):\n' +
+    '- GET /me — 연결 확인\n' +
+    '- GET /benches/' + n + ' — 설정(settings)·자료 목록(file_list)·version·색인(index)\n' +
+    '- POST /benches/' + n + '/files — multipart: file, what(무엇), source(출처), as_of(기준일), note. 원본은 저장되지 않고 개인정보를 가린 글 사본만 남는다. CSV·xlsx·hwpx·pdf·txt·md\n' +
+    '- GET /benches/' + n + '/files/{id} — 저장된 사본 보기\n' +
+    '- POST /benches/' + n + '/files/{id} — {"what","source","as_of","note"} 메모 고치기, {"action":"delete"} 지우기\n' +
+    '- POST /benches/' + n + '/index — 색인 다시 만들기(파일마다 검산 한 줄이 온다)\n' +
+    '- POST /benches/' + n + '/search — {"q":"질문","k":3} 색인에서 닮은 조각 찾기(엔진 안 씀)\n' +
+    '- PUT /benches/' + n + '/settings — {"version":GET에서 받은 값, "role","fence","shape","design","ops","routes":[{"name","words":[],"files":[자료 번호],"tool":"공용 도구 이름 또는 빈칸"}]}. 409 가 오면 다시 GET 해서 고쳐\n' +
+    '- POST /benches/' + n + '/ask — {"question":"…"} 시험 창(엔진, 1분 여섯 번)\n' +
+    '- GET /benches/' + n + '/log?kind=tests|changes|reviews , POST /benches/' + n + '/reviews — {"session_no","ok","wrong","next","score"}\n' +
+    '공용 도구: ' + Object.keys(b.tools).join(', ') + '\n\n' +
+    '규칙: 엔진 열쇠는 없다(작업대가 대신 부른다). 이름·전화·계좌·주민번호가 든 자료는 올리기 전에 나에게 먼저 말해 줘. 설정을 바꾸기 전에 무엇을 어떻게 바꿀지 한 줄로 말하고, 바꾼 뒤에는 결과를 짧게 보고해 줘. 나는 코드를 모르니 한 번에 한 가지씩 해 줘.\n\n' +
+    '먼저 GET /me 와 GET /benches/' + n + ' 로 연결을 확인하고, 지금 작업대 상태(자료·색인·틀·담당)를 다섯 줄로 요약해 줘.';
+}
+function wbPaneHarness(el) {
+  var b = wbState.bench;
+  var h = '<p class="wb-sub">내 PC 의 하네스(Claude Code)를 이 작업대에 붙여요. 열쇠는 <b>이 작업대 하나 전용</b>이고, 내가 웹에서 할 수 있는 일(자료·색인·틀·담당·시험 창·검수 기록)만 할 수 있어요. 그룹 만들기·공개 스위치·열쇠 발급은 못 해요. 하네스가 바꾼 것은 변경 기록에 🤖 로 남아요.</p>';
+  if (!b.can_write) { el.innerHTML = h + '<div class="wb-msg">읽기 전용 작업대라 열쇠를 받을 수 없어요. 내 작업대에서 받으세요.</div>'; return; }
+  if (wbState.newToken) {
+    h += '<div class="wb-msg"><b>새 열쇠를 만들었어요. 지금 한 번만 보여요.</b> 아래 프롬프트를 복사해 하네스 대화창에 붙여넣으세요.</div>';
+    h += '<div class="prompt-box"><span class="dm-prompt-text">' + escHtml(wbHarnessPrompt(wbState.newToken)) + '</span><button class="prompt-copy" onclick="domainCopyPrompt(this)">복사</button></div>';
+  }
+  h += '<div class="dm-acts" style="justify-content:flex-start"><input id="wbTokLabel" placeholder="열쇠 이름 (예: 내 노트북)" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit"> <button class="learn-btn next" onclick="wbIssueToken()">하네스 열쇠 만들기</button></div>';
+  h += '<h4>내 열쇠</h4><div id="wbTokens" class="wb-sub">불러오는 중…</div>';
+  h += '<p class="wb-sub" style="margin-top:8px">열쇠가 새어 나갔다 싶으면 바로 지우고 새로 만드세요. 그룹에서 빠지면 그 사람의 열쇠는 저절로 막혀요.</p>';
+  el.innerHTML = h;
+  wbLoadTokens();
+}
+async function wbLoadTokens() {
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/token', { action: 'list' }), el = document.getElementById('wbTokens');
+  if (!el) return;
+  if (!res.data.ok) { el.textContent = wbErr(res); return; }
+  if (!res.data.tokens.length) { el.textContent = '아직 열쇠가 없어요.'; return; }
+  el.innerHTML = res.data.tokens.map(function(t) {
+    return '<div class="wb-row"><span>' + escHtml(t.label) + ' <span class="wb-sub">…' + escHtml(t.tail) + ' · 만든 때 ' + escHtml((t.created_at || '').replace('T', ' ').slice(0, 16)) + ' · 마지막 사용 ' + escHtml(t.last_used ? t.last_used.replace('T', ' ').slice(0, 16) : '없음') + '</span></span><a href="javascript:void(0)" onclick="wbRevokeToken(\'' + escHtml(t.tail) + '\')">지우기</a></div>';
+  }).join('');
+}
+async function wbIssueToken() {
+  var res = await wbApi('POST', '/benches/' + wbState.bid + '/token', { action: 'issue', label: document.getElementById('wbTokLabel').value });
+  if (!res.data.ok) { wbSay(wbErr(res), true); return; }
+  wbState.newToken = res.data.token;
+  wbSay('');
+  wbPaneHarness(document.getElementById('wbPane'));
+}
+async function wbRevokeToken(tail) {
+  if (!confirm('이 열쇠를 지울까요? 그 열쇠를 쓰던 하네스는 바로 막혀요.')) return;
+  await wbApi('POST', '/benches/' + wbState.bid + '/token', { action: 'revoke', tail: tail });
+  wbState.newToken = null;
+  wbPaneHarness(document.getElementById('wbPane'));
+}
+
+/* ===== 홈 화상회의 (meet.sakyowon.co.kr, Jitsi) — 2026-10-23 =====
+   회의는 개설 계정(강사)이 열면 시작되고, 나머지는 이름만 적고 들어온다(게스트 허용·로비). 운영 정본 /opt/sakyowon/meet/README.md */
+var MEET_BASE = 'https://meet.sakyowon.co.kr';
+var MEET_ROOMS = [
+  ['sakyowon-academy-class', '아카데미 전체 교실'],
+  ['sakyowon-academy-lab', '실습 도움방(막힐 때)']
+];
+var meetApi = null, meetLoading = null;
+function academyMeetRender() {
+  var sel = document.getElementById('meetRoom');
+  if (!sel) return;
+  if (!wbState.me && getSession() && !academyMeetRender.asked) {   // 내 그룹 회의방을 목록에 넣으려고 한 번만 묻는다
+    academyMeetRender.asked = true;
+    wbApi('GET', '/me').then(function(r) { if (r.data && r.data.ok) { wbState.me = r.data; academyMeetRender(); } });
+  }
+  var keep = sel.value;
+  var opts = MEET_ROOMS.slice();
+  if (wbState.me && wbState.me.my_groups) {
+    wbState.me.my_groups.forEach(function(g) { if (g.status === 'approved' && g.my && g.my.status === 'approved') opts.push(['sakyowon-academy-group-' + g.id, '그룹 회의방 · ' + g.name]); });
+  }
+  sel.innerHTML = opts.map(function(o) { return '<option value="' + escHtml(o[0]) + '">' + escHtml(o[1]) + '</option>'; }).join('') + '<option value="__custom">직접 방 이름 적기…</option>';
+  if (keep) sel.value = keep;
+  var nm = document.getElementById('meetName'), s = getSession();
+  if (nm && !nm.value && s) nm.value = s.name || '';
+  academyMeetRoomChange();
+}
+function academyMeetRoomChange() {
+  var sel = document.getElementById('meetRoom'), c = document.getElementById('meetCustom');
+  if (c) c.style.display = sel && sel.value === '__custom' ? '' : 'none';
+}
+function academyMeetRoomName() {
+  var sel = document.getElementById('meetRoom');
+  var v = sel ? sel.value : MEET_ROOMS[0][0];
+  if (v === '__custom') {
+    v = (document.getElementById('meetCustom').value || '').trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+    if (!v) return '';
+    v = 'sakyowon-academy-' + v;
+  }
+  return v;
+}
+function academyMeetLoadApi() {
+  if (window.JitsiMeetExternalAPI) return Promise.resolve();
+  if (meetLoading) return meetLoading;
+  meetLoading = new Promise(function(ok, bad) {
+    var sc = document.createElement('script');
+    sc.src = MEET_BASE + '/external_api.js';
+    sc.onload = function() { window.JitsiMeetExternalAPI ? ok() : bad(new Error('no api')); };
+    sc.onerror = function() { meetLoading = null; bad(new Error('load')); };
+    document.head.appendChild(sc);
+  });
+  return meetLoading;
+}
+async function academyMeetStart() {
+  var room = academyMeetRoomName(), msg = document.getElementById('meetMsg'), box = document.getElementById('meetFrame');
+  if (!room) { msg.textContent = '방 이름을 영문·숫자로 적어 주세요(예: team-a).'; return; }
+  var name = (document.getElementById('meetName').value || '').trim();
+  msg.textContent = '화상회의를 여는 중…';
+  try { await academyMeetLoadApi(); } catch (e) {
+    msg.innerHTML = '화상회의 화면을 불러오지 못했어요. <a href="' + MEET_BASE + '/' + encodeURIComponent(room) + '" target="_blank" rel="noopener">새 창으로 열기</a>를 눌러 주세요.';
+    return;
+  }
+  academyMeetLeave(true);
+  box.style.display = '';
+  meetApi = new window.JitsiMeetExternalAPI('meet.sakyowon.co.kr', {
+    roomName: room, parentNode: box, width: '100%', height: 520, lang: 'ko',
+    userInfo: { displayName: name || '아카데미 교육생' },
+    configOverwrite: { startWithAudioMuted: true, prejoinConfig: { enabled: true }, disableDeepLinking: true },
+    interfaceConfigOverwrite: { MOBILE_APP_PROMO: false }
+  });
+  meetApi.addListener('readyToClose', function() { academyMeetLeave(); });
+  document.getElementById('meetLeaveBtn').style.display = '';
+  msg.innerHTML = '방 <b>' + escHtml(room) + '</b> · 강사(개설 계정)가 들어와 있어야 회의가 열려요. 먼저 오셨으면 「주최자를 기다리는 중」이 보이니 잠시 기다리세요.';
+}
+function academyMeetLeave(quiet) {
+  if (meetApi) { try { meetApi.dispose(); } catch (e) {} meetApi = null; }
+  var box = document.getElementById('meetFrame');
+  if (box) { box.innerHTML = ''; box.style.display = 'none'; }
+  var lb = document.getElementById('meetLeaveBtn');
+  if (lb) lb.style.display = 'none';
+  if (!quiet) { var m = document.getElementById('meetMsg'); if (m) m.textContent = '회의에서 나왔어요.'; }
+}
+function academyMeetOpenTab() {
+  var room = academyMeetRoomName();
+  if (!room) return;
+  window.open(MEET_BASE + '/' + encodeURIComponent(room), '_blank', 'noopener');
+}
+function academyMeetJoin(room) {
+  go('home', null);
+  academyMeetRender();
+  var sel = document.getElementById('meetRoom');
+  if (sel) {
+    if (!Array.prototype.some.call(sel.options, function(o) { return o.value === room; })) sel.insertAdjacentHTML('afterbegin', '<option value="' + escHtml(room) + '">' + escHtml(room) + '</option>');
+    sel.value = room;
+  }
+  academyMeetRoomChange();
+  var sec = document.getElementById('homeMeet');
+  if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: 'start' });
+}
+
 function go(id, link) {
   closeSidebar();
   var adminPages = ['access-admin','schedule-notice','admin-dashboard'];
@@ -3622,6 +4345,8 @@ function go(id, link) {
   if (id === 'domain-overview') renderDomainOverviewTable();
   if (id === 'domain-practice') renderDomainPractice();
   if (id === 'domain-design') loadDomainDesign();
+  if (id === 'domain-bench') renderWorkbench();
+  if (id === 'home') academyMeetRender();
   if (id === 'cert-sqld' && window.renderSqldHome) renderSqldHome();
   if (id !== 'cert-sqld-learn' && window.sqldClearTimer) sqldClearTimer();
   if (id === 'cert-python' && window.renderPycHome) renderPycHome();
