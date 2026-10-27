@@ -3884,9 +3884,12 @@ async function academyMeetStart() {
   box.style.display = '';
   var jwt = await academyMeetToken(room);   // 2026-10-27 로그인한 분은 화상회의 로그인 없이 방을 연다
   var opts = {
-    roomName: room, parentNode: box, width: '100%', height: 520, lang: 'ko',
+    // 2026-10-27 이사장 지시: 아래 정보가 화면을 많이 차지한다 → 입장 전 확인 화면(prejoin)을 건너뛰고(이름은 위 칸에서 받음)
+    // 회의 화면을 창 높이에 맞춰 키운다. 조작 막대는 회의 화면 아래쪽 띠만 쓰고 가만히 있으면 숨는다.
+    roomName: room, parentNode: box, width: '100%', height: Math.max(520, Math.round(window.innerHeight * 0.82)), lang: 'ko',
     userInfo: { displayName: name || '아카데미 교육생' },
-    configOverwrite: { startWithAudioMuted: true, prejoinConfig: { enabled: true }, disableDeepLinking: true },
+    configOverwrite: { startWithAudioMuted: true, prejoinConfig: { enabled: false }, disableDeepLinking: true,
+      toolbarConfig: { alwaysVisible: false, timeout: 4000 } },
     interfaceConfigOverwrite: { MOBILE_APP_PROMO: false }
   };
   if (jwt) opts.jwt = jwt;
