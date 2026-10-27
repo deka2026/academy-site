@@ -1670,7 +1670,7 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
 <div id="meeting" class="page">
   <h2 id="meetTop" style="font-size:20px;font-weight:800;margin-bottom:12px">화상회의</h2>
   <div class="meet-box">
-    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육과 그룹 모임은 사교원 화상회의(meet.sakyowon.co.kr)에서 해요. 방을 고르고 이름을 적은 뒤 <b>여기서 들어가기</b>를 누르세요. 회의는 강사가 열면 시작되고, 나머지 분은 따로 가입하지 않아도 돼요. 카메라·마이크 허용을 물으면 <b>허용</b>을 누르세요.</p>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px">교육과 그룹 모임은 사교원 화상회의(meet.sakyowon.co.kr)에서 해요. 방을 고르고 이름을 적은 뒤 <b>여기서 들어가기</b>를 누르세요. 아카데미에 로그인한 분은 화상회의 로그인 없이 바로 방을 열고, 로그인하지 않은 손님은 방이 열린 뒤 이름만 적고 들어와요. 카메라·마이크 허용을 물으면 <b>허용</b>을 누르세요.</p>
     <div class="meet-ctl">
       <select id="meetRoom" onchange="academyMeetRoomChange()"></select>
       <input id="meetCustom" placeholder="방 이름(영문·숫자, 예: team-a)" style="display:none">
@@ -3882,15 +3882,20 @@ async function academyMeetStart() {
   }
   academyMeetLeave(true);
   box.style.display = '';
-  meetApi = new window.JitsiMeetExternalAPI('meet.sakyowon.co.kr', {
+  var jwt = await academyMeetToken(room);   // 2026-10-27 로그인한 분은 화상회의 로그인 없이 방을 연다
+  var opts = {
     roomName: room, parentNode: box, width: '100%', height: 520, lang: 'ko',
     userInfo: { displayName: name || '아카데미 교육생' },
     configOverwrite: { startWithAudioMuted: true, prejoinConfig: { enabled: true }, disableDeepLinking: true },
     interfaceConfigOverwrite: { MOBILE_APP_PROMO: false }
-  });
+  };
+  if (jwt) opts.jwt = jwt;
+  meetApi = new window.JitsiMeetExternalAPI('meet.sakyowon.co.kr', opts);
   meetApi.addListener('readyToClose', function() { academyMeetLeave(); });
   document.getElementById('meetLeaveBtn').style.display = '';
-  msg.innerHTML = '방 <b>' + escHtml(room) + '</b> · 강사(개설 계정)가 들어와 있어야 회의가 열려요. 먼저 오셨으면 「주최자를 기다리는 중」이 보이니 잠시 기다리세요.';
+  msg.innerHTML = '방 <b>' + escHtml(room) + '</b> · ' + (jwt
+    ? '로그인한 계정으로 들어가서 따로 로그인하지 않아도 회의가 열려요.'
+    : '로그인하지 않으셨어요. 로그인한 분이 먼저 들어와 있어야 회의가 열려요. 「주최자를 기다리는 중」이 보이면 잠시 기다리세요.');
 }
 function academyMeetLeave(quiet) {
   if (meetApi) { try { meetApi.dispose(); } catch (e) {} meetApi = null; }
@@ -3900,10 +3905,23 @@ function academyMeetLeave(quiet) {
   if (lb) lb.style.display = 'none';
   if (!quiet) { var m = document.getElementById('meetMsg'); if (m) m.textContent = '회의에서 나왔어요.'; }
 }
-function academyMeetOpenTab() {
+async function academyMeetToken(room) {
+  // 사교원 통합 계정으로 로그인한 분에게 서버가 화상회의 입장 토큰을 내준다(/api/meet/token). 손님은 null → 손님으로 들어간다.
+  if (!getSession()) return null;
+  try {
+    var r = await fetch('/api/meet/token?room=' + encodeURIComponent(room), { credentials: 'same-origin' });
+    if (!r.ok) return null;
+    var d = await r.json();
+    return d && d.ok ? d.jwt : null;
+  } catch (e) { return null; }
+}
+async function academyMeetOpenTab() {
   var room = academyMeetRoomName();
   if (!room) return;
-  window.open(MEET_BASE + '/' + encodeURIComponent(room), '_blank', 'noopener');
+  var w = window.open('about:blank', '_blank');   // 팝업 차단을 피하려고 먼저 연다
+  var jwt = await academyMeetToken(room);
+  var url = MEET_BASE + '/' + encodeURIComponent(room) + (jwt ? '?jwt=' + encodeURIComponent(jwt) : '');
+  if (w) { try { w.opener = null; } catch (e) {} w.location.href = url; } else window.open(url, '_blank', 'noopener');
 }
 function academyMeetJoin(room) {
   go('meeting', null);
