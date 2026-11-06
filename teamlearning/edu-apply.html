@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교육 신청 · 사교원</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* 2026-11-06 이사장 지시: 홈페이지 「교육프로그램 신청」을 없애고, 주민자치·지역문제해결은 팀러닝, 연대지능활동가는 아카데미 안으로. 원본은 sakyowon-site renderEdu() */
+:root{--green:#4a6741;--green-dark:#395032;--green-pale:#eef2ec;--ink:#2b2b28;--sub:#6b6b64;--line:#e3e1da;--bg:#f7f6f2;--card:#fff;--warn:#8a2a2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding:4px 2px 16px}
+.lead{font-size:14px;color:var(--sub);margin-bottom:12px}
+.edu-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;margin-bottom:16px}
+.edu-card h3{font-size:18px;font-weight:800}
+.edu-sub{font-size:13px;color:var(--sub);margin:2px 0 10px}
+.edu-lec-row{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
+.edu-lec{display:flex;gap:8px;align-items:flex-start;cursor:pointer;flex:1;min-width:0}
+.edu-lec input{margin-top:5px;width:18px;height:18px;flex:none}
+.edu-lec b{display:block;font-size:15px}.edu-lec b span{font-weight:400;color:var(--sub);font-size:13px}
+.edu-lec div>span{display:block;font-size:13px;color:var(--sub)}
+.edu-diag-btn{flex:none;border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--green);font-family:inherit;min-height:32px}
+.edu-diag{background:var(--green-pale);border-radius:10px;padding:10px 12px;margin:0 0 8px;font-size:13px}
+.edu-diag label{display:flex;gap:6px;align-items:flex-start;margin:4px 0}.edu-diag label input{margin-top:3px}
+.edu-diag-h{margin-bottom:4px}.edu-diag-r{margin-top:6px;color:var(--sub)}.edu-diag-r.need{color:var(--green-dark);font-weight:700}
+.edu-calc{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.edu-calc label{display:flex;flex-direction:column;font-size:13px;color:var(--sub);gap:3px}
+.edu-calc input,.edu-calc select,.ap input,.ap textarea{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:15px;font-family:inherit;background:#fff;color:var(--ink)}
+.edu-calc input[type=number]{width:90px}
+.edu-total{flex:1 1 220px}.edu-total .amt{font-size:20px;font-weight:800;color:var(--green-dark)}.edu-total .brk{font-size:12px;color:var(--sub)}
+.btn{border:none;background:var(--green);color:#fff;border-radius:10px;padding:0 16px;min-height:44px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn.ghost{background:#fff;color:var(--green);border:1px solid var(--green)}.btn:disabled{opacity:.5}
+.ap{display:none;margin-top:12px;border:1px dashed var(--green);border-radius:12px;padding:12px;background:#fbfcfa}.ap.on{display:block}
+.ap h4{font-size:15px;margin-bottom:6px}.ap .g{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ap label{display:flex;flex-direction:column;font-size:13px;color:var(--sub);gap:3px}
+.ap .full{grid-column:1/-1}.ap textarea{min-height:90px}.ap .r{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.ap .msg{font-size:13px;margin-top:6px;min-height:1em}.ap .msg.err{color:var(--warn)}.ap .msg.ok{color:var(--green-dark);font-weight:700}
+@media(max-width:560px){.ap .g{grid-template-columns:1fr}.edu-lec-row{flex-direction:column}.edu-diag-btn{align-self:flex-start;margin-left:26px}}
+:focus-visible{outline:3px solid #b47d14;outline-offset:2px}
+</style>
+</head>
+<body>
+<p class="lead" id="lead"></p>
+<div id="eduList"></div>
+<script>
+const EDU_UNIT = 15000, EDU_HOURS_PER_LEC = 2;
+const EDU_TRAVEL = [['전라권', 200000], ['충청권', 300000], ['경상권', 300000], ['수도권', 350000], ['강원권', 350000]];
+// lectures: [제목, 설명, 필요 진단 질문 5개] — 질문 3개 이상 「그렇다」면 그 강의가 필요하다고 알려 준다
+const EDU_PROGRAMS = [
+ {
+  "id": "jachi",
+  "emoji": "🏘",
+  "title": "주민자치 교육",
+  "sub": "주민자치회 위원·예비 위원, 읍면동 담당 공무원",
+  "lectures": [
+   [
+    "주민자치의 상상력",
+    "주민자치가 할 수 있는 일의 범위를 넓히고, 우리 동네의 5~10년 뒤 모습을 함께 그려 봅니다.",
+    [
+     "주민자치회 활동이 행사·프로그램 운영에 머물러 있다",
+     "위원들이 주민자치로 무엇을 할 수 있는지 막연해한다",
+     "올해 새로 들어온 위원이 많다",
+     "다른 지역 주민자치 우수사례를 접해 본 적이 거의 없다",
+     "우리 동네의 미래 모습을 함께 그려 본 적이 없다"
+    ]
+   ],
+   [
+    "주민자치의 규칙 만들기",
+    "회의·의사결정·역할 분담 규칙과 운영세칙을 주민 스스로 정하고 실제로 쓰는 법을 익힙니다.",
+    [
+     "회의 때 결정하는 방법이 그때그때 다르다",
+     "분과와 위원의 역할이 분명하지 않다",
+     "운영세칙이 있지만 실제로는 잘 쓰이지 않는다",
+     "위원 사이에 갈등이나 불만이 쌓여 있다",
+     "새 위원에게 운영 방식을 설명할 자료가 없다"
+    ]
+   ],
+   [
+    "자치계획과 주민총회",
+    "의제 발굴부터 자치계획서 작성, 주민총회 기획·운영까지 실습합니다.",
+    [
+     "자치계획을 어떻게 시작해야 할지 모른다",
+     "주민총회 참여자가 적거나 형식적으로 치러진다",
+     "의제를 주민 의견보다 위원 몇 명이 정한다",
+     "주민총회 안건 정리와 투표 진행이 어렵다",
+     "지난해 자치계획의 실행 결과를 점검하지 못했다"
+    ]
+   ],
+   [
+    "주민자치 고도화",
+    "자치회관 운영, 의제의 사업화, 재원·조직 역량 등 주민자치회를 한 단계 끌어올리는 방법을 다룹니다.",
+    [
+     "주민자치회 활동이 2년 이상 되었다",
+     "자치계획 사업이 해마다 비슷하게 반복된다",
+     "자치회관(공간) 운영을 더 주민 주도로 바꾸고 싶다",
+     "자체 재원·수익사업 마련을 고민하고 있다",
+     "마을 단체(협동조합·마을기업 등)와 협력할 방안을 찾고 있다"
+    ]
+   ],
+   [
+    "지역활력지원사업 활용 방안",
+    "지역활력·생활권·신활력 등 정부·지자체 지원사업을 주민자치 계획과 연결하는 법을 익힙니다.",
+    [
+     "주민자치 사업 예산이 부족하다",
+     "지원사업·공모 정보를 어디서 찾는지 모른다",
+     "공모 신청서를 써 본 적이 없거나 떨어진 적이 있다",
+     "행정이 추진하는 지역 사업에 주민자치회가 참여하지 못하고 있다",
+     "지방소멸대응기금·생활권 사업 같은 지역활력 정책을 잘 모른다"
+    ]
+   ]
+  ]
+ },
+ {
+  "id": "ai",
+  "emoji": "🤖",
+  "title": "연대지능 활동가 교육",
+  "sub": "마을·협동조합·중간지원조직·공공기관 활동가 — AI와 함께 일하는 법",
+  "lectures": [
+   [
+    "나만의 AI 만들기",
+    "내 업무 자료와 말투를 익힌 맞춤형 AI 비서를 직접 만들어 봅니다.",
+    [
+     "생성형 AI를 써 본 적이 없거나 가끔만 쓴다",
+     "같은 설명과 자료를 AI에 매번 다시 입력한다",
+     "내 업무 자료(규정·서식·사례)를 AI가 알고 답해 주면 좋겠다",
+     "반복되는 문의에 답하는 데 시간이 많이 든다",
+     "업무용 AI 도구를 직접 설정해 본 적이 없다"
+    ]
+   ],
+   [
+    "AI에게 일 시키기",
+    "문서 초안·요약·자료 정리 같은 일을 AI에게 정확히 맡기는 업무 지시법을 실습합니다.",
+    [
+     "보고서·회의록·공문을 쓰는 데 시간이 오래 걸린다",
+     "AI에 물어봐도 원하는 답이 잘 안 나온다",
+     "긴 자료를 읽고 요약하는 일이 많다",
+     "표 정리 같은 반복 작업이 많다",
+     "AI가 낸 결과를 어디까지 믿어도 되는지 판단하기 어렵다"
+    ]
+   ],
+   [
+    "도메인 AI",
+    "우리 분야의 용어·법령·자료·데이터로 AI를 특화해 근거 있는 답을 받는 법을 다룹니다.",
+    [
+     "우리 분야 용어·법령·지침을 AI가 자주 틀린다",
+     "쌓아 둔 보고서·사례집이 많지만 잘 쓰이지 않는다",
+     "공공데이터·통계를 업무에 쓰고 싶다",
+     "우리 분야 전용 AI 서비스를 만들어 보고 싶다",
+     "출처가 분명한 답변이 필요하다"
+    ]
+   ],
+   [
+    "우리 조직 AX화",
+    "조직의 업무 흐름을 진단하고, 어떤 일부터 AI로 바꿀지 AI 전환(AX) 로드맵을 세웁니다.",
+    [
+     "조직 안에서 AI를 쓰는 사람과 안 쓰는 사람의 격차가 크다",
+     "업무 흐름이 문서로 정리되어 있지 않다",
+     "어떤 업무부터 AI로 바꿔야 할지 모른다",
+     "개인정보·보안 때문에 AI 도입이 망설여진다",
+     "조직 차원의 AI 활용 원칙이나 교육 계획이 없다"
+    ]
+   ],
+   [
+    "AI경제 비즈니스 모델 개발 워크숍",
+    "AI를 활용한 사회적경제·지역 비즈니스 모델을 팀으로 설계하고 발표합니다.",
+    [
+     "AI를 활용한 새 사업이나 서비스를 구상하고 있다",
+     "조직의 수익 구조를 다양하게 바꿔야 한다",
+     "사회 문제를 사업으로 풀어 보고 싶다",
+     "비즈니스 모델 캔버스 같은 기획 도구를 써 본 적이 없다",
+     "사업 아이디어는 있지만 구체화하지 못했다"
+    ]
+   ]
+  ]
+ },
+ {
+  "id": "team",
+  "emoji": "🧩",
+  "title": "문제해결 팀러닝",
+  "sub": "활동가·공무원·청년·주민 혼합 팀 — 함께 풀어야 할 문제를 팀으로 해결하기",
+  "lectures": [
+   [
+    "문제 발견과 정의",
+    "현장 관찰·인터뷰로 문제를 찾고, 원인과 결과를 나눠 「우리가 풀 문제」를 한 문장으로 정의합니다.",
+    [
+     "팀원들이 같은 문제를 서로 다르게 이해하고 있다",
+     "해결책부터 먼저 이야기하는 경우가 많다",
+     "문제의 원인을 데이터나 현장 근거로 확인해 본 적이 없다",
+     "문제가 너무 커서 어디서부터 손댈지 모르겠다",
+     "당사자(이용자·주민)의 목소리를 직접 들어 본 적이 적다"
+    ]
+   ],
+   [
+    "사례 학습을 통한 아이디어 정리",
+    "비슷한 문제를 푼 사례를 조사·비교해 우리에게 맞는 아이디어를 추립니다.",
+    [
+     "비슷한 문제를 다른 곳에서 어떻게 풀었는지 잘 모른다",
+     "아이디어는 많지만 정리되지 않는다",
+     "늘 하던 방식에서 벗어난 아이디어가 필요하다",
+     "사례를 찾아도 우리 상황에 어떻게 적용할지 모르겠다",
+     "아이디어를 고르는 기준이 팀 안에 없다"
+    ]
+   ],
+   [
+    "이해관계에 기초한 솔루션 만들기",
+    "이해관계자 지도로 각자의 이해와 자원을 분석해, 함께 받아들일 수 있는 해결책을 설계합니다.",
+    [
+     "해결책을 두고 이해관계자 사이 의견이 엇갈린다",
+     "누가 이 문제에 관련되어 있는지 정리해 본 적이 없다",
+     "좋은 안이 반대에 부딪혀 멈춘 경험이 있다",
+     "함께할 기관·단체를 찾고 있다",
+     "해결책이 특정 집단에게만 유리하다는 지적을 받은 적이 있다"
+    ]
+   ],
+   [
+    "AI를 활용한 기초자원 확보",
+    "AI로 자료조사·통계 분석·자원 목록·예산 근거를 빠르게 모으는 법을 실습합니다.",
+    [
+     "기초자료 조사에 시간이 너무 많이 든다",
+     "통계·공공데이터를 찾고 읽기가 어렵다",
+     "쓸 수 있는 자원(사람·공간·예산)을 정리해 본 적이 없다",
+     "계획서에 넣을 근거 자료가 부족하다",
+     "팀에서 AI를 업무에 써 본 사람이 적다"
+    ]
+   ],
+   [
+    "거버넌스형 실행계획 수립",
+    "행정·민간·당사자가 역할을 나누는 실행계획과 점검 체계를 만듭니다.",
+    [
+     "계획은 세우지만 실행이 흐지부지된다",
+     "행정과 민간의 역할 분담이 분명하지 않다",
+     "실행 상황을 점검하는 회의나 지표가 없다",
+     "예산·인력 확보 방안이 계획에 빠져 있다",
+     "사업이 끝난 뒤 이어갈 주체가 정해지지 않았다"
+    ]
+   ]
+  ]
+ }
+];
+var P = (new URLSearchParams(location.search).get('p') || '').split(',').filter(Boolean);
+var FRAME = new URLSearchParams(location.search).get('f') || '';
+var LIST = EDU_PROGRAMS.filter(function (p) { return !P.length || P.indexOf(p.id) >= 0; });
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function postH() { if (!FRAME) return; try { parent.postMessage({ tlFrame: FRAME, h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} }
+document.getElementById('lead').textContent = '강의마다 「우리에게 필요할까?」로 필요를 진단하고, 인원·장소를 넣으면 예상 비용이 나옵니다. 「이 조건으로 신청하기」를 누르면 사교원에 신청이 접수되고 담당자가 연락드립니다.';
+function render() {
+  document.getElementById('eduList').innerHTML = LIST.map(function (p) {
+    return '<div class="edu-card" id="edu-' + p.id + '"><h3>' + p.emoji + ' ' + esc(p.title) + '</h3><p class="edu-sub">' + esc(p.sub) + ' · 2시간 × ' + p.lectures.length + '강</p>' +
+      p.lectures.map(function (l, i) {
+        return '<div class="edu-lec-wrap"><div class="edu-lec-row"><label class="edu-lec"><input type="checkbox" checked data-edu="' + p.id + '" data-lec="' + i + '"><div><b>' + (i + 1) + '강. ' + esc(l[0]) + ' <span>(2시간)</span></b><span>' + esc(l[1]) + '</span></div></label>' +
+          '<button type="button" class="edu-diag-btn" data-dt="' + p.id + '-' + i + '" aria-expanded="false">우리에게 필요할까? ▾</button></div>' +
+          '<div class="edu-diag" id="edu-dg-' + p.id + '-' + i + '" hidden><div class="edu-diag-h">아래 다섯 가지 중 해당하는 것을 고르세요. <b>3가지 이상</b>이면 이 강의가 필요합니다.</div>' +
+          l[2].map(function (q) { return '<label><input type="checkbox" data-dq="' + p.id + '-' + i + '"> ' + esc(q) + '</label>'; }).join('') +
+          '<div class="edu-diag-r" id="edu-dr-' + p.id + '-' + i + '">0/5 — 해당하는 항목을 골라 주세요</div></div></div>';
+      }).join('') +
+      '<div class="edu-calc"><label>인원 (명)<input type="number" min="1" step="1" value="20" id="edu-n-' + p.id + '"></label>' +
+      '<label>교육 장소<select id="edu-r-' + p.id + '">' + EDU_TRAVEL.map(function (r) { return '<option value="' + r[1] + '">' + r[0] + ' (출장비 ' + (r[1] / 10000) + '만원)</option>'; }).join('') + '</select></label>' +
+      '<div class="edu-total"><div class="amt" id="edu-t-' + p.id + '"></div><div class="brk" id="edu-b-' + p.id + '"></div></div>' +
+      '<button class="btn" type="button" data-open="' + p.id + '">이 조건으로 신청하기</button></div>' +
+      '<div class="ap" id="ap-' + p.id + '"><h4>신청하는 분</h4><div class="g">' +
+      '<label>이름 *<input id="ap-name-' + p.id + '" maxlength="60" autocomplete="name"></label>' +
+      '<label>연락처(전화·이메일) *<input id="ap-ct-' + p.id + '" maxlength="120"></label>' +
+      '<label class="full">기관·단체<input id="ap-org-' + p.id + '" maxlength="120" autocomplete="organization"></label>' +
+      '<label class="full">희망 일정·장소(시군구)·기타 요청<textarea id="ap-msg-' + p.id + '" maxlength="2000"></textarea></label></div>' +
+      '<div class="msg" id="ap-r-' + p.id + '" role="status"></div><div class="r"><button class="btn ghost" type="button" data-close="' + p.id + '">닫기</button><button class="btn" type="button" data-send="' + p.id + '">신청 보내기</button></div></div></div>';
+  }).join('');
+  LIST.forEach(function (p) { calc(p.id); });
+  var box = document.getElementById('eduList');
+  box.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset.edu) calc(t.dataset.edu);
+    if (t.dataset.dq) diag(t.dataset.dq);
+    if (t.id && /^edu-r-/.test(t.id)) calc(t.id.slice(6));
+  });
+  box.addEventListener('input', function (e) { if (/^edu-n-/.test(e.target.id)) calc(e.target.id.slice(6)); });
+  box.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.dt) { var el = document.getElementById('edu-dg-' + b.dataset.dt); el.hidden = !el.hidden; b.setAttribute('aria-expanded', String(!el.hidden)); postH(); }
+    if (b.dataset.open) { var q = quote(b.dataset.open); if (!q.lecs.length) { alert('강의를 하나 이상 골라 주세요.'); return; } document.getElementById('ap-' + b.dataset.open).classList.add('on'); document.getElementById('ap-name-' + b.dataset.open).focus(); postH(); }
+    if (b.dataset.close) { document.getElementById('ap-' + b.dataset.close).classList.remove('on'); postH(); }
+    if (b.dataset.send) send(b.dataset.send, b);
+  });
+}
+function diag(key) {
+  var id = key.split('-')[0], i = +key.split('-')[1];
+  var n = document.querySelectorAll('input[data-dq="' + key + '"]:checked').length, r = document.getElementById('edu-dr-' + key);
+  r.classList.toggle('need', n >= 3);
+  if (n >= 3) { r.textContent = '✅ ' + n + '/5 — 이 강의가 필요합니다. 신청 목록에 넣었습니다.'; var c = document.querySelector('input[data-edu="' + id + '"][data-lec="' + i + '"]'); if (c && !c.checked) { c.checked = true; calc(id); } }
+  else r.textContent = n ? n + '/5 — 지금은 꼭 필요하지 않을 수 있습니다(3가지 이상이면 필요). 신청 여부는 직접 고르세요.' : '0/5 — 해당하는 항목을 골라 주세요';
+}
+function diagSummary(id) {
+  var p = EDU_PROGRAMS.find(function (x) { return x.id === id; });
+  return p.lectures.map(function (l, i) { var n = document.querySelectorAll('input[data-dq="' + id + '-' + i + '"]:checked').length; return n ? (i + 1) + '강 ' + n + '/5' + (n >= 3 ? '(필요)' : '') : null; }).filter(Boolean);
+}
+function quote(id) {
+  var p = EDU_PROGRAMS.find(function (x) { return x.id === id; });
+  var lecs = Array.prototype.map.call(document.querySelectorAll('input[data-edu="' + id + '"]:checked'), function (c) { return +c.dataset.lec; });
+  var n = Math.max(1, Math.floor(+document.getElementById('edu-n-' + id).value || 1));
+  var sel = document.getElementById('edu-r-' + id), travel = +sel.value, region = sel.options[sel.selectedIndex].text.split(' (')[0];
+  var hours = lecs.length * EDU_HOURS_PER_LEC, base = n * hours * EDU_UNIT;
+  return { p: p, lecs: lecs, n: n, hours: hours, base: base, travel: lecs.length ? travel : 0, region: region, total: lecs.length ? base + travel : 0 };
+}
+function calc(id) {
+  var q = quote(id);
+  document.getElementById('edu-t-' + id).textContent = q.lecs.length ? q.total.toLocaleString() + '원' : '강의를 골라 주세요';
+  document.getElementById('edu-b-' + id).textContent = q.lecs.length ? q.n + '명 × ' + q.hours + '시간 × 15,000원 = ' + q.base.toLocaleString() + '원 + 출장비(' + q.region + ') ' + q.travel.toLocaleString() + '원' : '';
+}
+function send(id, btn) {
+  var q = quote(id), g = function (k) { return document.getElementById('ap-' + k + '-' + id).value.trim(); }, r = document.getElementById('ap-r-' + id);
+  if (!q.lecs.length) { r.className = 'msg err'; r.textContent = '강의를 하나 이상 골라 주세요.'; return; }
+  if (!g('name') || !g('ct')) { r.className = 'msg err'; r.textContent = '이름과 연락처를 적어 주세요.'; return; }
+  var ds = diagSummary(id);
+  var message = '[교육 신청] ' + q.p.title + '\n' +
+    '- 선택 강의 (' + q.lecs.length + '강, ' + q.hours + '시간): ' + q.lecs.map(function (i) { return (i + 1) + '강 ' + q.p.lectures[i][0]; }).join(', ') + '\n' +
+    '- 인원: ' + q.n + '명 / 교육 장소: ' + q.region + '\n' +
+    '- 예상 비용: ' + q.total.toLocaleString() + '원 (' + q.n + '명 × ' + q.hours + '시간 × 15,000원 = ' + q.base.toLocaleString() + '원 + 출장비 ' + q.travel.toLocaleString() + '원)\n' +
+    (ds.length ? '- 필요 진단 결과: ' + ds.join(', ') + '\n' : '') +
+    '- 희망 일정·장소·기타: ' + (g('msg') || '(없음)');
+  btn.disabled = true; r.className = 'msg'; r.textContent = '보내는 중…';
+  fetch('/api/inquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    body: JSON.stringify({ name: g('name'), contact: g('ct'), org: g('org'), category: '교육·양성과정 문의', message: message, source: 'academy-edu-apply:' + id, user_lang: 'ko', ts: new Date().toISOString() }) })
+    .then(function (x) { return x.json().catch(function () { return { ok: x.ok }; }); })
+    .then(function (j) {
+      btn.disabled = false;
+      if (j && j.ok) { r.className = 'msg ok'; r.textContent = '신청이 접수됐습니다. 담당자가 적어 주신 연락처로 연락드립니다.'; ['name', 'ct', 'org', 'msg'].forEach(function (k) { document.getElementById('ap-' + k + '-' + id).value = ''; }); }
+      else { r.className = 'msg err'; r.textContent = (j && j.error) || '보내지 못했습니다. 잠시 뒤 다시 해 주세요.'; }
+      postH();
+    }).catch(function () { btn.disabled = false; r.className = 'msg err'; r.textContent = '보내지 못했습니다(연결 문제). 잠시 뒤 다시 해 주세요.'; postH(); });
+}
+render(); postH(); window.addEventListener('resize', postH); setTimeout(postH, 300);
+</script>
+</body>
+</html>
