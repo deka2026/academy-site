@@ -36,6 +36,7 @@ html,body{height:auto}body{font-family:'Pretendard',-apple-system,sans-serif;bac
 .ap .msg{font-size:13px;margin-top:6px;min-height:1em}.ap .msg.err{color:var(--warn)}.ap .msg.ok{color:var(--green-dark);font-weight:700}
 @media(max-width:560px){.ap .g{grid-template-columns:1fr}.edu-lec-row{flex-direction:column}.edu-diag-btn{align-self:flex-start;margin-left:26px}}
 :focus-visible{outline:3px solid #b47d14;outline-offset:2px}
+.ap .pv{font-size:12px;color:var(--sub,#6b7280);line-height:1.55;margin:8px 0 4px}.ap .agree{display:flex;gap:6px;align-items:flex-start;font-size:13px;margin:0 0 4px;cursor:pointer}.ap .agree input{margin-top:3px}
 </style>
 </head>
 <body>
@@ -267,6 +268,8 @@ function render() {
       '<label>연락처(전화·이메일) *<input id="ap-ct-' + p.id + '" maxlength="120"></label>' +
       '<label class="full">기관·단체<input id="ap-org-' + p.id + '" maxlength="120" autocomplete="organization"></label>' +
       '<label class="full">희망 일정·장소(시군구)·기타 요청<textarea id="ap-msg-' + p.id + '" maxlength="2000"></textarea></label></div>' +
+      '<p class="pv">개인정보 수집·이용 안내 — 항목: 이름·연락처·기관(단체)·적어 주신 내용 / 목적: 교육 신청 상담과 연락 / 보유: 상담이 끝나면 지체 없이 파기(요청하시면 바로 삭제) / 동의하지 않으면 신청을 보낼 수 없습니다.</p>' +
+      '<label class="agree"><input type="checkbox" id="ap-agree-' + p.id + '"> <span>개인정보 수집·이용에 동의합니다 *</span></label>' +
       '<div class="msg" id="ap-r-' + p.id + '" role="status"></div><div class="r"><button class="btn ghost" type="button" data-close="' + p.id + '">닫기</button><button class="btn" type="button" data-send="' + p.id + '">신청 보내기</button></div></div></div>';
   }).join('');
   LIST.forEach(function (p) { calc(p.id); });
@@ -314,6 +317,7 @@ function send(id, btn) {
   var q = quote(id), g = function (k) { return document.getElementById('ap-' + k + '-' + id).value.trim(); }, r = document.getElementById('ap-r-' + id);
   if (!q.lecs.length) { r.className = 'msg err'; r.textContent = '강의를 하나 이상 골라 주세요.'; return; }
   if (!g('name') || !g('ct')) { r.className = 'msg err'; r.textContent = '이름과 연락처를 적어 주세요.'; return; }
+  if (!document.getElementById('ap-agree-' + id).checked) { r.className = 'msg err'; r.textContent = '개인정보 수집·이용에 동의해 주세요.'; return; }
   var ds = diagSummary(id);
   var message = '[교육 신청] ' + q.p.title + '\n' +
     '- 선택 강의 (' + q.lecs.length + '강, ' + q.hours + '시간): ' + q.lecs.map(function (i) { return (i + 1) + '강 ' + q.p.lectures[i][0]; }).join(', ') + '\n' +
@@ -327,7 +331,7 @@ function send(id, btn) {
     .then(function (x) { return x.json().catch(function () { return { ok: x.ok }; }); })
     .then(function (j) {
       btn.disabled = false;
-      if (j && j.ok) { r.className = 'msg ok'; r.textContent = '신청이 접수됐습니다. 담당자가 적어 주신 연락처로 연락드립니다.'; ['name', 'ct', 'org', 'msg'].forEach(function (k) { document.getElementById('ap-' + k + '-' + id).value = ''; }); }
+      if (j && j.ok) { r.className = 'msg ok'; r.textContent = '신청이 접수됐습니다. 담당자가 적어 주신 연락처로 연락드립니다.'; ['name', 'ct', 'org', 'msg'].forEach(function (k) { document.getElementById('ap-' + k + '-' + id).value = ''; }); document.getElementById('ap-agree-' + id).checked = false; }
       else { r.className = 'msg err'; r.textContent = (j && j.error) || '보내지 못했습니다. 잠시 뒤 다시 해 주세요.'; }
       postH();
     }).catch(function () { btn.disabled = false; r.className = 'msg err'; r.textContent = '보내지 못했습니다(연결 문제). 잠시 뒤 다시 해 주세요.'; postH(); });
