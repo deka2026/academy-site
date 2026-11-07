@@ -268,7 +268,7 @@ function render() {
       '<label>연락처(전화·이메일) *<input id="ap-ct-' + p.id + '" maxlength="120"></label>' +
       '<label class="full">기관·단체<input id="ap-org-' + p.id + '" maxlength="120" autocomplete="organization"></label>' +
       '<label class="full">희망 일정·장소(시군구)·기타 요청<textarea id="ap-msg-' + p.id + '" maxlength="2000"></textarea></label></div>' +
-      '<p class="pv">개인정보 수집·이용 안내 — 항목: 이름·연락처·기관(단체)·적어 주신 내용 / 목적: 교육 신청 상담과 연락 / 보유: 상담이 끝나면 지체 없이 파기(요청하시면 바로 삭제) / 동의하지 않으면 신청을 보낼 수 없습니다.</p>' +
+      '<p class="pv">개인정보 수집·이용 안내 — 항목: 이름·연락처·기관(단체)·적어 주신 내용 / 목적: 교육 신청 상담과 연락 / 보유: 신청 상담과 그 뒤 연락을 위해 보관하며, 삭제를 요청하시면 지체 없이 삭제 / 동의하지 않으면 신청을 보낼 수 없습니다.</p>' +
       '<label class="agree"><input type="checkbox" id="ap-agree-' + p.id + '"> <span>개인정보 수집·이용에 동의합니다 *</span></label>' +
       '<div class="msg" id="ap-r-' + p.id + '" role="status"></div><div class="r"><button class="btn ghost" type="button" data-close="' + p.id + '">닫기</button><button class="btn" type="button" data-send="' + p.id + '">신청 보내기</button></div></div></div>';
   }).join('');
