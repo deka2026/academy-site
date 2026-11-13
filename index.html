@@ -1782,6 +1782,7 @@ gh pr list --repo deka2026/solidarity-intelligence-wiki --state open
       <input id="meetName" placeholder="화면에 보일 내 이름">
       <button class="learn-btn next" onclick="academyMeetStart()">여기서 들어가기</button>
       <button class="learn-btn prev" onclick="academyMeetOpenTab()">새 창으로 열기</button>
+      <button class="learn-btn prev" onclick="academyMeetInvite()">&#128279; 초대 링크 복사</button>
       <button class="learn-btn prev" id="meetLeaveBtn" onclick="academyMeetLeave()" style="display:none">나가기</button>
     </div>
     <div id="meetMsg" class="wb-sub" style="margin-top:6px"></div>
@@ -4037,6 +4038,22 @@ async function academyMeetToken(room) {
     var d = await r.json();
     return d && d.ok ? d.jwt : null;
   } catch (e) { return null; }
+}
+async function academyMeetInvite() {
+  // 초대 링크 복사(2026-11-13 이사장 지시). 손님용 주소만 준다 — jwt 를 실으면 내 계정 입장권이 남에게 넘어가므로 싣지 않는다.
+  var room = academyMeetRoomName(), msg = document.getElementById('meetMsg');
+  if (!room) { msg.textContent = '방 이름을 영문·숫자로 적어 주세요(예: team-a).'; return; }
+  var url = MEET_BASE + '/' + encodeURIComponent(room);
+  var ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {
+    try {
+      var ta = document.createElement('textarea'); ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); document.body.removeChild(ta);
+    } catch (e2) {}
+  }
+  msg.innerHTML = (ok ? '&#9989; 초대 링크를 복사했어요 — ' : '복사가 막혀 있어요. 아래 링크를 길게 눌러 직접 복사해 주세요 — ')
+    + '<a href="' + url + '" target="_blank" rel="noopener">' + escHtml(url) + '</a><br>'
+    + '초대받은 분은 이 링크에서 이름만 적고 들어와요. 로그인한 분이 먼저 방을 열어 두어야(여기서 들어가기) 입장돼요.';
 }
 async function academyMeetOpenTab() {
   var room = academyMeetRoomName();
